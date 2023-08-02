@@ -88,7 +88,6 @@
                 <input type="hidden" name="category_id" value="{$request->get('category_id')}">
                 <div class="d-flex flex-column gap-2">
                     {foreach $fieldProvider as $field}
-                    {if $field['filterable']}
                     {switch $field['type']}
                     {case 'select'}
                     {case 'checkbox'}
@@ -201,7 +200,6 @@
                     </div>
                     {/case}
                     {/switch}
-                    {/if}
                     {/foreach}
                     <div>
                         <div class="mb-1">
@@ -219,7 +217,7 @@
                         </div>
                         <div class="d-flex gap-2">
                             {foreach $fieldProvider as $field}
-                            {if $field['sortable']}
+                            {if in_array($field['type'], ['int', 'float', 'date', 'time', 'datetime-local'])}
                             <div>
                                 <input type="radio" class="d-none" name="order[{$field.name}]" value="{$request->get('order.'.$field['name'])}" autocomplete="off" checked>
                                 {if $request->get('order.'.$field['name']) == 'desc'}
@@ -276,12 +274,20 @@
                                 </td>
                             </tr>
                             <tr>
+                                <td>创建时间：</td>
+                                <td>{$content['create_time']}</td>
+                            </tr>
+                            <tr>
+                                <td>更新时间：</td>
+                                <td>{$content['update_time']}</td>
+                            </tr>
+                            <tr>
                                 <td>栏目：</td>
                                 <td>
                                     {if $categoryProvider->has($content['category_id'])}
-                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$content['model_id'], 'category_id'=>$content['category_id']])}">{$categoryProvider->get($content['category_id'])['title']}</a>
+                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_id'=>$content['category_id']])}">{$categoryProvider->get($content['category_id'])['title']}</a>
                                     {else}
-                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$content['model_id'], 'category_id'=>$content['category_id']])}">未知栏目</a>
+                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_id'=>$content['category_id']])}">未知栏目</a>
                                     {/if}
                                 </td>
                             </tr>
@@ -376,14 +382,10 @@
                             </tr>
                             {/if}
                             {/foreach}
-                            <tr>
-                                <td>创建时间：</td>
-                                <td>{:date(DATE_ISO8601, $content['create_time'])}</td>
-                            </tr>
                         </table>
                         <div>
-                            <a href="{echo $router->build('/psrphp/cms/content/update', ['model_id'=>$content['model_id'], 'id'=>$content['id']])}">编辑</a>
-                            <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$content['model_id'], 'copyfrom'=>$content['id']])}">复制</a>
+                            <a href="{echo $router->build('/psrphp/cms/content/update', ['model_id'=>$model['id'], 'id'=>$content['id']])}">编辑</a>
+                            <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$model['id'], 'copyfrom'=>$content['id']])}">复制</a>
                         </div>
                     </td>
                 </tr>

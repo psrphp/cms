@@ -213,7 +213,6 @@ class Create extends Common
                 }
             }
         }
-        $data['create_time'] = time();
         $db->insert('psrphp_cms_content_' . $model['name'], $data);
         return Response::success('操作成功！');
     }

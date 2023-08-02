@@ -186,9 +186,6 @@ class ContentProvider implements Iterator, Countable
         $filter = $this->filter;
 
         foreach ($fieldProvider as $field) {
-            if (!$field['filterable']) {
-                continue;
-            }
             $extra = is_null($field['extra']) ? [] : json_decode($field['extra'], true);
             switch ($field['type']) {
                 case 'checkbox':
@@ -273,10 +270,8 @@ class ContentProvider implements Iterator, Countable
                 case 'markdown':
                 case 'editor':
                     if (strlen($this->q)) {
-                        if ($field['searchable']) {
-                            $likes[] = $field['name'] . ' like :' . $field['name'];
-                            $binds[':' . $field['name']] = '%' . $this->q . '%';
-                        }
+                        $likes[] = $field['name'] . ' like :' . $field['name'];
+                        $binds[':' . $field['name']] = '%' . $this->q . '%';
                     }
                     break;
 

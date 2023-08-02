@@ -57,23 +57,14 @@ class Create extends Common
             'model_id' => $model_id,
             'title' => 'ID',
             'name' => 'id',
-            'is_system' => 1,
-            'sortable' => 1,
+            'system' => 1,
         ]);
-
-        $db->insert('psrphp_cms_field', [
-            'model_id' => $model_id,
-            'title' => '模型id',
-            'name' => 'model_id',
-            'is_system' => 1,
-        ]);
-        $db->query('ALTER TABLE <psrphp_cms_content_' . $name . '> ADD model_id int(10) unsigned NOT NULL DEFAULT \'0\' COMMENT \'模型ID\'');
 
         $db->insert('psrphp_cms_field', [
             'model_id' => $model_id,
             'title' => '分类id',
             'name' => 'category_id',
-            'is_system' => 1,
+            'system' => 1,
         ]);
         $db->query('ALTER TABLE <psrphp_cms_content_' . $name . '> ADD category_id int(10) unsigned NOT NULL DEFAULT \'0\' COMMENT \'分类ID\'');
 
@@ -81,12 +72,17 @@ class Create extends Common
             'model_id' => $model_id,
             'title' => '创建时间',
             'name' => 'create_time',
-            'is_system' => 1,
-            'type' => 'datetime-local',
-            'filterable' => 1,
-            'sortable' => 1,
+            'system' => 1,
         ]);
-        $db->query('ALTER TABLE <psrphp_cms_content_' . $name . '> ADD create_time int(10) unsigned NOT NULL DEFAULT \'0\' COMMENT \'创建时间\'');
+        $db->query('ALTER TABLE <psrphp_cms_content_' . $name . '> ADD create_time datetime DEFAULT CURRENT_TIMESTAMP COMMENT \'创建时间\'');
+
+        $db->insert('psrphp_cms_field', [
+            'model_id' => $model_id,
+            'title' => '更新时间',
+            'name' => 'update_time',
+            'system' => 1,
+        ]);
+        $db->query('ALTER TABLE <psrphp_cms_content_' . $name . '> ADD update_time datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT \'创建时间\'');
 
         return Response::success('操作成功！', 'javascript:history.go(-2)');
     }

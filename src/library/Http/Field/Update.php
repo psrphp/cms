@@ -78,15 +78,10 @@ class Update extends Common
                                     }
                                     return $res;
                                 })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
-                                $res[] = (new Switchs('是否允许作为筛选项', 'filterable', $field['filterable'] ?? '0'))->addSwitch(
-                                    (new SwitchItem('不允许', 0)),
-                                    (new SwitchItem('允许', 1))->addItem(
-                                        (new Radio('筛选模式', 'extra[filter_type]', $extra['filter_type'] ?? '1', [
-                                            '1' => '单选',
-                                            '2' => '多选',
-                                        ]))
-                                    ),
-                                );
+                                $res[] = (new Radio('筛选模式', 'extra[filter_type]', $extra['filter_type'] ?? '1', [
+                                    '1' => '单选',
+                                    '2' => '多选',
+                                ]));
                                 break;
 
                             case 'checkbox':
@@ -100,16 +95,11 @@ class Update extends Common
                                     }
                                     return $res;
                                 })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
-                                $res[] = (new Switchs('是否允许作为筛选项', 'filterable', $field['filterable'] ?? '0'))->addSwitch(
-                                    (new SwitchItem('不允许', 0)),
-                                    (new SwitchItem('允许', 1))->addItem(
-                                        (new Radio('筛选模式', 'extra[filter_type]', $extra['filter_type'] ?? '1', [
-                                            '1' => '单选',
-                                            '2' => '或多选',
-                                            '3' => '且多选',
-                                        ]))
-                                    ),
-                                );
+                                $res[] = (new Radio('筛选模式', 'extra[filter_type]', $extra['filter_type'] ?? '1', [
+                                    '1' => '单选',
+                                    '2' => '或多选',
+                                    '3' => '且多选',
+                                ]));
                                 break;
 
                             case 'text':
@@ -117,22 +107,10 @@ class Update extends Common
                             case 'code':
                             case 'markdown':
                             case 'editor':
-                                $res[] = (new Radio('是否允许被搜索', 'searchable', $field['searchable'] ?? '0', [
-                                    '0' => '不允许',
-                                    '1' => '允许',
-                                ]));
                                 break;
 
                             case 'int':
                             case 'float':
-                                $res[] = (new Radio('是否允许排序', 'sortable', $field['sortable'] ?? '0', [
-                                    '0' => '不允许',
-                                    '1' => '允许',
-                                ]));
-                                $res[] = (new Radio('是否允许筛选', 'filterable', $field['filterable'] ?? '0', [
-                                    '0' => '不允许',
-                                    '1' => '允许',
-                                ]));
                                 $res[] = (new Radio('是否允许负数', 'extra[negative]', $extra['negative'] ?? '0', [
                                     '0' => '不允许',
                                     '1' => '允许',
@@ -144,14 +122,6 @@ class Update extends Common
                             case 'date':
                             case 'time':
                             case 'datetime-local':
-                                $res[] = (new Radio('是否允许排序', 'sortable', $field['sortable'] ?? '0', [
-                                    '0' => '不允许',
-                                    '1' => '允许',
-                                ]));
-                                $res[] = (new Radio('是否允许筛选', 'filterable', $field['filterable'] ?? '0', [
-                                    '0' => '不允许',
-                                    '1' => '允许',
-                                ]));
                                 break;
 
                             default:
@@ -177,10 +147,7 @@ class Update extends Common
         $update = array_intersect_key($request->post(), [
             'title' => '',
             'editable' => '',
-            'searchable' => '',
-            'sortable' => '',
             'listable' => '',
-            'filterable' => '',
         ]);
 
         if ($extra = $request->post('extra', [])) {

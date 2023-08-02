@@ -16,9 +16,6 @@
                     <th class="text-nowrap">类型</th>
                     <th class="text-nowrap">允许编辑</th>
                     <th class="text-nowrap">列表显示</th>
-                    <th class="text-nowrap">允许搜索</th>
-                    <th class="text-nowrap">允许筛选</th>
-                    <th class="text-nowrap">允许排序</th>
                     <th class="text-nowrap">管理</th>
                 </tr>
             </thead>
@@ -30,7 +27,7 @@
                     </td>
                     <td>
                         {$vo.name}
-                        {if $vo['is_system']}
+                        {if $vo['system']}
                         <span class="badge text-bg-secondary">系统</span>
                         {/if}
                     </td>
@@ -52,28 +49,7 @@
                         {/if}
                     </td>
                     <td>
-                        {if $vo['searchable']}
-                        <span>允许</span>
-                        {else}
-                        <span>-</span>
-                        {/if}
-                    </td>
-                    <td>
-                        {if $vo['filterable']}
-                        <span>允许</span>
-                        {else}
-                        <span>-</span>
-                        {/if}
-                    </td>
-                    <td>
-                        {if $vo['sortable']}
-                        <span>允许</span>
-                        {else}
-                        <span>-</span>
-                        {/if}
-                    </td>
-                    <td>
-                        {if !$vo['is_system']}
+                        {if !$vo['system']}
                         <a href="{:$router->build('/psrphp/cms/field/update', ['id'=>$vo['id']])}">编辑</a>
                         <a href="{:$router->build('/psrphp/cms/field/delete', ['id'=>$vo['id']])}" onclick="return confirm('确定删除吗？删除后不可恢复！');">删除</a>
                         <a href="{echo $router->build('/psrphp/cms/field/priority', ['id'=>$vo['id'],'type'=>'up'])}">上移</a>
@@ -85,7 +61,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="8">
+                    <td colspan="6">
                         添加：
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'select'])}">单选</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'checkbox'])}">多选</a>
