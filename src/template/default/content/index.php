@@ -35,11 +35,11 @@
                             }
                         </style>
                         <?php
-                        echo new PsrPHP\Form\Field\Select('分类', 'category_id', $request->get('category_id'), (function () use ($categoryProvider): array {
+                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), (function () use ($categoryProvider): array {
                             $res = [];
                             foreach ($categoryProvider as $vo) {
                                 $res[] = [
-                                    'value' => $vo['id'],
+                                    'value' => $vo['name'],
                                     'title' => $vo['title'],
                                     'parent' => $vo['parent'],
                                     'group' => $vo['group'],
@@ -85,7 +85,7 @@
             ?>
             <form action="{echo $router->build('/psrphp/cms/content/index')}" id="form_3">
                 <input type="hidden" name="model_id" value="{$model.id}">
-                <input type="hidden" name="category_id" value="{$request->get('category_id')}">
+                <input type="hidden" name="category_name" value="{$request->get('category_name')}">
                 <div class="d-flex flex-column gap-2">
                     {foreach $fieldProvider as $field}
                     {switch $field['type']}
@@ -274,20 +274,12 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>创建时间：</td>
-                                <td>{$content['create_time']}</td>
-                            </tr>
-                            <tr>
-                                <td>更新时间：</td>
-                                <td>{$content['update_time']}</td>
-                            </tr>
-                            <tr>
                                 <td>栏目：</td>
                                 <td>
-                                    {if $categoryProvider->has($content['category_id'])}
-                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_id'=>$content['category_id']])}">{$categoryProvider->get($content['category_id'])['title']}</a>
+                                    {if $categoryProvider->has($content['category_name'])}
+                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_name'=>$content['category_name']])}">{$categoryProvider->get($content['category_name'])['title']}</a>
                                     {else}
-                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_id'=>$content['category_id']])}">未知栏目</a>
+                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_name'=>$content['category_name']])}">未知栏目</a>
                                     {/if}
                                 </td>
                             </tr>
@@ -382,6 +374,14 @@
                             </tr>
                             {/if}
                             {/foreach}
+                            <tr>
+                                <td>创建时间：</td>
+                                <td>{$content['create_time']}</td>
+                            </tr>
+                            <tr>
+                                <td>更新时间：</td>
+                                <td>{$content['update_time']}</td>
+                            </tr>
                         </table>
                         <div>
                             <a href="{echo $router->build('/psrphp/cms/content/update', ['model_id'=>$model['id'], 'id'=>$content['id']])}">编辑</a>
@@ -452,11 +452,11 @@
                             }
                         </style>
                         <?php
-                        echo new PsrPHP\Form\Field\Select('分类', 'category_id', $request->get('category_id'), (function () use ($categoryProvider): array {
+                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), (function () use ($categoryProvider): array {
                             $res = [];
                             foreach ($categoryProvider as $vo) {
                                 $res[] = [
-                                    'value' => $vo['id'],
+                                    'value' => $vo['name'],
                                     'title' => $vo['title'],
                                     'parent' => $vo['parent'],
                                     'group' => $vo['group'],
@@ -473,8 +473,8 @@
                 <script>
                     $(function() {
                         $("#inlineFormCustomSelect").bind('click', function() {
-                            var category_id = $("#selcc input")[0].value;
-                            if (category_id >= 0) {
+                            var category_name = $("#selcc input")[0].value;
+                            if (category_name >= 0) {
                                 var ids = [];
                                 $.each($('#tablexx input:checkbox:checked'), function() {
                                     ids.push($(this).val());
@@ -485,7 +485,7 @@
                                     data: {
                                         model_id: "{$model.id}",
                                         ids: ids,
-                                        category_id: category_id,
+                                        category_name: category_name,
                                     },
                                     dataType: "JSON",
                                     success: function(response) {

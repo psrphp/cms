@@ -62,11 +62,11 @@ class Create extends Common
 
         $db->insert('psrphp_cms_field', [
             'model_id' => $model_id,
-            'title' => '分类id',
-            'name' => 'category_id',
+            'title' => '分类名称',
+            'name' => 'category_name',
             'system' => 1,
         ]);
-        $db->query('ALTER TABLE <psrphp_cms_content_' . $name . '> ADD category_id int(10) unsigned NOT NULL DEFAULT \'0\' COMMENT \'分类ID\'');
+        $db->query('ALTER TABLE <psrphp_cms_content_' . $name . '> ADD category_name varchar(80) NOT NULL DEFAULT \'\' COMMENT \'分类名称\'');
 
         $db->insert('psrphp_cms_field', [
             'model_id' => $model_id,

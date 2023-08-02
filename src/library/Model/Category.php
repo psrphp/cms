@@ -14,20 +14,20 @@ class Category implements ArrayAccess, Stringable
 
     private static $instances = [];
 
-    private function __construct(string $id, string $title = null, string $parent = null, string $group = null)
+    private function __construct(string $name, string $title = null, string $parent = null, string $group = null)
     {
-        $this->data['id'] = $id;
+        $this->data['name'] = $name;
         $this->data['title'] = $title;
         $this->data['parent'] = $parent;
         $this->data['group'] = $group;
     }
 
-    public static function getInstance(string $id, string $title = null, string $parent = null, string $group = null): self
+    public static function getInstance(string $name, string $title = null, string $parent = null, string $group = null): self
     {
-        if (!isset(self::$instances[$id])) {
-            self::$instances[$id] = new self($id, $title, $parent, $group);
+        if (!isset(self::$instances[$name])) {
+            self::$instances[$name] = new self($name, $title, $parent, $group);
         }
-        return self::$instances[$id];
+        return self::$instances[$name];
     }
 
     public function __get($key)

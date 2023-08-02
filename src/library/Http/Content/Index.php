@@ -33,7 +33,7 @@ class Index extends Common
 
             $contentProvider = ContentProvider::getInstance(
                 $model['id'],
-                $request->get('category_id'),
+                $request->get('category_name'),
                 $request->get('filter', []),
                 $request->get('order', [
                     'id' => 'DESC',

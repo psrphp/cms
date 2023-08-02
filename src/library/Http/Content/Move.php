@@ -21,7 +21,7 @@ class Move extends Common
             return Response::error('模型不存在！');
         }
         $db->update('psrphp_cms_content_' . $model['name'], [
-            'category_id' => $request->post('category_id'),
+            'category_name' => $request->post('category_name'),
         ], [
             'id' => $request->post('ids'),
         ]);

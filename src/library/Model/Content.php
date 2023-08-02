@@ -61,7 +61,7 @@ class Content implements ArrayAccess, Stringable
 
     public function getCategory(): Category
     {
-        return CategoryProvider::getInstance($this->model_id)[$this->getData('category_id')];
+        return CategoryProvider::getInstance($this->model_id)[$this->getData('category_name')];
     }
 
     public function __get($key)

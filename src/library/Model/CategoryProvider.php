@@ -47,7 +47,7 @@ class CategoryProvider implements Iterator, Countable
 
     public function add(Category $category)
     {
-        return $this->container[$category['id']] = $category;
+        return $this->container[$category['name']] = $category;
     }
 
     public function get($key): Category

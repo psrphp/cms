@@ -14,7 +14,7 @@ use PsrPHP\Framework\Framework;
 class ContentProvider implements Iterator, Countable
 {
     private $model_id;
-    private $category_id;
+    private $category_name;
     private $filter;
     private $order;
     private $q;
@@ -25,10 +25,10 @@ class ContentProvider implements Iterator, Countable
     private $keys = [];
     private $position;
 
-    private function __construct(int $model_id, $category_id = null, array $filter = [], array $order = [], string $q = '', int $page = 1, int $size = 10)
+    private function __construct(int $model_id, $category_name = null, array $filter = [], array $order = [], string $q = '', int $page = 1, int $size = 10)
     {
         $this->model_id = $model_id;
-        $this->category_id = $category_id;
+        $this->category_name = $category_name;
         $this->filter = $filter;
         $this->order = $order;
         $this->q = $q;
@@ -49,9 +49,9 @@ class ContentProvider implements Iterator, Countable
         $this->keys = array_keys($this->list);
     }
 
-    public static function getInstance(int $model_id, $category_id = null, array $filter = [], array $order = [], string $q = '', int $page = 1, int $size = 10): self
+    public static function getInstance(int $model_id, $category_name = null, array $filter = [], array $order = [], string $q = '', int $page = 1, int $size = 10): self
     {
-        return new self($model_id, $category_id, $filter, $order, $q, $page, $size);
+        return new self($model_id, $category_name, $filter, $order, $q, $page, $size);
     }
 
     public function getTotal()
@@ -177,9 +177,9 @@ class ContentProvider implements Iterator, Countable
 
         $likes = [];
 
-        if ($this->category_id) {
-            if ($ids = $this->getSubCategory($this->category_id)) {
-                $where[] = 'category_id in (' . implode(',', $ids) . ')';
+        if ($this->category_name) {
+            if ($ids = $this->getSubCategory($this->category_name)) {
+                $where[] = 'category_name in (' . implode(',', $ids) . ')';
             }
         }
 
@@ -357,16 +357,16 @@ class ContentProvider implements Iterator, Countable
         return $res;
     }
 
-    private function getSubCategory($id): array
+    private function getSubCategory($name): array
     {
 
         $res = [];
         foreach (CategoryProvider::getInstance($this->model_id) as $vo) {
-            if ($vo['parent'] == $id) {
-                array_push($res, ...$this->getSubCategory($vo['id']));
+            if ($vo['parent'] == $name) {
+                array_push($res, ...$this->getSubCategory($vo['name']));
             }
         }
-        $res[] = $id;
+        $res[] = $name;
         return $res;
     }
 

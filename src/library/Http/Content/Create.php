@@ -42,11 +42,11 @@ class Create extends Common
 
         return (new Builder('创建内容'))->addItem(
             (new Hidden('model_id', $model['id'])),
-            (new Select('栏目', 'category_id', $content['category_id'] ?? '', (function () use ($model): array {
+            (new Select('栏目', 'category_name', $content['category_name'] ?? '', (function () use ($model): array {
                 $res = [];
                 foreach (CategoryProvider::getInstance($model['id']) as $vo) {
                     $res[] = [
-                        'value' => $vo['id'],
+                        'value' => $vo['name'],
                         'title' => $vo['title'],
                         'parent' => $vo['parent'],
                         'group' => $vo['group'],

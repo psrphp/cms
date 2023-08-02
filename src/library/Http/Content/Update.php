@@ -44,11 +44,11 @@ class Update extends Common
         return (new Builder('编辑内容'))->addItem(
             (new Hidden('model_id', $model['id'])),
             (new Hidden('id', $content['id'])),
-            (new Select('栏目', 'category_id', $content['category_id'] ?? 0, (function () use ($model): array {
+            (new Select('栏目', 'category_name', $content['category_name'] ?? 0, (function () use ($model): array {
                 $res = [];
                 foreach (CategoryProvider::getInstance($model['id']) as $vo) {
                     $res[] = [
-                        'value' => $vo['id'],
+                        'value' => $vo['name'],
                         'title' => $vo['title'],
                         'parent' => $vo['parent'],
                         'group' => $vo['group'],
