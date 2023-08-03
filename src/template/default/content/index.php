@@ -14,7 +14,7 @@
                     <div class="col-auto">
                         <label class="visually-hidden">模型</label>
                         <select class="form-select" name="model_id" onchange="document.getElementById('form_1').submit();">
-                            {foreach $modelProvider as $vo}
+                            {foreach $models as $vo}
                             <option {if $request->get('model_id')==$vo['id']}selected{/if} value="{$vo.id}">{$vo.title}</option>
                             {/foreach}
                         </select>
@@ -87,12 +87,12 @@
                 <input type="hidden" name="model_id" value="{$model.id}">
                 <input type="hidden" name="category_name" value="{$request->get('category_name')}">
                 <div class="d-flex flex-column gap-2">
-                    {foreach $fieldProvider as $field}
+                    {foreach $fields as $field}
                     {switch $field['type']}
                     {case 'select'}
                     {case 'checkbox'}
                     <?php
-                    $extra = is_null($field['extra']) ? [] : json_decode($field['extra'], true);
+                    $extra = json_decode($field['extra'], true);
                     $_alldata = $db->select('psrphp_cms_data', '*', [
                         'dict_id' => $extra['dict_id'],
                         'ORDER' => [
@@ -182,7 +182,7 @@
                     {case 'float'}
                     {case 'date'}
                     {case 'time'}
-                    {case 'datetime-local'}
+                    {case 'datetime'}
                     <div>
                         <div class="mb-1">
                             <span class="text-secondary small">{$field.title}:</span>
@@ -190,10 +190,10 @@
                         <div>
                             <div class="d-flex gap-1">
                                 <div>
-                                    <input type="{$field['type']}" name="filter[{$field['name']}][min]" value="{$request->get('filter.'.$field['name'].'.min')}" class="form-control form-control-sm">
+                                    <input type="{$field['type']=='datetime'?'datetime-local':$field['type']}" name="filter[{$field['name']}][min]" value="{$request->get('filter.'.$field['name'].'.min')}" class="form-control form-control-sm">
                                 </div>
                                 <div>
-                                    <input type="{$field['type']}" name="filter[{$field['name']}][max]" value="{$request->get('filter.'.$field['name'].'.max')}" class="form-control form-control-sm">
+                                    <input type="{$field['type']=='datetime'?'datetime-local':$field['type']}" name="filter[{$field['name']}][max]" value="{$request->get('filter.'.$field['name'].'.max')}" class="form-control form-control-sm">
                                 </div>
                             </div>
                         </div>
@@ -216,8 +216,8 @@
                             <span class="text-secondary small">排序:</span>
                         </div>
                         <div class="d-flex gap-2">
-                            {foreach $fieldProvider as $field}
-                            {if in_array($field['type'], ['int', 'float', 'date', 'time', 'datetime-local'])}
+                            {foreach $fields as $field}
+                            {if in_array($field['type'], ['int', 'float', 'date', 'time', 'datetime'])}
                             <div>
                                 <input type="radio" class="d-none" name="order[{$field.name}]" value="{$request->get('order.'.$field['name'])}" autocomplete="off" checked>
                                 {if $request->get('order.'.$field['name']) == 'desc'}
@@ -283,8 +283,8 @@
                                     {/if}
                                 </td>
                             </tr>
-                            {foreach $fieldProvider as $field}
-                            <?php $extra = is_null($field['extra']) ? [] : json_decode($field['extra'], true); ?>
+                            {foreach $fields as $field}
+                            <?php $extra = json_decode($field['extra'], true); ?>
                             {if $field['listable']}
                             <tr>
                                 <td>{$field.title}：</td>
@@ -300,7 +300,7 @@
                                     {case 'float'}
                                     {case 'date'}
                                     {case 'time'}
-                                    {case 'datetime-local'}
+                                    {case 'datetime'}
                                     {$content[$field['name']]}
                                     {/case}
 
@@ -346,25 +346,21 @@
 
                                     {case 'pics'}
                                     <div class="d-flex gap-1">
-                                        {if !is_null($content[$field['name']])}
                                         {foreach json_decode($content[$field['name']], true) as $vo}
                                         <div>
                                             <img src="{$vo.src}" alt="" width="100" height="100">
                                         </div>
                                         {/foreach}
-                                        {/if}
                                     </div>
                                     {/case}
 
                                     {case 'files'}
                                     <div>
-                                        {if !is_null($content[$field['name']])}
                                         {foreach json_decode($content[$field['name']], true) as $vo}
                                         <div>
                                             <a href="{$vo.src}">{$vo.title}({$vo.size})</a>
                                         </div>
                                         {/foreach}
-                                        {/if}
                                     </div>
                                     {/case}
 
@@ -517,7 +513,7 @@
         </ul>
     </nav>
     {else}
-    {foreach $modelProvider as $vo}
+    {foreach $models as $vo}
     <a href="{echo $router->build('/psrphp/cms/content/index', ['model_id'=>$vo['id']])}">{$vo.title}</a>
     {/foreach}
     {/if}

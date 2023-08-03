@@ -7,9 +7,7 @@ namespace App\Psrphp\Cms\Http\Content;
 use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Cms\Model\CategoryProvider;
 use App\Psrphp\Cms\Model\ContentProvider;
-use App\Psrphp\Cms\Model\FieldProvider;
-use App\Psrphp\Cms\Model\Model;
-use App\Psrphp\Cms\Model\ModelProvider;
+use PsrPHP\Database\Db;
 use PsrPHP\Pagination\Pagination;
 use PsrPHP\Request\Request;
 use PsrPHP\Template\Template;
@@ -17,17 +15,24 @@ use PsrPHP\Template\Template;
 class Index extends Common
 {
     public function get(
+        Db $db,
         Request $request,
         Template $template,
         Pagination $pagination
     ) {
-
-        $modelProvider = ModelProvider::getInstance();
+        $models = $db->select('psrphp_cms_model', '*');
         $model_id = $request->get('model_id');
         if ($model_id) {
-            $model = Model::getInstance(intval($model_id));
-            $fieldProvider = FieldProvider::getInstance($model['id']);
-
+            $model = $db->get('psrphp_cms_model', '*', [
+                'id' => $model_id,
+            ]);
+            $fields = $db->select('psrphp_cms_field', '*', [
+                'model_id' => $model['id'],
+                'ORDER' => [
+                    'priority' => 'DESC',
+                    'id' => 'ASC',
+                ],
+            ]);
             $page = $request->get('page', 1) ?: 1;
             $size = min(100, $request->get('size', 20) ?: 20);
 
@@ -47,8 +52,8 @@ class Index extends Common
 
             return $template->renderFromFile('content/index@psrphp/cms', [
                 'model' => $model,
-                'modelProvider' => $modelProvider,
-                'fieldProvider' => $fieldProvider,
+                'models' => $models,
+                'fields' => $fields,
                 'categoryProvider' => CategoryProvider::getInstance($model['id']),
                 'contentProvider' => $contentProvider,
                 'total' => $total,
@@ -58,7 +63,7 @@ class Index extends Common
             ]);
         } else {
             return $template->renderFromFile('content/index@psrphp/cms', [
-                'modelProvider' => $modelProvider,
+                'models' => $models,
             ]);
         }
     }

@@ -72,7 +72,7 @@
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'editor'])}">富文本编辑器</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'int'])}">整数</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'float'])}">浮点数(小数)</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'datetime-local'])}">日期时间</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'datetime'])}">日期时间</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'date'])}">日期</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'time'])}">时间</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'pic'])}">单图</a>

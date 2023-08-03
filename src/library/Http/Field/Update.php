@@ -30,7 +30,7 @@ class Update extends Common
         $field = $db->get('psrphp_cms_field', '*', [
             'id' => $request->get('id'),
         ]);
-        $extra = is_null($field['extra']) ? [] : json_decode($field['extra'], true);
+        $extra = json_decode($field['extra'], true);
         $form = new Builder('编辑字段');
         $form->addItem(
             (new Row())->addCol(
@@ -52,7 +52,7 @@ class Update extends Common
                         'float' => '浮点数',
                         'time' => '时间',
                         'date' => '日期',
-                        'datetime-local' => '日期时间',
+                        'datetime' => '日期时间',
                     ][$field['type']]))->set('disabled', true),
                     ...(function () use ($db, $router, $field, $extra): array {
                         $res = [];
@@ -121,7 +121,7 @@ class Update extends Common
 
                             case 'date':
                             case 'time':
-                            case 'datetime-local':
+                            case 'datetime':
                                 break;
 
                             default:
@@ -151,7 +151,7 @@ class Update extends Common
         ]);
 
         if ($extra = $request->post('extra', [])) {
-            $update['extra'] = json_encode(array_merge(is_null($field['extra']) ? [] : json_decode($field['extra'], true), $extra), JSON_UNESCAPED_UNICODE);
+            $update['extra'] = json_encode(array_merge(json_decode($field['extra'], true), $extra), JSON_UNESCAPED_UNICODE);
         }
 
         $db->update('psrphp_cms_field', $update, [

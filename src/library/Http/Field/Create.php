@@ -54,7 +54,7 @@ class Create extends Common
                         'float' => '浮点数',
                         'time' => '时间',
                         'date' => '日期',
-                        'datetime-local' => '日期时间',
+                        'datetime' => '日期时间',
                         'pic' => '图片(单图)',
                         'pics' => '图片(多图)',
                         'files' => '文件上传',
@@ -126,7 +126,7 @@ class Create extends Common
 
                             case 'date':
                             case 'time':
-                            case 'datetime-local':
+                            case 'datetime':
                                 break;
 
                             default:
@@ -163,13 +163,13 @@ class Create extends Common
         switch ($type) {
             case 'select':
             case 'checkbox':
-                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' int(10) unsigned NOT NULL DEFAULT \'0\'');
+                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` int(10) unsigned NOT NULL DEFAULT \'0\'');
                 break;
 
             case 'text':
             case 'textarea':
             case 'pic':
-                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' varchar(255)');
+                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` varchar(255) NOT NULL DEFAULT \'\'');
                 break;
 
             case 'code':
@@ -177,34 +177,34 @@ class Create extends Common
             case 'editor':
             case 'pics':
             case 'files':
-                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' text');
+                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` text');
                 break;
 
             case 'date':
-                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' date');
+                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` date');
                 break;
 
             case 'time':
-                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' time');
+                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` time');
                 break;
 
-            case 'datetime-local':
-                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' datetime');
+            case 'datetime':
+                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` datetime');
                 break;
 
             case 'int':
                 if ($request->post('negative') == 1) {
-                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' int(11)');
+                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` int(11)');
                 } else {
-                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' int(10) unsigned');
+                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` int(10) unsigned');
                 }
                 break;
 
             case 'float':
                 if ($request->post('negative') == 1) {
-                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' float');
+                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` float');
                 } else {
-                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD ' . $name . ' float unsigned');
+                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` float unsigned');
                 }
                 break;
 

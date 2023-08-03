@@ -13,8 +13,8 @@ use PsrPHP\Framework\Framework;
 class DataProvider implements Iterator, Countable
 {
     private $dict_id;
-
     private $list = [];
+
     private $keys = [];
     private $position;
 
@@ -74,25 +74,17 @@ class DataProvider implements Iterator, Countable
         }
     }
 
-    public function get($key): Data
+    private static function getParentData(self $provider, Data $data): array
     {
-        return $this->list[$key];
-    }
 
-    public function set($key, Data $value): self
-    {
-        $this->list[$key] = $value;
-        return $this;
-    }
-
-    public function has($key): bool
-    {
-        return isset($this->list[$key]);
-    }
-
-    public function delete($key): void
-    {
-        unset($this->list[$key]);
+        $res = [];
+        foreach ($provider as $vo) {
+            if ($vo['id'] == $data['pid']) {
+                array_push($res, ...self::getParentData($provider, $vo));
+            }
+        }
+        $res[] = $data;
+        return $res;
     }
 
     public function count(): int
@@ -123,26 +115,6 @@ class DataProvider implements Iterator, Countable
     public function valid(): bool
     {
         return isset($this->keys[$this->position]);
-    }
-
-    public function __get($key): Data
-    {
-        return $this->list[$key];
-    }
-
-    public function __set($key, Data $val)
-    {
-        $this->list[$key] = $val;
-    }
-
-    public function __isset($key): bool
-    {
-        return isset($this->list[$key]);
-    }
-
-    public function __unset($key)
-    {
-        unset($this->list[$key]);
     }
 
     public function offsetGet($offset)
@@ -177,18 +149,5 @@ class DataProvider implements Iterator, Countable
     public function __toString()
     {
         return json_encode($this->list);
-    }
-
-    private static function getParentData(self $provider, Data $data): array
-    {
-
-        $res = [];
-        foreach ($provider as $vo) {
-            if ($vo['id'] == $data['pid']) {
-                array_push($res, ...self::getParentData($provider, $vo));
-            }
-        }
-        $res[] = $data;
-        return $res;
     }
 }

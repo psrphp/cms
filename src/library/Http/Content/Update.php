@@ -62,7 +62,7 @@ class Update extends Common
                     'model_id' => $model['id'],
                     'editable' => 1,
                 ]) as $vo) {
-                    $extra = is_null($vo['extra']) ? [] : json_decode($vo['extra'], true);
+                    $extra = json_decode($vo['extra'], true);
                     switch ($vo['type']) {
                         case 'select':
                             $res[] = new Select($vo['title'], $vo['name'], $content[$vo['name']] ?? '', (function () use ($db, $vo, $extra): array {
@@ -151,7 +151,7 @@ class Update extends Common
                                 'type' => 'date',
                             ]);
                             break;
-                        case 'datetime-local':
+                        case 'datetime':
                             $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
                                 'type' => 'datetime-local',
                             ]);
@@ -204,20 +204,28 @@ class Update extends Common
         foreach ($db->select('psrphp_cms_field', '*', [
             'model_id' => $model['id'],
         ]) as $field) {
-            if ($value = $request->post($field['name'])) {
-                if ($field['type'] == 'pics') {
-                    $data[$field['name']] = json_encode($value, JSON_UNESCAPED_UNICODE);
-                } elseif ($field['type'] == 'files') {
-                    $data[$field['name']] = json_encode($value, JSON_UNESCAPED_UNICODE);
-                } elseif ($field['type'] == 'checkbox') {
-                    $val = 0;
-                    foreach ($value as $v) {
-                        $val += pow(2, $v);
+            if (!$request->has('post.' . $field['name'])) {
+                continue;
+            }
+            switch ($field['type']) {
+                case 'pics':
+                case 'files':
+                    $data[$field['name']] = json_encode(
+                        $request->post($field['name'], []),
+                        JSON_UNESCAPED_UNICODE
+                    );
+                    break;
+
+                case 'checkbox':
+                    $data[$field['name']] = 0;
+                    foreach ($request->post($field['name'], []) as $v) {
+                        $data[$field['name']] += pow(2, $v);
                     }
-                    $data[$field['name']] = $val;
-                } else {
-                    $data[$field['name']] = $value;
-                }
+                    break;
+
+                default:
+                    $data[$field['name']] = $request->post($field['name']);
+                    break;
             }
         }
         $db->update('psrphp_cms_content_' . $model['name'], $data, [
