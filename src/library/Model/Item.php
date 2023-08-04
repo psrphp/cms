@@ -9,7 +9,7 @@ use Stringable;
 
 abstract class Item implements ArrayAccess, Stringable
 {
-    public $data;
+    private array $data;
 
     public function getData(string $field = null, $default = null)
     {
@@ -18,6 +18,16 @@ abstract class Item implements ArrayAccess, Stringable
         } else {
             return isset($this->data[$field]) ? $this->data[$field] : $default;
         }
+    }
+
+    protected function setData(array $data)
+    {
+        $this->data = $data;
+    }
+
+    public function exist(): bool
+    {
+        return !is_null($this->data);
     }
 
     public function __get($key)

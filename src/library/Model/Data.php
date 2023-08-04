@@ -17,12 +17,12 @@ class Data extends Item
             Framework::execute(function (
                 Db $db,
             ) use ($data_id) {
-                $this->data = $db->get('psrphp_cms_data', '*', [
+                $this->setData($db->get('psrphp_cms_data', '*', [
                     'id' => $data_id,
-                ]);
+                ]));
             });
         } else {
-            $this->data = $data;
+            $this->setData($data);
         }
     }
 

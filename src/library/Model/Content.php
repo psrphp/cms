@@ -9,24 +9,25 @@ use PsrPHP\Framework\Framework;
 
 class Content extends Item
 {
-    private $model_id;
-    private $id;
     private static $instances = [];
+
+    private $model_id;
 
     private function __construct(int $model_id, int $id, array $data = null)
     {
         $this->model_id = $model_id;
-        $this->id = $id;
+
         if (is_null($data)) {
             Framework::execute(function (
                 Db $db,
-            ) {
-                $this->data = $db->get('psrphp_cms_content_' . $this->getModel()->getData('name'), '*', [
-                    'id' => $this->id,
-                ]);
+            ) use ($id, $model_id) {
+                $model = Model::getInstance($model_id);
+                $this->setData($db->get('psrphp_cms_content_' . $model->getData('name'), '*', [
+                    'id' => $id,
+                ]));
             });
         } else {
-            $this->data = $data;
+            $this->setData($data);
         }
     }
 
@@ -38,13 +39,8 @@ class Content extends Item
         return self::$instances[$id];
     }
 
-    public function getModel(): Model
+    public function getModelId(): int
     {
-        return Model::getInstance($this->model_id);
-    }
-
-    public function getCategory(): Category
-    {
-        return CategoryProvider::getInstance($this->model_id)[$this->getData('category_name')];
+        return $this->model_id;
     }
 }

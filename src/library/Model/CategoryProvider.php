@@ -32,9 +32,9 @@ class CategoryProvider extends Provider
         return self::$instances[$model_id];
     }
 
-    public function getModel(): Model
+    public function getModelId(): int
     {
-        return Model::getInstance($this->model_id);
+        return $this->model_id;
     }
 
     public function add(Category $category)
@@ -55,5 +55,17 @@ class CategoryProvider extends Provider
     public function delete($key): void
     {
         unset($this->list[$key]);
+    }
+
+    public function getSubCategory($name): array
+    {
+        $res = [];
+        foreach (CategoryProvider::getInstance($this->model_id) as $vo) {
+            if ($vo['parent'] == $name) {
+                array_push($res, ...$this->getSubCategory($vo['name']));
+            }
+        }
+        $res[] = $name;
+        return $res;
     }
 }

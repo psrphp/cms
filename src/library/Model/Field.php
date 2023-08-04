@@ -14,15 +14,15 @@ class Field extends Item
     private function __construct(int $field_id, array $data = null)
     {
         if (is_null($data)) {
-            $this->data = Framework::execute(function (
+            Framework::execute(function (
                 Db $db,
             ) use ($field_id) {
-                return $db->get('psrphp_cms_field', '*', [
+                $this->setData($db->get('psrphp_cms_field', '*', [
                     'id' => $field_id,
-                ]);
+                ]));
             });
         } else {
-            $this->data = $data;
+            $this->setData($data);
         }
     }
 

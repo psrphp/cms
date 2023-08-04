@@ -14,15 +14,17 @@ class Model extends Item
     private function __construct(int $model_id, array $data = null)
     {
         if (is_null($data)) {
-            $this->data = Framework::execute(function (
+            Framework::execute(function (
                 Db $db,
-            ) use ($model_id): array {
-                return $db->get('psrphp_cms_model', '*', [
+            ) use ($model_id) {
+                if ($data = $db->get('psrphp_cms_model', '*', [
                     'id' => $model_id,
-                ]);
+                ])) {
+                    $this->setData($data);
+                }
             });
         } else {
-            $this->data = $data;
+            $this->setData($data);
         }
     }
 
@@ -36,6 +38,6 @@ class Model extends Item
 
     public function getFieldProvider(): FieldProvider
     {
-        return FieldProvider::getInstance($this->data['model_id']);
+        return FieldProvider::getInstance($this->getData('model_id'));
     }
 }

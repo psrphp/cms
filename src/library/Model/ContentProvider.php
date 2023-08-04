@@ -56,23 +56,26 @@ class ContentProvider extends Provider
 
     private function renderWhere(string &$string, array &$binds)
     {
-        $model = Model::getInstance($this->model_id);
-        $fieldProvider = FieldProvider::getInstance($model['id']);
-
         $where = [];
-
         $likes = [];
 
         if ($this->category_name) {
-            if ($ids = $this->getSubCategory($this->category_name)) {
+            if ($names = $this->getSubCategory($this->category_name)) {
                 // todo.. 防止注入。
-                $where[] = '`category_name` in (' . implode(',', $ids) . ')';
+                $where[] = '`category_name` in (' . implode(',', $names) . ')';
             }
         }
 
         $filter = $this->filter;
 
-        foreach ($fieldProvider as $field) {
+        $fields = $this->getDb()->select('psrphp_cms_field', '*', [
+            'model_id' => $this->model_id,
+            'ORDER' => [
+                'priority' => 'DESC',
+                'id' => 'ASC',
+            ],
+        ]);
+        foreach ($fields as $field) {
             $extra = is_null($field['extra']) ? [] : json_decode($field['extra'], true);
             switch ($field['type']) {
                 case 'checkbox':

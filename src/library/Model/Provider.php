@@ -10,7 +10,7 @@ use Stringable;
 
 abstract class Provider implements Iterator, Countable, Stringable
 {
-    protected $list = [];
+    protected array $list = [];
 
     public function count(): int
     {

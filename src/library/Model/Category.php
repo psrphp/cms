@@ -8,15 +8,17 @@ class Category extends Item
 {
     private static $instances = [];
 
-    private function __construct(string $name, string $title = null, string $parent = null, string $group = null)
+    private function __construct(string $name, string $title, string $parent = null, string $group = null)
     {
-        $this->data['name'] = $name;
-        $this->data['title'] = $title;
-        $this->data['parent'] = $parent;
-        $this->data['group'] = $group;
+        $this->setData([
+            'name' => $name,
+            'title' => $title,
+            'parent' => $parent,
+            'group' => $group,
+        ]);
     }
 
-    public static function getInstance(string $name, string $title = null, string $parent = null, string $group = null): self
+    public static function getInstance(string $name, string $title, string $parent = null, string $group = null): self
     {
         if (!isset(self::$instances[$name])) {
             self::$instances[$name] = new self($name, $title, $parent, $group);
