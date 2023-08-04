@@ -4,32 +4,24 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Model;
 
-use Countable;
-use Iterator;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Psr14\Event;
 
-class CategoryProvider implements Iterator, Countable
+class CategoryProvider extends Provider
 {
     private static $instances = [];
-    private $model_id;
 
-    private $container = [];
-    private $keys = [];
-    private $position;
+    private $model_id;
 
     private function __construct(int $model_id)
     {
         $this->model_id = $model_id;
-        $this->position = 0;
 
         Framework::execute(function (
             Event $event
         ) {
             $event->dispatch($this);
         });
-
-        $this->keys = array_keys($this->container);
     }
 
     public static function getInstance(int $model_id): self
@@ -47,51 +39,21 @@ class CategoryProvider implements Iterator, Countable
 
     public function add(Category $category)
     {
-        return $this->container[$category['name']] = $category;
+        return $this->list[$category['name']] = $category;
     }
 
     public function get($key): Category
     {
-        return $this->container[$key];
+        return $this->list[$key];
     }
 
     public function has($key): bool
     {
-        return isset($this->container[$key]);
+        return isset($this->list[$key]);
     }
 
     public function delete($key): void
     {
-        unset($this->container[$key]);
-    }
-
-    public function count(): int
-    {
-        return count($this->keys);
-    }
-
-    public function rewind(): void
-    {
-        $this->position = 0;
-    }
-
-    public function current(): Category
-    {
-        return $this->container[$this->keys[$this->position]];
-    }
-
-    public function key(): mixed
-    {
-        return $this->keys[$this->position];
-    }
-
-    public function next(): void
-    {
-        ++$this->position;
-    }
-
-    public function valid(): bool
-    {
-        return isset($this->keys[$this->position]);
+        unset($this->list[$key]);
     }
 }

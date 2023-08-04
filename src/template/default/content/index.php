@@ -448,7 +448,7 @@
                             }
                         </style>
                         <?php
-                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), (function () use ($categoryProvider): array {
+                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', '', (function () use ($categoryProvider): array {
                             $res = [];
                             foreach ($categoryProvider as $vo) {
                                 $res[] = [

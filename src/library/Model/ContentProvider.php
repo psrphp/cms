@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Model;
 
-use Countable;
 use Exception;
-use Iterator;
 use Medoo\Medoo;
 use PsrPHP\Database\Db;
 use PsrPHP\Framework\Framework;
 
-class ContentProvider implements Iterator, Countable
+class ContentProvider extends Provider
 {
     private $model_id;
     private $category_name;
@@ -20,10 +18,6 @@ class ContentProvider implements Iterator, Countable
     private $q;
     private $page;
     private $size;
-
-    private $list = [];
-    private $keys = [];
-    private $position;
 
     private function __construct(int $model_id, $category_name = null, array $filter = [], array $order = [], string $q = '', int $page = 1, int $size = 10)
     {
@@ -42,11 +36,8 @@ class ContentProvider implements Iterator, Countable
         $this->renderLimit($string, $binds);
 
         foreach ($this->getDb()->select('psrphp_cms_content_' . Model::getInstance($this->model_id)->getData('name'), '*', Medoo::raw($string, $binds)) as $value) {
-            $this->list[$value['id']] = Content::getInstance($this->model_id, $value['id'])->setData($value);
+            $this->list[$value['id']] = Content::getInstance($this->model_id, $value['id'], $value);
         }
-
-        $this->position = 0;
-        $this->keys = array_keys($this->list);
     }
 
     public static function getInstance(int $model_id, $category_name = null, array $filter = [], array $order = [], string $q = '', int $page = 1, int $size = 10): self
@@ -56,7 +47,7 @@ class ContentProvider implements Iterator, Countable
 
     public function getTotal()
     {
-        $model = Model::getInstance(intval($this->model_id));
+        $model = Model::getInstance($this->model_id);
         $string = '';
         $binds = [];
         $this->renderWhere($string, $binds);
@@ -65,7 +56,7 @@ class ContentProvider implements Iterator, Countable
 
     private function renderWhere(string &$string, array &$binds)
     {
-        $model = Model::getInstance(intval($this->model_id));
+        $model = Model::getInstance($this->model_id);
         $fieldProvider = FieldProvider::getInstance($model['id']);
 
         $where = [];
@@ -280,103 +271,8 @@ class ContentProvider implements Iterator, Countable
         return $this->list[$key];
     }
 
-    public function set($key, Content $value): self
-    {
-        $this->list[$key] = $value;
-        return $this;
-    }
-
     public function has($key): bool
     {
         return isset($this->list[$key]);
-    }
-
-    public function delete($key): void
-    {
-        unset($this->list[$key]);
-    }
-
-    public function count(): int
-    {
-        return count($this->keys);
-    }
-
-    public function rewind(): void
-    {
-        $this->position = 0;
-    }
-
-    public function current(): Content
-    {
-        return $this->list[$this->keys[$this->position]];
-    }
-
-    public function key(): mixed
-    {
-        return $this->keys[$this->position];
-    }
-
-    public function next(): void
-    {
-        ++$this->position;
-    }
-
-    public function valid(): bool
-    {
-        return isset($this->keys[$this->position]);
-    }
-
-    public function __get($key): Content
-    {
-        return $this->list[$key];
-    }
-
-    public function __set($key, Content $val)
-    {
-        $this->list[$key] = $val;
-    }
-
-    public function __isset($key): bool
-    {
-        return isset($this->list[$key]);
-    }
-
-    public function __unset($key)
-    {
-        unset($this->list[$key]);
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->list[$offset];
-    }
-
-    public function offsetSet($offset, $value): void
-    {
-        if (!is_subclass_of($value, Content::class, false)) {
-            throw new Exception('必须为：' . Content::class . ' 类型！');
-        }
-        if (is_null($offset)) {
-            $this->list[] = $value;
-        } else {
-            $this->list[$offset] = $value;
-        }
-    }
-
-    public function offsetExists($offset): bool
-    {
-        return isset($this->list[$offset]);
-    }
-
-    public function offsetUnset($offset): void
-    {
-        if ($this->offsetExists($offset)) {
-            unset($this->list[$offset]);
-        }
-    }
-
-    public function __toString()
-    {
-        return json_encode($this->list);
     }
 }
