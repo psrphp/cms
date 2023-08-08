@@ -48,24 +48,24 @@ class Priority extends Common
             return Response::error('已经是第一位了！');
         }
         $datas = array_reverse($datas);
-        foreach ($datas as $key => $value) {
+        foreach ($datas as $key => $vo) {
             if ($key == $change_key) {
                 $db->update('psrphp_cms_data', [
                     'priority' => $count,
                 ], [
-                    'id' => $value['id'],
+                    'id' => $vo['id'],
                 ]);
             } elseif ($key == $count) {
                 $db->update('psrphp_cms_data', [
                     'priority' => $change_key,
                 ], [
-                    'id' => $value['id'],
+                    'id' => $vo['id'],
                 ]);
             } else {
                 $db->update('psrphp_cms_data', [
                     'priority' => $key,
                 ], [
-                    'id' => $value['id'],
+                    'id' => $vo['id'],
                 ]);
             }
         }
