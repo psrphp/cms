@@ -35,18 +35,7 @@
                             }
                         </style>
                         <?php
-                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), (function () use ($categoryProvider): array {
-                            $res = [];
-                            foreach ($categoryProvider as $vo) {
-                                $res[] = [
-                                    'value' => $vo['name'],
-                                    'title' => $vo['title'],
-                                    'parent' => $vo['parent'],
-                                    'group' => $vo['group'],
-                                ];
-                            }
-                            return $res;
-                        })());
+                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), $categorys);
                         ?>
                     </div>
                 </div>
@@ -63,9 +52,9 @@
             {
                 $pdata[] = $item;
                 if ($item['pid']) {
-                    foreach ($data as $value) {
-                        if ($value['id'] == $item['pid']) {
-                            get_pdata($data, $value, $pdata);
+                    foreach ($data as $vo) {
+                        if ($vo['id'] == $item['pid']) {
+                            get_pdata($data, $vo, $pdata);
                             break;
                         }
                     }
@@ -75,9 +64,9 @@
             function get_subdata(array $data, $pid): array
             {
                 $res = [];
-                foreach ($data as $value) {
-                    if ($value['pid'] == $pid) {
-                        $res[] = $value;
+                foreach ($data as $vo) {
+                    if ($vo['pid'] == $pid) {
+                        $res[] = $vo;
                     }
                 }
                 return $res;
@@ -88,6 +77,7 @@
                 <input type="hidden" name="category_name" value="{$request->get('category_name')}">
                 <div class="d-flex flex-column gap-2">
                     {foreach $fields as $field}
+                    {if $field['adminfilter']}
                     {switch $field['type']}
                     {case 'select'}
                     {case 'checkbox'}
@@ -103,7 +93,7 @@
                     $_select = [];
                     if ($request->get('filter.' . $field['name'])) {
                         foreach ($_alldata as $tmp) {
-                            if ($tmp['value'] == $request->get('filter.' . $field['name'])) {
+                            if ($tmp['alias'] == $request->get('filter.' . $field['name'])) {
                                 $_select = $tmp;
                                 break;
                             }
@@ -121,15 +111,15 @@
                             {php $_parent = []}
                             {foreach array_reverse($_pdata) as $parent}
                             <div class="d-flex flex-wrap gap-1 top">
-                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['value']??''}" id="bx_{$field.name}_{$parent['pid']}" autocomplete="off">
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" id="bx_{$field.name}_{$parent['pid']}" autocomplete="off">
                                 <label for="bx_{$field.name}_{$parent['pid']}"><span class="badge text-bg-light text-secondary">不限</span></label>
                                 {foreach $_alldata as $data}
                                 {if $data['pid'] == $parent['pid']}
                                 {if $data['id'] == $parent['id']}
-                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.value}" id="{$field.name}_{$data.id}" autocomplete="off" checked>
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" id="{$field.name}_{$data.id}" autocomplete="off" checked>
                                 <label for="{$field.name}_{$data.id}"><span class="badge text-bg-secondary">{$data.title}</span></label>
                                 {else}
-                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.value}" id="{$field.name}_{$data.id}" autocomplete="off">
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" id="{$field.name}_{$data.id}" autocomplete="off">
                                 <label for="{$field.name}_{$data.id}"><span class="badge text-bg-light text-secondary">{$data.title}</span></label>
                                 {/if}
                                 {/if}
@@ -140,10 +130,10 @@
 
                             {if $_subdata}
                             <div class="d-flex flex-wrap gap-1 sub">
-                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['value']??''}" id="sbbx_{$field.name}_{$_parent['id']??'0'}" autocomplete="off" checked>
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" id="sbbx_{$field.name}_{$_parent['id']??'0'}" autocomplete="off" checked>
                                 <label for="sbbx_{$field.name}_{$_parent['id']??'0'}"><span class="badge text-bg-secondary">不限</span></label>
                                 {foreach $_subdata as $sub}
-                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$sub.value}" id="{$field.name}_{$sub.id}" autocomplete="off">
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$sub.alias}" id="{$field.name}_{$sub.id}" autocomplete="off">
                                 <label for="{$field.name}_{$sub.id}"><span class="badge text-bg-light text-secondary">{$sub.title}</span></label>
                                 {/foreach}
                             </div>
@@ -165,11 +155,11 @@
                                 <label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">不限</span></label>
                                 {/if}
                                 {foreach $_subdata as $sub}
-                                {if in_array($sub['value'], (array)$request->get('filter.'.$field['name']))}
-                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$sub.value}" id="{$field.name}_{$sub.id}" autocomplete="off" checked>
+                                {if in_array($sub['alias'], (array)$request->get('filter.'.$field['name']))}
+                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$sub.alias}" id="{$field.name}_{$sub.id}" autocomplete="off" checked>
                                 <label for="{$field.name}_{$sub.id}"><span class="badge text-bg-secondary">{$sub.title}</span></label>
                                 {else}
-                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$sub.value}" id="{$field.name}_{$sub.id}" autocomplete="off">
+                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$sub.alias}" id="{$field.name}_{$sub.id}" autocomplete="off">
                                 <label for="{$field.name}_{$sub.id}"><span class="badge text-bg-light text-secondary">{$sub.title}</span></label>
                                 {/if}
                                 {/foreach}
@@ -178,6 +168,7 @@
                     </div>
                     {/if}
                     {/case}
+
                     {case 'int'}
                     {case 'float'}
                     {case 'date'}
@@ -199,8 +190,11 @@
                         </div>
                     </div>
                     {/case}
+
                     {/switch}
+                    {/if}
                     {/foreach}
+
                     <div>
                         <div class="mb-1">
                             <span class="text-secondary small">搜索:</span>
@@ -217,7 +211,7 @@
                         </div>
                         <div class="d-flex gap-2">
                             {foreach $fields as $field}
-                            {if in_array($field['type'], ['int', 'float', 'date', 'time', 'datetime'])}
+                            {if $field['adminorder']}
                             <div>
                                 <input type="radio" class="d-none" name="order[{$field.name}]" value="{$request->get('order.'.$field['name'])}" autocomplete="off" checked>
                                 {if $request->get('order.'.$field['name']) == 'desc'}
@@ -258,7 +252,7 @@
                 </tr>
             </thead>
             <tbody>
-                {foreach $contentProvider as $content}
+                {foreach $contents as $content}
                 <tr>
                     <td>
                         <div class="form-check">
@@ -276,21 +270,21 @@
                             <tr>
                                 <td>栏目：</td>
                                 <td>
-                                    {if $categoryProvider->has($content['category_name'])}
-                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_name'=>$content['category_name']])}">{$categoryProvider->get($content['category_name'])['title']}</a>
+                                    {if isset($categorys[$content['category_name']])}
+                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_name'=>$content['category_name']])}">{$categorys[$content['category_name']]['title']}</a>
                                     {else}
                                     <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_name'=>$content['category_name']])}">未知栏目</a>
                                     {/if}
                                 </td>
                             </tr>
                             {foreach $fields as $field}
+                            {if $field['adminlist']}
                             <?php $extra = json_decode($field['extra'], true); ?>
-                            {if $field['listable']}
                             <tr>
                                 <td>{$field.title}：</td>
                                 <td>
-                                    {if isset($extra['list_code']) && strlen($extra['list_code'])}
-                                    {echo $template->renderFromString($extra['list_code'], get_defined_vars())}
+                                    {if isset($extra['admin_list_tpl']) && strlen($extra['admin_list_tpl'])}
+                                    {echo $template->renderFromString($extra['admin_list_tpl'], get_defined_vars())}
                                     {else}
                                     {switch $field['type']}
 
@@ -318,10 +312,33 @@
 
                                     {case 'select'}
                                     <?php
-                                    $x = App\Psrphp\Cms\Model\DataProvider::getSelectData($extra['dict_id'], $content[$field['name']]);
+                                    $sels = (function () use ($field, $db, $content, $extra) {
+                                        $sel = $db->get('psrphp_cms_data', '*', [
+                                            'dict_id' => $extra['dict_id'],
+                                            'stemn' => $content[$field['name']]
+                                        ]);
+                                        $datas = $db->select('psrphp_cms_data', '*', [
+                                            'dict_id' => $extra['dict_id'],
+                                            'ORDER' => [
+                                                'priority' => 'DESC',
+                                                'id' => 'ASC',
+                                            ],
+                                        ]);
+                                        $getparent = function (array $items, $id) use (&$getparent): array {
+                                            $res = [];
+                                            foreach ($items as $vo) {
+                                                if ($vo['id'] == $id) {
+                                                    array_push($res, ...$getparent($items, $vo['pid']));
+                                                    array_push($res, $vo);
+                                                }
+                                            }
+                                            return $res;
+                                        };
+                                        return $getparent($datas, $sel['id']);
+                                    })();
                                     ?>
                                     <div class="d-flex gap-1">
-                                        {foreach $x as $v}
+                                        {foreach $sels as $v}
                                         <div>{$v['title']}</div>
                                         {/foreach}
                                     </div>
@@ -329,10 +346,29 @@
 
                                     {case 'checkbox'}
                                     <?php
-                                    $x = App\Psrphp\Cms\Model\DataProvider::getCheckboxData($extra['dict_id'], $content[$field['name']]);
+                                    $sels = (function () use ($field, $db, $content, $extra) {
+                                        $datas = $db->select('psrphp_cms_data', '*', [
+                                            'dict_id' => $extra['dict_id'],
+                                            'ORDER' => [
+                                                'priority' => 'DESC',
+                                                'id' => 'ASC',
+                                            ],
+                                        ]);
+                                        $strs = array_reverse(str_split(decbin($content[$field['name']]) . ''));
+                                        foreach ($strs as $key => $vo) {
+                                            if (!$vo) {
+                                                continue;
+                                            }
+                                            foreach ($datas as $v) {
+                                                if ($v['stemn'] == $key) {
+                                                    yield $v;
+                                                }
+                                            }
+                                        }
+                                    })();
                                     ?>
                                     <div class="d-flex gap-1">
-                                        {foreach $x as $v}
+                                        {foreach $sels as $v}
                                         <div>{$v['title']}</div>
                                         {/foreach}
                                     </div>
@@ -370,14 +406,6 @@
                             </tr>
                             {/if}
                             {/foreach}
-                            <tr>
-                                <td>创建时间：</td>
-                                <td>{$content['create_time']}</td>
-                            </tr>
-                            <tr>
-                                <td>更新时间：</td>
-                                <td>{$content['update_time']}</td>
-                            </tr>
                         </table>
                         <div>
                             <a href="{echo $router->build('/psrphp/cms/content/update', ['model_id'=>$model['id'], 'id'=>$content['id']])}">编辑</a>
@@ -448,18 +476,7 @@
                             }
                         </style>
                         <?php
-                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', '', (function () use ($categoryProvider): array {
-                            $res = [];
-                            foreach ($categoryProvider as $vo) {
-                                $res[] = [
-                                    'value' => $vo['name'],
-                                    'title' => $vo['title'],
-                                    'parent' => $vo['parent'],
-                                    'group' => $vo['group'],
-                                ];
-                            }
-                            return $res;
-                        })());
+                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', '', $categorys);
                         ?>
                     </div>
                     <div>

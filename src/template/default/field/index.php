@@ -14,8 +14,11 @@
                     <th class="text-nowrap">标题</th>
                     <th class="text-nowrap">字段</th>
                     <th class="text-nowrap">类型</th>
-                    <th class="text-nowrap">允许编辑</th>
-                    <th class="text-nowrap">列表显示</th>
+                    <th class="text-nowrap">后台编辑</th>
+                    <th class="text-nowrap">后台列表显示</th>
+                    <th class="text-nowrap">后台筛选</th>
+                    <th class="text-nowrap">后台排序</th>
+                    <th class="text-nowrap">后台检索</th>
                     <th class="text-nowrap">管理</th>
                 </tr>
             </thead>
@@ -35,14 +38,35 @@
                         {$vo.type}
                     </td>
                     <td>
-                        {if $vo['editable']}
+                        {if $vo['adminedit']}
                         <span>允许</span>
                         {else}
                         <span>-</span>
                         {/if}
                     </td>
                     <td>
-                        {if $vo['listable']}
+                        {if $vo['adminlist']}
+                        <span>允许</span>
+                        {else}
+                        <span>-</span>
+                        {/if}
+                    </td>
+                    <td>
+                        {if $vo['adminfilter']}
+                        <span>允许</span>
+                        {else}
+                        <span>-</span>
+                        {/if}
+                    </td>
+                    <td>
+                        {if $vo['adminorder']}
+                        <span>允许</span>
+                        {else}
+                        <span>-</span>
+                        {/if}
+                    </td>
+                    <td>
+                        {if $vo['adminsearch']}
                         <span>允许</span>
                         {else}
                         <span>-</span>
@@ -61,7 +85,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="6">
+                    <td colspan="9">
                         添加：
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'select'])}">单选</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'checkbox'])}">多选</a>

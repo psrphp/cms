@@ -21,7 +21,7 @@ class Create extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-9'))->addItem(
-                    (new Input('标题', 'title'))->set('help', '例如：'),
+                    (new Input('标题', 'title')),
                 )
             )
         );

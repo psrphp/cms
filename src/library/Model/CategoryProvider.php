@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Model;
 
+use Exception;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Psr14\Event;
 
-class CategoryProvider extends Provider
+class CategoryProvider
 {
     private static $instances = [];
 
     private $model_id;
+    private $list = [];
 
     private function __construct(int $model_id)
     {
@@ -37,35 +39,22 @@ class CategoryProvider extends Provider
         return $this->model_id;
     }
 
-    public function add(Category $category)
+    public function add(string $name, string $title, string $parent = null, string $group = null): self
     {
-        return $this->list[$category['name']] = $category;
-    }
-
-    public function get($key): Category
-    {
-        return $this->list[$key];
-    }
-
-    public function has($key): bool
-    {
-        return isset($this->list[$key]);
-    }
-
-    public function delete($key): void
-    {
-        unset($this->list[$key]);
-    }
-
-    public function getSubCategory($name): array
-    {
-        $res = [];
-        foreach (CategoryProvider::getInstance($this->model_id) as $vo) {
-            if ($vo['parent'] == $name) {
-                array_push($res, ...$this->getSubCategory($vo['name']));
-            }
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $name)) {
+            throw new Exception("栏目名称只能由字母、数字、下划线组成");
         }
-        $res[] = $name;
-        return $res;
+        $this->list[$name] = [
+            'name' => $name,
+            'title' => $title,
+            'parent' => $parent,
+            'group' => $group,
+        ];
+        return $this;
+    }
+
+    public function all(): array
+    {
+        return $this->list;
     }
 }

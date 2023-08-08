@@ -26,6 +26,18 @@ class Index extends Common
             $model = $db->get('psrphp_cms_model', '*', [
                 'id' => $model_id,
             ]);
+
+            $categorys = [];
+            foreach (CategoryProvider::getInstance($model['id'])->all() as $vo) {
+                $categorys[$vo['name']] = [
+                    'name' => $vo['name'],
+                    'value' => $vo['name'],
+                    'title' => $vo['title'],
+                    'parent' => $vo['parent'],
+                    'group' => $vo['group'],
+                ];
+            }
+
             $fields = $db->select('psrphp_cms_field', '*', [
                 'model_id' => $model['id'],
                 'ORDER' => [
@@ -33,29 +45,47 @@ class Index extends Common
                     'id' => 'ASC',
                 ],
             ]);
-            $page = $request->get('page', 1) ?: 1;
-            $size = min(100, $request->get('size', 20) ?: 20);
+
+            if (strlen($request->get('category_name', ''))) {
+                $category_names = $this->getSubCategorys($categorys, $request->get('category_name', ''));
+            } else {
+                $category_names = [];
+            }
+
+            $qs = [];
+            $q = $request->get('q', '');
+            if (is_string($q) && strlen($q)) {
+                foreach ($fields as $vo) {
+                    if ($vo['adminsearch']) {
+                        $qs[$vo['name']] = '%' . $q . '%';
+                    }
+                }
+            }
 
             $contentProvider = ContentProvider::getInstance(
                 $model['id'],
-                $request->get('category_name'),
+                $category_names,
                 $request->get('filter', []),
-                $request->get('order', [
-                    'id' => 'DESC',
-                ]),
-                $request->get('q', ''),
-                (int)$page,
-                (int)$size
+                $qs
             );
 
             $total = $contentProvider->getTotal();
+            $page = intval($request->get('page', 1)) ?: 1;
+            $size = min(100, intval($request->get('size', 20)) ?: 20);
+            $contents = $contentProvider->select(
+                $request->get('order', [
+                    'id' => 'DESC',
+                ]),
+                $page,
+                $size
+            );
 
             return $template->renderFromFile('content/index@psrphp/cms', [
                 'model' => $model,
                 'models' => $models,
                 'fields' => $fields,
-                'categoryProvider' => CategoryProvider::getInstance($model['id']),
-                'contentProvider' => $contentProvider,
+                'categorys' => $categorys,
+                'contents' => $contents,
                 'total' => $total,
                 'page' => $page,
                 'size' => $size,
@@ -66,5 +96,17 @@ class Index extends Common
                 'models' => $models,
             ]);
         }
+    }
+
+    private function getSubCategorys(array $categorys, string $category_name): array
+    {
+        $res = [];
+        foreach ($categorys as $vo) {
+            if ($vo['parent'] == $category_name) {
+                array_push($res, ...$this->getSubCategorys($categorys, $vo['name']));
+            }
+        }
+        $res[] = $category_name;
+        return $res;
     }
 }

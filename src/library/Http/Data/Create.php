@@ -25,8 +25,8 @@ class Create extends Common
                 (new Col('col-md-9'))->addItem(
                     (new Hidden('dict_id', $request->get('dict_id', 0))),
                     (new Hidden('pid', $request->get('pid', 0))),
-                    (new Input('标题', 'title'))->set('help', '例如：'),
-                    (new Input('值', 'value'))->set('help', '例如：'),
+                    (new Input('标题', 'title')),
+                    (new Input('值', 'value')),
                 )
             )
         );
@@ -40,11 +40,18 @@ class Create extends Common
         $dict = $db->get('psrphp_cms_dict', '*', [
             'id' => $request->post('dict_id'),
         ]);
+        $value = $request->post('value');
+        if ($db->get('psrphp_cms_data', '*', [
+            'dict_id' => $dict['id'],
+            'value' => $value,
+        ])) {
+            return Response::error('值不能重复');
+        }
         $db->insert('psrphp_cms_data', [
             'dict_id' => $dict['id'],
             'pid' => $request->post('pid', 0),
             'title' => $request->post('title'),
-            'value' => $request->post('value'),
+            'value' => $value,
             'sn' => $this->getSn($db->select('psrphp_cms_data', 'sn', [
                 'dict_id' => $dict['id'],
                 'ORDER' => [

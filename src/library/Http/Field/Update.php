@@ -56,14 +56,14 @@ class Update extends Common
                     ][$field['type']]))->set('disabled', true),
                     ...(function () use ($db, $router, $field, $extra): array {
                         $res = [];
-                        $res[] = (new Radio('是否允许通过表单编辑', 'editable', $field['editable'] ?? '1', [
+                        $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
                             '0' => '不允许',
                             '1' => '允许',
                         ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
-                        $res[] = (new Switchs('是否允许后台列表显示', 'listable', $field['listable'] ?? '1'))->addSwitch(
+                        $res[] = (new Switchs('是否允许后台列表显示', 'adminlist', $field['adminlist'] ?? '1'))->addSwitch(
                             (new SwitchItem('不允许', 0)),
                             (new SwitchItem('允许', 1))->addItem(
-                                (new Code('渲染模板', 'extra[list_code]', $extra['list_code'] ?? ''))->set('height', '100px'),
+                                (new Code('渲染模板', 'extra[admin_list_tpl]', $extra['admin_list_tpl'] ?? ''))->set('height', '100px'),
                             )
                         );
                         switch ($field['type']) {
@@ -81,6 +81,10 @@ class Update extends Common
                                 $res[] = (new Radio('筛选模式', 'extra[filter_type]', $extra['filter_type'] ?? '1', [
                                     '1' => '单选',
                                     '2' => '多选',
+                                ]));
+                                $res[] = (new Radio('是否允许后台筛选', 'adminfilter', $field['adminfilter'] ?? '1', [
+                                    '0' => '不允许',
+                                    '1' => '允许',
                                 ]));
                                 break;
 
@@ -100,6 +104,10 @@ class Update extends Common
                                     '2' => '或多选',
                                     '3' => '且多选',
                                 ]));
+                                $res[] = (new Radio('是否允许后台筛选', 'adminfilter', $field['adminfilter'] ?? '1', [
+                                    '0' => '不允许',
+                                    '1' => '允许',
+                                ]));
                                 break;
 
                             case 'text':
@@ -107,10 +115,18 @@ class Update extends Common
                             case 'code':
                             case 'markdown':
                             case 'editor':
+                                $res[] = (new Radio('是否作为后台的搜索字段', 'adminsearch', $field['adminsearch'] ?? '1', [
+                                    '0' => '否',
+                                    '1' => '是',
+                                ]));
                                 break;
 
                             case 'int':
                             case 'float':
+                                $res[] = (new Radio('是否允许后台排序', 'adminorder', $field['adminorder'] ?? '1', [
+                                    '0' => '不允许',
+                                    '1' => '允许',
+                                ]));
                                 $res[] = (new Radio('是否允许负数', 'extra[negative]', $extra['negative'] ?? '0', [
                                     '0' => '不允许',
                                     '1' => '允许',
@@ -122,6 +138,10 @@ class Update extends Common
                             case 'date':
                             case 'time':
                             case 'datetime':
+                                $res[] = (new Radio('是否允许后台排序', 'adminorder', $field['adminorder'] ?? '1', [
+                                    '0' => '不允许',
+                                    '1' => '允许',
+                                ]));
                                 break;
 
                             default:
@@ -146,12 +166,29 @@ class Update extends Common
 
         $update = array_intersect_key($request->post(), [
             'title' => '',
-            'editable' => '',
-            'listable' => '',
+            'adminedit' => '',
+            'adminlist' => '',
+            'adminfilter' => '',
+            'adminorder' => '',
+            'adminsearch' => '',
         ]);
 
         if ($extra = $request->post('extra', [])) {
-            $update['extra'] = json_encode(array_merge(json_decode($field['extra'], true), $extra), JSON_UNESCAPED_UNICODE);
+            $extra = array_merge(json_decode($field['extra'], true), $extra);
+            switch ($field['type']) {
+                case 'select':
+                case 'checkbox':
+                    if (!$db->get('psrphp_cms_dict', '*', [
+                        'id' => $extra['dict_id'] ?? 0,
+                    ])) {
+                        return Response::error('请选择数据源');
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            $update['extra'] = json_encode($extra, JSON_UNESCAPED_UNICODE);
         }
 
         $db->update('psrphp_cms_field', $update, [

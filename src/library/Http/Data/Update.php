@@ -44,6 +44,15 @@ class Update extends Common
             'id' => $request->post('id'),
         ]);
 
+        $value = $request->post('value');
+        if ($db->get('psrphp_cms_data', '*', [
+            'dict_id' => $data['dict_id'],
+            'value' => $value,
+            'id[!]' => $data['id'],
+        ])) {
+            return Response::error('值不能重复');
+        }
+
         $update = array_intersect_key($request->post(), [
             'title' => '',
             'value' => '',

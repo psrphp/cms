@@ -28,7 +28,7 @@ class Update extends Common
             (new Row())->addCol(
                 (new Col('col-md-8'))->addItem(
                     (new Hidden('id', $model['id'])),
-                    (new Input('标题', 'title', $model['title']))->set('help', '例如：/, /help, /about.html, /page/map.php'),
+                    (new Input('标题', 'title', $model['title'])),
                 )
             )
         );

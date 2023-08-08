@@ -27,6 +27,7 @@ CREATE TABLE `prefix_psrphp_cms_model` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
     `name` varchar(255) NOT NULL COMMENT '名称',
+    `type` varchar(255) NOT NULL DEFAULT '' COMMENT '类型',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='内容模型表';
 DROP TABLE IF EXISTS `prefix_psrphp_cms_field`;
@@ -37,8 +38,11 @@ CREATE TABLE `prefix_psrphp_cms_field` (
     `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
     `name` varchar(255) NOT NULL COMMENT '字段',
     `type` varchar(255) NOT NULL COMMENT '类型',
-    `editable` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许通过表单编辑',
-    `listable` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台列表显示',
+    `adminedit` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许通过表单编辑',
+    `adminlist` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台列表显示',
+    `adminfilter` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台筛选',
+    `adminorder` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台排序',
+    `adminsearch` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台检索',
     `extra` text COMMENT '其他数据',
     `priority` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
     PRIMARY KEY (`id`) USING BTREE

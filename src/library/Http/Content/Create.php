@@ -44,7 +44,7 @@ class Create extends Common
             (new Hidden('model_id', $model['id'])),
             (new Select('栏目', 'category_name', $content['category_name'] ?? '', (function () use ($model): array {
                 $res = [];
-                foreach (CategoryProvider::getInstance($model['id']) as $vo) {
+                foreach (CategoryProvider::getInstance($model['id'])->all() as $vo) {
                     $res[] = [
                         'value' => $vo['name'],
                         'title' => $vo['title'],
@@ -58,7 +58,7 @@ class Create extends Common
                 $res = [];
                 foreach ($db->select('psrphp_cms_field', '*', [
                     'model_id' => $model['id'],
-                    'editable' => 1,
+                    'adminedit' => 1,
                 ]) as $vo) {
                     $extra = is_null($vo['extra']) ? [] : json_decode($vo['extra'], true);
                     switch ($vo['type']) {

@@ -9,73 +9,65 @@ use Medoo\Medoo;
 use PsrPHP\Database\Db;
 use PsrPHP\Framework\Framework;
 
-class ContentProvider extends Provider
+class ContentProvider
 {
-    private $model_id;
-    private $category_name;
-    private $filter;
-    private $order;
-    private $q;
-    private $page;
-    private $size;
+    private $model;
 
-    private function __construct(int $model_id, $category_name = null, array $filter = [], array $order = [], string $q = '', int $page = 1, int $size = 10)
+    private $wheresql = '';
+    private $wherebinds = [];
+
+    private function __construct(int $model_id, array $category_names = null, array $filter = [],  array $qs = [])
     {
-        $this->model_id = $model_id;
-        $this->category_name = $category_name;
-        $this->filter = $filter;
-        $this->order = $order;
-        $this->q = $q;
-        $this->page = $page;
-        $this->size = $size;
-
-        $string = '';
-        $binds = [];
-        $this->renderWhere($string, $binds);
-        $this->renderOrder($string, $binds);
-        $this->renderLimit($string, $binds);
-
-        foreach ($this->getDb()->select('psrphp_cms_content_' . Model::getInstance($this->model_id)->getData('name'), '*', Medoo::raw($string, $binds)) as $value) {
-            $this->list[$value['id']] = Content::getInstance($this->model_id, $value['id'], $value);
-        }
+        $this->model = $this->getDb()->get('psrphp_cms_model', '*', [
+            'id' => $model_id,
+        ]);
+        $this->renderWhere($model_id, $category_names, $filter, $qs);
     }
 
-    public static function getInstance(int $model_id, $category_name = null, array $filter = [], array $order = [], string $q = '', int $page = 1, int $size = 10): self
+    public static function getInstance(int $model_id, array $category_names = null, array $filter = [], array $qs = []): self
     {
-        return new self($model_id, $category_name, $filter, $order, $q, $page, $size);
+        return new self($model_id, $category_names, $filter, $qs);
     }
 
     public function getTotal()
     {
-        $model = Model::getInstance($this->model_id);
-        $string = '';
-        $binds = [];
-        $this->renderWhere($string, $binds);
-        return $this->getDb()->count('psrphp_cms_content_' . $model['name'], Medoo::raw($string, $binds));
+        return $this->getDb()->count('psrphp_cms_content_' . $this->model['name'], Medoo::raw($this->wheresql, $this->wherebinds));
     }
 
-    private function renderWhere(string &$string, array &$binds)
+    public function select(array $order = [], int $page = 1, int $size = 10)
+    {
+        $sql = $this->wheresql;
+        $binds = $this->wherebinds;
+        $this->renderOrder($order, $sql, $binds);
+        $this->renderLimit($page, $size, $sql, $binds);
+        return $this->getDb()->select('psrphp_cms_content_' . $this->model['name'], '*', Medoo::raw($sql, $binds));
+    }
+
+    private function renderWhere(int $model_id, array $category_names = [], array $filter = [],  array $qs = [])
     {
         $where = [];
         $likes = [];
 
-        if ($this->category_name) {
-            if ($names = $this->getSubCategory($this->category_name)) {
-                // todo.. 防止注入。
-                $where[] = '`category_name` in (' . implode(',', $names) . ')';
+        if ($category_names) {
+            $catn = [];
+            foreach ($category_names as $vo) {
+                if (!preg_match('/^[A-Za-z0-9_]+$/', $vo)) {
+                    throw new Exception("参数[categorys_names]错误");
+                }
+                $key = ':catname_' . $vo;
+                $catn[] = $key;
+                $this->wherebinds[$key] = $vo;
             }
+            $where[] = '`category_name` in (' . implode(',', $catn) . ')';
         }
 
-        $filter = $this->filter;
-
-        $fields = $this->getDb()->select('psrphp_cms_field', '*', [
-            'model_id' => $this->model_id,
+        foreach ($this->getDb()->select('psrphp_cms_field', '*', [
+            'model_id' => $model_id,
             'ORDER' => [
                 'priority' => 'DESC',
                 'id' => 'ASC',
             ],
-        ]);
-        foreach ($fields as $field) {
+        ]) as $field) {
             $extra = is_null($field['extra']) ? [] : json_decode($field['extra'], true);
             switch ($field['type']) {
                 case 'checkbox':
@@ -138,7 +130,7 @@ class ContentProvider extends Provider
                                 'dict_id' => $extra['dict_id'],
                                 'value' => (string)$tmp
                             ]);
-                            array_push($ids, ...$this->getSub($this->getDb()->select('psrphp_cms_data', '*', [
+                            array_push($ids, ...$this->getSubDataIds($this->getDb()->select('psrphp_cms_data', '*', [
                                 'dict_id' => $extra['dict_id'],
                                 'ORDER' => [
                                     'priority' => 'DESC',
@@ -159,9 +151,9 @@ class ContentProvider extends Provider
                 case 'code':
                 case 'markdown':
                 case 'editor':
-                    if (strlen($this->q)) {
+                    if (isset($qs[$field['name']])) {
                         $likes[] = '`' . $field['name'] . '` like :' . $field['name'];
-                        $binds[':' . $field['name']] = '%' . $this->q . '%';
+                        $this->wherebinds[':' . $field['name']] = $qs[$field['name']];
                     }
                     break;
 
@@ -185,14 +177,14 @@ class ContentProvider extends Provider
                     $maxkey = ':maxkey_' . $field['name'];
                     if (strlen($filter[$field['name']]['min']) && strlen($filter[$field['name']]['max'])) {
                         $where[] = '`' . $field['name'] . '` BETWEEN ' . $minkey . ' AND ' . $maxkey;
-                        $binds[$minkey] = $filter[$field['name']]['min'];
-                        $binds[$maxkey] = $filter[$field['name']]['max'];
+                        $this->wherebinds[$minkey] = $filter[$field['name']]['min'];
+                        $this->wherebinds[$maxkey] = $filter[$field['name']]['max'];
                     } elseif (strlen($filter[$field['name']]['min'])) {
                         $where[] = '`' . $field['name'] . '`>=' . $minkey;
-                        $binds[$minkey] = $filter[$field['name']]['min'];
+                        $this->wherebinds[$minkey] = $filter[$field['name']]['min'];
                     } elseif (strlen($filter[$field['name']]['max'])) {
                         $where[] = '`' . $field['name'] . '`<=' . $maxkey;
-                        $binds[$maxkey] = $filter[$field['name']]['max'];
+                        $this->wherebinds[$maxkey] = $filter[$field['name']]['max'];
                     }
                     break;
 
@@ -206,14 +198,14 @@ class ContentProvider extends Provider
         }
 
         if ($where) {
-            $string .= ' WHERE ' . implode(' AND ', $where);
+            $this->wheresql = ' WHERE ' . implode(' AND ', $where);
         }
     }
 
-    private function renderOrder(string &$string, array &$binds)
+    private function renderOrder(array $order, string &$string, array &$binds)
     {
         $orders = [];
-        foreach ($this->order as $key => $value) {
+        foreach ($order as $key => $value) {
             $value = strtolower($value);
             if (!preg_match('/^[A-Za-z0-9_]+$/', $key)) {
                 throw new Exception("参数错误");
@@ -228,35 +220,22 @@ class ContentProvider extends Provider
         }
     }
 
-    private function renderLimit(string &$string, array &$binds)
+    private function renderLimit(int $page, int $size, string &$string, array &$binds)
     {
         $string .= ' LIMIT :start, :size';
-        $binds[':start'] = ($this->page - 1) * $this->size;
-        $binds[':size'] = $this->size;
+        $binds[':start'] = ($page - 1) * $size;
+        $binds[':size'] = $size;
     }
 
-    private function getSub($datas, $id): array
+    private function getSubDataIds($datas, $id): array
     {
         $res = [];
         foreach ($datas as $vo) {
             if ($vo['pid'] == $id) {
-                array_push($res, ...$this->getSub($datas, $vo['id']));
+                array_push($res, ...$this->getSubDataIds($datas, $vo['id']));
             }
         }
         $res[] = $id;
-        return $res;
-    }
-
-    private function getSubCategory($name): array
-    {
-
-        $res = [];
-        foreach (CategoryProvider::getInstance($this->model_id) as $vo) {
-            if ($vo['parent'] == $name) {
-                array_push($res, ...$this->getSubCategory($vo['name']));
-            }
-        }
-        $res[] = $name;
         return $res;
     }
 
@@ -267,15 +246,5 @@ class ContentProvider extends Provider
         ): Db {
             return $db;
         });
-    }
-
-    public function get($key): Content
-    {
-        return $this->list[$key];
-    }
-
-    public function has($key): bool
-    {
-        return isset($this->list[$key]);
     }
 }

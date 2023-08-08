@@ -46,7 +46,7 @@ class Update extends Common
             (new Hidden('id', $content['id'])),
             (new Select('栏目', 'category_name', $content['category_name'] ?? 0, (function () use ($model): array {
                 $res = [];
-                foreach (CategoryProvider::getInstance($model['id']) as $vo) {
+                foreach (CategoryProvider::getInstance($model['id'])->all() as $vo) {
                     $res[] = [
                         'value' => $vo['name'],
                         'title' => $vo['title'],
@@ -60,7 +60,7 @@ class Update extends Common
                 $res = [];
                 foreach ($db->select('psrphp_cms_field', '*', [
                     'model_id' => $model['id'],
-                    'editable' => 1,
+                    'adminedit' => 1,
                 ]) as $vo) {
                     $extra = json_decode($vo['extra'], true);
                     switch ($vo['type']) {
