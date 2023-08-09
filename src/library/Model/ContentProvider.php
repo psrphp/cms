@@ -76,12 +76,14 @@ class ContentProvider
                             if (isset($filter[$field['name']])) {
                                 $tmp = $filter[$field['name']];
                                 if (is_string($tmp) && strlen($tmp)) {
-                                    $sn = $this->getDb()->get('psrphp_cms_data', 'sn', [
+                                    $value = $this->getDb()->get('psrphp_cms_data', 'value', [
                                         'dict_id' => $extra['dict_id'],
-                                        'value' => $tmp
+                                        'alias' => $tmp
                                     ]);
-                                    $x = pow(2, $sn);
-                                    $where[] = '`' . $field['name'] . '`&' . $x . '>0';
+                                    if (!is_null($value)) {
+                                        $x = pow(2, $value);
+                                        $where[] = '`' . $field['name'] . '`&' . $x . '>0';
+                                    }
                                 }
                             }
                             break;
@@ -90,13 +92,15 @@ class ContentProvider
                                 $tmp = $filter[$field['name']];
                                 if ($tmp && is_array($tmp)) {
                                     $x = 0;
-                                    foreach ($this->getDb()->select('psrphp_cms_data', 'sn', [
+                                    foreach ($this->getDb()->select('psrphp_cms_data', 'value', [
                                         'dict_id' => $extra['dict_id'],
-                                        'value' => $tmp
-                                    ]) as $sn) {
-                                        $x += pow(2, $sn);
+                                        'alias' => $tmp
+                                    ]) as $vl) {
+                                        $x += pow(2, $vl);
                                     }
-                                    $where[] = '`' . $field['name'] . '`&' . $x . '>0';
+                                    if ($x) {
+                                        $where[] = '`' . $field['name'] . '`&' . $x . '>0';
+                                    }
                                 }
                             }
                             break;
@@ -105,13 +109,15 @@ class ContentProvider
                                 $tmp = $filter[$field['name']];
                                 if ($tmp && is_array($tmp)) {
                                     $x = 0;
-                                    foreach ($this->getDb()->select('psrphp_cms_data', 'sn', [
+                                    foreach ($this->getDb()->select('psrphp_cms_data', 'value', [
                                         'dict_id' => $extra['dict_id'],
-                                        'value' => $tmp
-                                    ]) as $sn) {
-                                        $x += pow(2, $sn);
+                                        'alias' => $tmp
+                                    ]) as $vo) {
+                                        $x += pow(2, $vo);
                                     }
-                                    $where[] = '`' . $field['name'] . '`&' . $x . ' = ' . $x;
+                                    if ($x) {
+                                        $where[] = '`' . $field['name'] . '`&' . $x . ' = ' . $x;
+                                    }
                                 }
                             }
                             break;
@@ -123,26 +129,30 @@ class ContentProvider
 
                 case 'select':
                     if (isset($filter[$field['name']])) {
-                        $values = (array)$filter[$field['name']];
-                        $ids = [];
-                        foreach ($values as $tmp) {
-                            $id = $this->getDb()->get('psrphp_cms_data', 'id', [
-                                'dict_id' => $extra['dict_id'],
-                                'value' => (string)$tmp
-                            ]);
-                            array_push($ids, ...$this->getSubDataIds($this->getDb()->select('psrphp_cms_data', '*', [
-                                'dict_id' => $extra['dict_id'],
-                                'ORDER' => [
-                                    'priority' => 'DESC',
-                                    'id' => 'ASC',
-                                ],
-                            ]), $id));
-                        }
-                        $sns = $this->getDb()->select('psrphp_cms_data', 'sn', [
+                        $getsubval = function ($items, $val) use (&$getsubval): array {
+                            $res = [];
+                            array_push($res, $val);
+                            foreach ($items as $vo) {
+                                if ($vo['parent'] == $val) {
+                                    array_push($res, ...$getsubval($items, $vo['value']));
+                                }
+                            }
+                            return $res;
+                        };
+                        $datas = $this->getDb()->select('psrphp_cms_data', '*', [
                             'dict_id' => $extra['dict_id'],
-                            'id' => $ids,
                         ]);
-                        $where[] = '`' . $field['name'] . '` in (' . implode(',', $sns) . ')';
+                        $vls = [];
+                        foreach ((array)$filter[$field['name']] as $tmp) {
+                            $thisval = $this->getDb()->get('psrphp_cms_data', 'value', [
+                                'dict_id' => $extra['dict_id'],
+                                'alias' => (string)$tmp
+                            ]);
+                            if (!is_null($thisval)) {
+                                array_push($vls, ...$getsubval($datas, $thisval));
+                            }
+                        }
+                        $where[] = '`' . $field['name'] . '` in (' . implode(',', $vls) . ')';
                     }
                     break;
 
@@ -205,13 +215,13 @@ class ContentProvider
     private function renderOrder(array $order, string &$string, array &$binds)
     {
         $orders = [];
-        foreach ($order as $key => $value) {
-            $value = strtolower($value);
+        foreach ($order as $key => $vo) {
+            $vo = strtolower($vo);
             if (!preg_match('/^[A-Za-z0-9_]+$/', $key)) {
                 throw new Exception("参数错误");
             }
-            if (in_array($value, ['desc', 'asc'])) {
-                $orders[] = '`' . $key . '` ' . $value;
+            if (in_array($vo, ['desc', 'asc'])) {
+                $orders[] = '`' . $key . '` ' . $vo;
             }
         }
 
@@ -225,18 +235,6 @@ class ContentProvider
         $string .= ' LIMIT :start, :size';
         $binds[':start'] = ($page - 1) * $size;
         $binds[':size'] = $size;
-    }
-
-    private function getSubDataIds($datas, $id): array
-    {
-        $res = [];
-        foreach ($datas as $vo) {
-            if ($vo['pid'] == $id) {
-                array_push($res, ...$this->getSubDataIds($datas, $vo['id']));
-            }
-        }
-        $res[] = $id;
-        return $res;
     }
 
     private function getDb(): Db

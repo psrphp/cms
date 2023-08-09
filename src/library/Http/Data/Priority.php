@@ -22,7 +22,7 @@ class Priority extends Common
 
         $datas = $db->select('psrphp_cms_data', '*', [
             'dict_id' => $data['dict_id'],
-            'pid' => $data['pid'],
+            'parent' => $data['parent'],
             'ORDER' => [
                 'priority' => 'DESC',
                 'id' => 'ASC',
@@ -31,7 +31,7 @@ class Priority extends Common
 
         $count = $db->count('psrphp_cms_data', [
             'dict_id' => $data['dict_id'],
-            'pid' => $data['pid'],
+            'parent' => $data['parent'],
             'id[!]' => $data['id'],
             'priority[<=]' => $data['priority'],
             'ORDER' => [

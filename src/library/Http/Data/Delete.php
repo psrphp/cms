@@ -15,23 +15,28 @@ class Delete extends Common
         Db $db,
         Request $request,
     ) {
-        $this->deleteSub($db, $request->get('id'));
+        if (!$item = $db->get('psrphp_cms_data', '*', [
+            'id' => $request->get('id'),
+        ])) {
+            return Response::error('数据不存在');
+        }
+        $this->deleteSub($db, $item);
         return Response::success('操作成功！');
     }
 
-    private function deleteSub(Db $db, $id)
+    private function deleteSub(Db $db, array $item)
     {
         foreach ($db->select('psrphp_cms_data', '*', [
-            'pid' => $id,
+            'parent' => $item['value'],
             'ORDER' => [
                 'priority' => 'DESC',
                 'id' => 'ASC',
             ],
         ]) as $vo) {
-            $this->deleteSub($db, $vo['id']);
+            $this->deleteSub($db, $vo);
         }
         $db->delete('psrphp_cms_data', [
-            'id' => $id,
+            'id' => $item['id'],
         ]);
     }
 }

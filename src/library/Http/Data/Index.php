@@ -21,7 +21,7 @@ class Index extends Common
         ]);
         $datas = $db->select('psrphp_cms_data', '*', [
             'dict_id' => $dict['id'],
-            'pid' => $request->get('pid', 0),
+            'parent' => $request->get('parent'),
             'ORDER' => [
                 'priority' => 'DESC',
                 'id' => 'ASC',

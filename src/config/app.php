@@ -15,10 +15,10 @@ DROP TABLE IF EXISTS `prefix_psrphp_cms_data`;
 CREATE TABLE `prefix_psrphp_cms_data` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `dict_id` int(10) unsigned NOT NULL COMMENT '数据源ID',
-    `pid` int(10) unsigned NOT NULL COMMENT '上级ID',
     `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
-    `value` varchar(255) NOT NULL COMMENT '值',
-    `sn` int(10) unsigned NOT NULL COMMENT '',
+    `alias` varchar(255) NOT NULL COMMENT '别名',
+    `value` int(10) unsigned NOT NULL COMMENT '',
+    `parent` int(10) unsigned DEFAULT NULL COMMENT '上级',
     `priority` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='数据源数据表';

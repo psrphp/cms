@@ -24,9 +24,9 @@ class Create extends Common
             (new Row())->addCol(
                 (new Col('col-md-9'))->addItem(
                     (new Hidden('dict_id', $request->get('dict_id', 0))),
-                    (new Hidden('pid', $request->get('pid', 0))),
+                    (new Hidden('parent', $request->get('parent'))),
                     (new Input('标题', 'title')),
-                    (new Input('值', 'value')),
+                    (new Input('别名', 'alias')),
                 )
             )
         );
@@ -40,19 +40,19 @@ class Create extends Common
         $dict = $db->get('psrphp_cms_dict', '*', [
             'id' => $request->post('dict_id'),
         ]);
-        $value = $request->post('value');
+        $alias = $request->post('alias');
         if ($db->get('psrphp_cms_data', '*', [
             'dict_id' => $dict['id'],
-            'value' => $value,
+            'alias' => $alias,
         ])) {
-            return Response::error('值不能重复');
+            return Response::error('别名不能重复');
         }
         $db->insert('psrphp_cms_data', [
             'dict_id' => $dict['id'],
-            'pid' => $request->post('pid', 0),
+            'parent' => $request->post('parent'),
             'title' => $request->post('title'),
-            'value' => $value,
-            'sn' => $this->getSn($db->select('psrphp_cms_data', 'sn', [
+            'alias' => $alias,
+            'value' => $this->getVals($db->select('psrphp_cms_data', 'value', [
                 'dict_id' => $dict['id'],
                 'ORDER' => [
                     'priority' => 'DESC',
@@ -64,10 +64,10 @@ class Create extends Common
         return Response::success('操作成功！', 'javascript:history.go(-2)');
     }
 
-    private function getSn(array $values): int
+    private function getVals(array $items): int
     {
-        for ($i = 0; $i < count($values) + 10; $i++) {
-            if (!in_array($i, $values)) {
+        for ($i = 0; $i < count($items) + 10; $i++) {
+            if (!in_array($i, $items)) {
                 return $i;
             }
         }

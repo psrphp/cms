@@ -7,14 +7,14 @@
         </div>
     </div>
     <div class="my-4">
-        <a class="btn btn-primary" href="{:$router->build('/psrphp/cms/data/create', ['dict_id'=>$dict['id'], 'pid'=>$request->get('pid', 0)])}">新增</a>
+        <a class="btn btn-primary" href="{:$router->build('/psrphp/cms/data/create', ['dict_id'=>$dict['id'], 'parent'=>$request->get('parent')])}">新增</a>
     </div>
     <div class="table-responsive my-4">
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th class="text-nowrap">标题</th>
-                    <th class="text-nowrap">值</th>
+                    <th class="text-nowrap">别名</th>
                     <th class="text-nowrap">管理</th>
                 </tr>
             </thead>
@@ -25,12 +25,12 @@
                         {$vo.title}
                     </td>
                     <td>
-                        {$vo.value}
+                        {$vo.alias}
                     </td>
                     <td>
                         <a href="{:$router->build('/psrphp/cms/data/update', ['id'=>$vo['id']])}">编辑</a>
                         <a href="{:$router->build('/psrphp/cms/data/delete', ['id'=>$vo['id']])}" onclick="return confirm('确定删除吗？删除后不可恢复！');">删除</a>
-                        <a href="{:$router->build('/psrphp/cms/data/index', ['dict_id'=>$dict['id'], 'pid'=>$vo['id']])}">下一级</a>
+                        <a href="{:$router->build('/psrphp/cms/data/index', ['dict_id'=>$dict['id'], 'parent'=>$vo['value']])}">下一级</a>
                         <a href="{echo $router->build('/psrphp/cms/data/priority', ['id'=>$vo['id'],'type'=>'up'])}">上移</a>
                         <a href="{echo $router->build('/psrphp/cms/data/priority', ['id'=>$vo['id'],'type'=>'down'])}">下移</a>
                     </td>

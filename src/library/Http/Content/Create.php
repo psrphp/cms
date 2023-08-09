@@ -64,25 +64,13 @@ class Create extends Common
                     switch ($vo['type']) {
                         case 'select':
                             $res[] = new Select($vo['title'], $vo['name'], $content[$vo['name']] ?? '', (function () use ($db, $vo, $extra): array {
-                                $datas = [];
-                                foreach ($db->select('psrphp_cms_data', '*', [
+                                return $db->select('psrphp_cms_data', '*', [
                                     'dict_id' => $extra['dict_id'],
                                     'ORDER' => [
                                         'priority' => 'DESC',
                                         'id' => 'ASC',
                                     ],
-                                ]) as $data) {
-                                    $datas[$data['id']] = $data;
-                                }
-                                $res = [];
-                                foreach ($datas as $vo) {
-                                    $res[] = [
-                                        'value' => $vo['sn'],
-                                        'title' => $vo['title'],
-                                        'parent' => $vo['pid'] ? $datas[$vo['pid']]['sn'] : null,
-                                    ];
-                                }
-                                return $res;
+                                ]);
                             })());
                             break;
                         case 'checkbox':
@@ -98,13 +86,13 @@ class Create extends Common
                                 $res = [];
                                 foreach ($db->select('psrphp_cms_data', '*', [
                                     'dict_id' => $extra['dict_id'],
-                                    'pid' => '0',
+                                    'parent' => null,
                                     'ORDER' => [
                                         'priority' => 'DESC',
                                         'id' => 'ASC',
                                     ],
                                 ]) as $data) {
-                                    $res[$data['sn']] = $data['title'];
+                                    $res[$data['value']] = $data['title'];
                                 }
                                 return $res;
                             })());

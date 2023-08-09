@@ -47,42 +47,19 @@
             </script>
         </div>
         <div>
-            <?php
-            function get_pdata(array $data, array $item, array &$pdata = []): array
-            {
-                $pdata[] = $item;
-                if ($item['pid']) {
-                    foreach ($data as $vo) {
-                        if ($vo['id'] == $item['pid']) {
-                            get_pdata($data, $vo, $pdata);
-                            break;
-                        }
-                    }
-                }
-                return $pdata;
-            }
-            function get_subdata(array $data, $pid): array
-            {
-                $res = [];
-                foreach ($data as $vo) {
-                    if ($vo['pid'] == $pid) {
-                        $res[] = $vo;
-                    }
-                }
-                return $res;
-            }
-            ?>
             <form action="{echo $router->build('/psrphp/cms/content/index')}" id="form_3">
                 <input type="hidden" name="model_id" value="{$model.id}">
                 <input type="hidden" name="category_name" value="{$request->get('category_name')}">
                 <div class="d-flex flex-column gap-2">
                     {foreach $fields as $field}
                     {if $field['adminfilter']}
+                    <?php
+                    $extra = json_decode($field['extra'], true);
+                    ?>
                     {switch $field['type']}
                     {case 'select'}
                     {case 'checkbox'}
                     <?php
-                    $extra = json_decode($field['extra'], true);
                     $_alldata = $db->select('psrphp_cms_data', '*', [
                         'dict_id' => $extra['dict_id'],
                         'ORDER' => [
@@ -90,17 +67,35 @@
                             'id' => 'ASC',
                         ],
                     ]);
-                    $_select = [];
-                    if ($request->get('filter.' . $field['name'])) {
-                        foreach ($_alldata as $tmp) {
-                            if ($tmp['alias'] == $request->get('filter.' . $field['name'])) {
-                                $_select = $tmp;
-                                break;
+                    $_select = $db->get('psrphp_cms_data', '*', [
+                        'alias' => $request->get('filter.' . $field['name'])
+                    ]);
+                    $_pdata = (function () use ($_alldata, $_select) {
+                        $getparent = function (array $items, array $item = null) use (&$getparent): array {
+                            $res = [];
+                            if (!is_null($item)) {
+                                foreach ($items as $vo) {
+                                    if ($vo['value'] == $item['parent']) {
+                                        array_push($res, ...$getparent($items, $vo));
+                                        break;
+                                    }
+                                }
+                                array_push($res, $vo);
+                            }
+                            return $res;
+                        };
+                        return $getparent($_alldata, $_select);
+                    })();
+                    $_subdata = (function () use ($_alldata, $_select): array {
+                        $parent = $_select ? $_select['value'] : null;
+                        $res = [];
+                        foreach ($_alldata as $vo) {
+                            if ($vo['parent'] == $parent) {
+                                $res[] = $vo;
                             }
                         }
-                    }
-                    $_pdata = $_select ? get_pdata($_alldata, $_select) : [];
-                    $_subdata = get_subdata($_alldata, $_select ? $_select['id'] : 0);
+                        return $res;
+                    })();
                     ?>
                     {if in_array($extra['filter_type'], [1])}
                     <div>
@@ -109,13 +104,13 @@
                         </div>
                         <div>
                             {php $_parent = []}
-                            {foreach array_reverse($_pdata) as $parent}
+                            {foreach $_pdata as $vo}
                             <div class="d-flex flex-wrap gap-1 top">
-                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" id="bx_{$field.name}_{$parent['pid']}" autocomplete="off">
-                                <label for="bx_{$field.name}_{$parent['pid']}"><span class="badge text-bg-light text-secondary">不限</span></label>
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" id="bx_{$field.name}_{$vo['id']}" autocomplete="off">
+                                <label for="bx_{$field.name}_{$vo['id']}"><span class="badge text-bg-light text-secondary">不限</span></label>
                                 {foreach $_alldata as $data}
-                                {if $data['pid'] == $parent['pid']}
-                                {if $data['id'] == $parent['id']}
+                                {if $data['parent'] == $vo['parent']}
+                                {if $data['id'] == $vo['id']}
                                 <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" id="{$field.name}_{$data.id}" autocomplete="off" checked>
                                 <label for="{$field.name}_{$data.id}"><span class="badge text-bg-secondary">{$data.title}</span></label>
                                 {else}
@@ -125,7 +120,7 @@
                                 {/if}
                                 {/foreach}
                             </div>
-                            {php $_parent = $parent}
+                            {php $_parent = $vo}
                             {/foreach}
 
                             {if $_subdata}
@@ -315,7 +310,7 @@
                                     $sels = (function () use ($field, $db, $content, $extra) {
                                         $sel = $db->get('psrphp_cms_data', '*', [
                                             'dict_id' => $extra['dict_id'],
-                                            'stemn' => $content[$field['name']]
+                                            'value' => $content[$field['name']]
                                         ]);
                                         $datas = $db->select('psrphp_cms_data', '*', [
                                             'dict_id' => $extra['dict_id'],
@@ -324,17 +319,18 @@
                                                 'id' => 'ASC',
                                             ],
                                         ]);
-                                        $getparent = function (array $items, $id) use (&$getparent): array {
+                                        $getparent = function (array $items, array $item) use (&$getparent): array {
                                             $res = [];
                                             foreach ($items as $vo) {
-                                                if ($vo['id'] == $id) {
-                                                    array_push($res, ...$getparent($items, $vo['pid']));
-                                                    array_push($res, $vo);
+                                                if ($vo['value'] == $item['parent']) {
+                                                    array_push($res, ...$getparent($items, $vo));
+                                                    break;
                                                 }
                                             }
+                                            array_push($res, $vo);
                                             return $res;
                                         };
-                                        return $getparent($datas, $sel['id']);
+                                        return $getparent($datas, $sel);
                                     })();
                                     ?>
                                     <div class="d-flex gap-1">
@@ -360,7 +356,7 @@
                                                 continue;
                                             }
                                             foreach ($datas as $v) {
-                                                if ($v['stemn'] == $key) {
+                                                if ($v['value'] == $key) {
                                                     yield $v;
                                                 }
                                             }

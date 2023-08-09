@@ -29,7 +29,7 @@ class Update extends Common
                 (new Col('col-md-8'))->addItem(
                     (new Hidden('id', $data['id'])),
                     (new Input('标题', 'title', $data['title']))->set('help', '例如：'),
-                    (new Input('值', 'value', $data['value']))->set('help', '例如：'),
+                    (new Input('别名', 'alias', $data['alias']))->set('help', '例如：'),
                 )
             )
         );
@@ -44,18 +44,18 @@ class Update extends Common
             'id' => $request->post('id'),
         ]);
 
-        $value = $request->post('value');
+        $alias = $request->post('alias');
         if ($db->get('psrphp_cms_data', '*', [
             'dict_id' => $data['dict_id'],
-            'value' => $value,
+            'alias' => $alias,
             'id[!]' => $data['id'],
         ])) {
-            return Response::error('值不能重复');
+            return Response::error('别名不能重复');
         }
 
         $update = array_intersect_key($request->post(), [
             'title' => '',
-            'value' => '',
+            'alias' => '',
         ]);
 
         $db->update('psrphp_cms_data', $update, [
