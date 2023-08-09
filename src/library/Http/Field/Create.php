@@ -42,13 +42,17 @@ class Create extends Common
                     (new Input('标题', 'title', $field['title'] ?? '')),
                     (new Input('字段名称', 'name', $field['name'] ?? ''))->set('help', '字段名称只能由字母开头，字母、数字、下划线组成'),
                     (new Input('类型', 'typedisabled', [
-                        'select' => '单选',
-                        'checkbox' => '多选',
+                        'single-single' => '单选-单选',
+                        'single-multi' => '单选-多选',
+                        'multi-single' => '多选-单选',
+                        'multi-multi-or' => '多选-多选或',
+                        'multi-multi-and' => '多选-多选且',
                         'text' => '单行文本',
                         'textarea' => '多行文本',
                         'code' => '代码编辑器',
                         'markdown' => 'markdown编辑器',
                         'editor' => '富文本编辑器',
+                        'bool' => '布尔',
                         'int' => '整数',
                         'float' => '浮点数',
                         'time' => '时间',
@@ -71,28 +75,11 @@ class Create extends Common
                             )
                         );
                         switch ($request->get('type')) {
-                            case 'select':
-                                $res[] = (new Select('数据源', 'extra[dict_id]', $extra['dict_id'] ?? '0', (function () use ($db): array {
-                                    $res = [];
-                                    foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
-                                        $res[] = [
-                                            'title' => $vo['title'],
-                                            'value' => $vo['id'],
-                                        ];
-                                    }
-                                    return $res;
-                                })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
-                                $res[] = (new Radio('筛选模式', 'extra[filter_type]', $extra['filter_type'] ?? '1', [
-                                    '1' => '单选',
-                                    '2' => '多选',
-                                ]));
-                                $res[] = (new Radio('是否允许后台筛选', 'adminfilter', $field['adminfilter'] ?? '1', [
-                                    '0' => '不允许',
-                                    '1' => '允许',
-                                ]));
-                                break;
-
-                            case 'checkbox':
+                            case 'single-single':
+                            case 'single-multi':
+                            case 'multi-single':
+                            case 'multi-multi-or':
+                            case 'multi-multi-and':
                                 $res[] = (new Select('数据源', 'extra[dict_id]', $extra['dict_id'] ?? '', (function () use ($db): array {
                                     $res = [];
                                     foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
@@ -103,11 +90,6 @@ class Create extends Common
                                     }
                                     return $res;
                                 })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
-                                $res[] = (new Radio('筛选模式', 'extra[filter_type]', $extra['filter_type'] ?? '1', [
-                                    '1' => '单选',
-                                    '2' => '或多选',
-                                    '3' => '且多选',
-                                ]));
                                 $res[] = (new Radio('是否允许后台筛选', 'adminfilter', $field['adminfilter'] ?? '1', [
                                     '0' => '不允许',
                                     '1' => '允许',
@@ -122,6 +104,13 @@ class Create extends Common
                                 $res[] = (new Radio('是否作为后台的搜索字段', 'adminsearch', $field['adminsearch'] ?? '1', [
                                     '0' => '否',
                                     '1' => '是',
+                                ]));
+                                break;
+
+                            case 'bool':
+                                $res[] = (new Radio('是否允许后台筛选', 'adminfilter', $field['adminfilter'] ?? '1', [
+                                    '0' => '不允许',
+                                    '1' => '允许',
                                 ]));
                                 break;
 
@@ -184,8 +173,11 @@ class Create extends Common
         $extra = $request->post('extra', []);
 
         switch ($type) {
-            case 'select':
-            case 'checkbox':
+            case 'single-single':
+            case 'single-multi':
+            case 'multi-single':
+            case 'multi-multi-or':
+            case 'multi-multi-and':
                 if (!$db->get('psrphp_cms_dict', '*', [
                     'id' => $extra['dict_id'] ?? 0,
                 ])) {
@@ -210,8 +202,11 @@ class Create extends Common
             'extra' => json_encode($extra, JSON_UNESCAPED_UNICODE),
         ]);
         switch ($type) {
-            case 'select':
-            case 'checkbox':
+            case 'single-single':
+            case 'single-multi':
+            case 'multi-single':
+            case 'multi-multi-or':
+            case 'multi-multi-and':
                 $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` int(10) unsigned NOT NULL DEFAULT \'0\'');
                 break;
 
@@ -247,6 +242,10 @@ class Create extends Common
                 } else {
                     $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` int(10) unsigned');
                 }
+                break;
+
+            case 'bool':
+                $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $name . '` tinyint(3) unsigned');
                 break;
 
             case 'float':

@@ -70,70 +70,14 @@ class ContentProvider
         ]) as $field) {
             $extra = is_null($field['extra']) ? [] : json_decode($field['extra'], true);
             switch ($field['type']) {
-                case 'checkbox':
-                    switch ($extra['filter_type']) {
-                        case '1':
-                            if (isset($filter[$field['name']])) {
-                                $tmp = $filter[$field['name']];
-                                if (is_string($tmp) && strlen($tmp)) {
-                                    $value = $this->getDb()->get('psrphp_cms_data', 'value', [
-                                        'dict_id' => $extra['dict_id'],
-                                        'alias' => $tmp
-                                    ]);
-                                    if (!is_null($value)) {
-                                        $x = pow(2, $value);
-                                        $where[] = '`' . $field['name'] . '`&' . $x . '>0';
-                                    }
-                                }
-                            }
-                            break;
-                        case '2':
-                            if (isset($filter[$field['name']])) {
-                                $tmp = $filter[$field['name']];
-                                if ($tmp && is_array($tmp)) {
-                                    $x = 0;
-                                    foreach ($this->getDb()->select('psrphp_cms_data', 'value', [
-                                        'dict_id' => $extra['dict_id'],
-                                        'alias' => $tmp
-                                    ]) as $vl) {
-                                        $x += pow(2, $vl);
-                                    }
-                                    if ($x) {
-                                        $where[] = '`' . $field['name'] . '`&' . $x . '>0';
-                                    }
-                                }
-                            }
-                            break;
-                        case '3':
-                            if (isset($filter[$field['name']])) {
-                                $tmp = $filter[$field['name']];
-                                if ($tmp && is_array($tmp)) {
-                                    $x = 0;
-                                    foreach ($this->getDb()->select('psrphp_cms_data', 'value', [
-                                        'dict_id' => $extra['dict_id'],
-                                        'alias' => $tmp
-                                    ]) as $vo) {
-                                        $x += pow(2, $vo);
-                                    }
-                                    if ($x) {
-                                        $where[] = '`' . $field['name'] . '`&' . $x . ' = ' . $x;
-                                    }
-                                }
-                            }
-                            break;
-
-                        default:
-                            break;
-                    }
-                    break;
-
-                case 'select':
+                case 'single-single':
+                case 'single-multi':
                     if (isset($filter[$field['name']])) {
                         $getsubval = function ($items, $val) use (&$getsubval): array {
                             $res = [];
                             array_push($res, $val);
                             foreach ($items as $vo) {
-                                if ($vo['parent'] == $val) {
+                                if ($vo['parent'] === $val) {
                                     array_push($res, ...$getsubval($items, $vo['value']));
                                 }
                             }
@@ -152,7 +96,61 @@ class ContentProvider
                                 array_push($vls, ...$getsubval($datas, $thisval));
                             }
                         }
-                        $where[] = '`' . $field['name'] . '` in (' . implode(',', $vls) . ')';
+                        if ($vls) {
+                            $where[] = '`' . $field['name'] . '` in (' . implode(',', $vls) . ')';
+                        }
+                    }
+                    break;
+
+                case 'multi-single':
+                    if (isset($filter[$field['name']])) {
+                        $tmp = $filter[$field['name']];
+                        if (is_string($tmp) && strlen($tmp)) {
+                            $value = $this->getDb()->get('psrphp_cms_data', 'value', [
+                                'dict_id' => $extra['dict_id'],
+                                'alias' => $tmp
+                            ]);
+                            if (!is_null($value)) {
+                                $x = pow(2, $value);
+                                $where[] = '`' . $field['name'] . '` & ' . $x . ' > 0';
+                            }
+                        }
+                    }
+                    break;
+
+                case 'multi-multi-or':
+                    if (isset($filter[$field['name']])) {
+                        $tmp = $filter[$field['name']];
+                        if ($tmp && is_array($tmp)) {
+                            $x = 0;
+                            foreach ($this->getDb()->select('psrphp_cms_data', 'value', [
+                                'dict_id' => $extra['dict_id'],
+                                'alias' => $tmp
+                            ]) as $vl) {
+                                $x += pow(2, $vl);
+                            }
+                            if ($x) {
+                                $where[] = '`' . $field['name'] . '` & ' . $x . ' > 0';
+                            }
+                        }
+                    }
+                    break;
+
+                case 'multi-multi-and':
+                    if (isset($filter[$field['name']])) {
+                        $tmp = $filter[$field['name']];
+                        if ($tmp && is_array($tmp)) {
+                            $x = 0;
+                            foreach ($this->getDb()->select('psrphp_cms_data', 'value', [
+                                'dict_id' => $extra['dict_id'],
+                                'alias' => $tmp
+                            ]) as $vo) {
+                                $x += pow(2, $vo);
+                            }
+                            if ($x) {
+                                $where[] = '`' . $field['name'] . '` & ' . $x . ' = ' . $x;
+                            }
+                        }
                     }
                     break;
 
@@ -164,6 +162,17 @@ class ContentProvider
                     if (isset($qs[$field['name']])) {
                         $likes[] = '`' . $field['name'] . '` like :' . $field['name'];
                         $this->wherebinds[':' . $field['name']] = $qs[$field['name']];
+                    }
+                    break;
+
+                case 'bool':
+                    if (!isset($filter[$field['name']])) {
+                        break;
+                    }
+                    if ($filter[$field['name']] == 1) {
+                        $where[] = '`' . $field['name'] . '` = 1';
+                    } elseif ($filter[$field['name']] == 0) {
+                        $where[] = '`' . $field['name'] . '` = 0';
                     }
                     break;
 

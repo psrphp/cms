@@ -87,21 +87,25 @@
                 <tr>
                     <td colspan="9">
                         添加：
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'select'])}">单选</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'checkbox'])}">多选</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'text'])}">单行文本</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'textarea'])}">多行文本</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'markdown'])}">Markdown</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'code'])}">代码编辑器</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'editor'])}">富文本编辑器</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'single-single'])}">单选录入-单选筛选</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'single-multi'])}">单选录入-多选筛选</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'multi-single'])}">多选录入-单选筛选</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'multi-multi-or'])}">多选录入-多选或</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'multi-multi-and'])}">多选录入-多选且</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'pic'])}">单图</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'pics'])}">多图</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'files'])}">附件</a>
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'bool'])}">布尔</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'int'])}">整数</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'float'])}">浮点数(小数)</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'datetime'])}">日期时间</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'date'])}">日期</a>
                         <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'time'])}">时间</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'pic'])}">单图</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'pics'])}">多图</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'files'])}">附件</a>
                     </td>
                 </tr>
             </tfoot>

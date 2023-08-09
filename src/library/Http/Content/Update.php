@@ -16,6 +16,7 @@ use PsrPHP\Form\Field\Files;
 use PsrPHP\Form\Field\Hidden;
 use PsrPHP\Form\Field\Input;
 use PsrPHP\Form\Field\Pics;
+use PsrPHP\Form\Field\Radio;
 use PsrPHP\Form\Field\Select;
 use PsrPHP\Form\Field\SimpleMDE;
 use PsrPHP\Form\Field\Summernote;
@@ -64,7 +65,7 @@ class Update extends Common
                 ]) as $vo) {
                     $extra = json_decode($vo['extra'], true);
                     switch ($vo['type']) {
-                        case 'select':
+                        case 'single-single':
                             $res[] = new Select($vo['title'], $vo['name'], $content[$vo['name']] ?? '', (function () use ($db, $extra): array {
                                 return $db->select('psrphp_cms_data', '*', [
                                     'dict_id' => $extra['dict_id'],
@@ -75,7 +76,23 @@ class Update extends Common
                                 ]);
                             })());
                             break;
-                        case 'checkbox':
+
+                        case 'single-multi':
+                            $res[] = new Select($vo['title'], $vo['name'], $content[$vo['name']] ?? '', (function () use ($db, $extra): array {
+                                return $db->select('psrphp_cms_data', '*', [
+                                    'dict_id' => $extra['dict_id'],
+                                    'parent' => null,
+                                    'ORDER' => [
+                                        'priority' => 'DESC',
+                                        'id' => 'ASC',
+                                    ],
+                                ]);
+                            })());
+                            break;
+
+                        case 'multi-single':
+                        case 'multi-multi-or':
+                        case 'multi-multi-and':
                             $val = $content[$vo['name']] ?? 0;
                             $vals = [];
                             for ($i = 0; $i < 32; $i++) {
@@ -113,6 +130,12 @@ class Update extends Common
                             break;
                         case 'editor':
                             $res[] = new Summernote($vo['title'], $vo['name'], $content[$vo['name']] ?? '', $router->build('/psrphp/admin/tool/upload'));
+                            break;
+                        case 'bool':
+                            $res[] = new Radio($vo['title'], $vo['name'], $content[$vo['name']] ?? 0, [
+                                0 => '否',
+                                1 => '是',
+                            ]);
                             break;
                         case 'int':
                             $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
@@ -204,7 +227,9 @@ class Update extends Common
                     );
                     break;
 
-                case 'checkbox':
+                case 'multi-single':
+                case 'multi-multi-or':
+                case 'multi-multi-and':
                     $data[$field['name']] = 0;
                     foreach ($request->post($field['name'], []) as $v) {
                         $data[$field['name']] += pow(2, $v);

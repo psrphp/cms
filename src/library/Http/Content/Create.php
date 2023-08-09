@@ -16,6 +16,7 @@ use PsrPHP\Form\Field\Files;
 use PsrPHP\Form\Field\Hidden;
 use PsrPHP\Form\Field\Input;
 use PsrPHP\Form\Field\Pics;
+use PsrPHP\Form\Field\Radio;
 use PsrPHP\Form\Field\Select;
 use PsrPHP\Form\Field\SimpleMDE;
 use PsrPHP\Form\Field\Summernote;
@@ -62,8 +63,8 @@ class Create extends Common
                 ]) as $vo) {
                     $extra = is_null($vo['extra']) ? [] : json_decode($vo['extra'], true);
                     switch ($vo['type']) {
-                        case 'select':
-                            $res[] = new Select($vo['title'], $vo['name'], $content[$vo['name']] ?? '', (function () use ($db, $vo, $extra): array {
+                        case 'single-single':
+                            $res[] = new Select($vo['title'], $vo['name'], $content[$vo['name']] ?? '', (function () use ($db, $extra): array {
                                 return $db->select('psrphp_cms_data', '*', [
                                     'dict_id' => $extra['dict_id'],
                                     'ORDER' => [
@@ -73,7 +74,23 @@ class Create extends Common
                                 ]);
                             })());
                             break;
-                        case 'checkbox':
+
+                        case 'single-multi':
+                            $res[] = new Select($vo['title'], $vo['name'], $content[$vo['name']] ?? '', (function () use ($db, $extra): array {
+                                return $db->select('psrphp_cms_data', '*', [
+                                    'dict_id' => $extra['dict_id'],
+                                    'parent' => null,
+                                    'ORDER' => [
+                                        'priority' => 'DESC',
+                                        'id' => 'ASC',
+                                    ],
+                                ]);
+                            })());
+                            break;
+
+                        case 'multi-single':
+                        case 'multi-multi-or':
+                        case 'multi-multi-and':
                             $val = $content[$vo['name']] ?? 0;
                             $vals = [];
                             for ($i = 0; $i < 32; $i++) {
@@ -112,36 +129,6 @@ class Create extends Common
                         case 'editor':
                             $res[] = new Summernote($vo['title'], $vo['name'], $content[$vo['name']] ?? '', $router->build('/psrphp/admin/tool/upload'));
                             break;
-                        case 'int':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'number',
-                                'step' => 1,
-                                'min' => $extra['min'] ?? 0,
-                                'max' => $extra['max'] ?? 100,
-                            ]);
-                            break;
-                        case 'float':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'number',
-                                'min' => $extra['min'] ?? 0,
-                                'max' => $extra['max'] ?? 100,
-                            ]);
-                            break;
-                        case 'time':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'time',
-                            ]);
-                            break;
-                        case 'date':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'date',
-                            ]);
-                            break;
-                        case 'datetime':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'datetime-local',
-                            ]);
-                            break;
                         case 'pic':
                             $res[] = new Cover($vo['title'], $vo['name'], $content[$vo['name']] ?? '', $router->build('/psrphp/admin/tool/upload'));
                             break;
@@ -160,6 +147,42 @@ class Create extends Common
                                 $val = [];
                             }
                             $res[] = new Files($vo['title'], $vo['name'], $val, $router->build('/psrphp/admin/tool/upload'));
+                            break;
+                        case 'bool':
+                            $res[] = new Radio($vo['title'], $vo['name'], $content[$vo['name']] ?? 0, [
+                                0 => '否',
+                                1 => '是',
+                            ]);
+                            break;
+                        case 'int':
+                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
+                                'type' => 'number',
+                                'step' => 1,
+                                'min' => $extra['min'] ?? 0,
+                                'max' => $extra['max'] ?? 100,
+                            ]);
+                            break;
+                        case 'float':
+                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
+                                'type' => 'number',
+                                'min' => $extra['min'] ?? 0,
+                                'max' => $extra['max'] ?? 100,
+                            ]);
+                            break;
+                        case 'datetime':
+                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
+                                'type' => 'datetime-local',
+                            ]);
+                            break;
+                        case 'date':
+                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
+                                'type' => 'date',
+                            ]);
+                            break;
+                        case 'time':
+                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
+                                'type' => 'time',
+                            ]);
                             break;
 
                         default:
@@ -194,7 +217,9 @@ class Create extends Common
                     );
                     break;
 
-                case 'checkbox':
+                case 'multi-single':
+                case 'multi-multi-or':
+                case 'multi-multi-and':
                     $data[$field['name']] = 0;
                     foreach ($request->post($field['name'], []) as $v) {
                         $data[$field['name']] += pow(2, $v);

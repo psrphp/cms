@@ -23,7 +23,7 @@ class Create extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-9'))->addItem(
-                    (new Hidden('dict_id', $request->get('dict_id', 0))),
+                    (new Hidden('dict_id', $request->get('dict_id'))),
                     (new Hidden('parent', $request->get('parent'))),
                     (new Input('标题', 'title')),
                     (new Input('别名', 'alias')),

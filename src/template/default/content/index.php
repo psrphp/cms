@@ -57,8 +57,8 @@
                     $extra = json_decode($field['extra'], true);
                     ?>
                     {switch $field['type']}
-                    {case 'select'}
-                    {case 'checkbox'}
+
+                    {case 'single-single'}
                     <?php
                     $_alldata = $db->select('psrphp_cms_data', '*', [
                         'dict_id' => $extra['dict_id'],
@@ -75,12 +75,12 @@
                             $res = [];
                             if (!is_null($item)) {
                                 foreach ($items as $vo) {
-                                    if ($vo['value'] == $item['parent']) {
+                                    if ($vo['value'] === $item['parent']) {
                                         array_push($res, ...$getparent($items, $vo));
                                         break;
                                     }
                                 }
-                                array_push($res, $vo);
+                                array_push($res, $item);
                             }
                             return $res;
                         };
@@ -90,14 +90,13 @@
                         $parent = $_select ? $_select['value'] : null;
                         $res = [];
                         foreach ($_alldata as $vo) {
-                            if ($vo['parent'] == $parent) {
+                            if ($vo['parent'] === $parent) {
                                 $res[] = $vo;
                             }
                         }
                         return $res;
                     })();
                     ?>
-                    {if in_array($extra['filter_type'], [1])}
                     <div>
                         <div class="mb-1">
                             <span class="text-secondary small">{$field.title}:</span>
@@ -109,8 +108,8 @@
                                 <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" id="bx_{$field.name}_{$vo['id']}" autocomplete="off">
                                 <label for="bx_{$field.name}_{$vo['id']}"><span class="badge text-bg-light text-secondary">不限</span></label>
                                 {foreach $_alldata as $data}
-                                {if $data['parent'] == $vo['parent']}
-                                {if $data['id'] == $vo['id']}
+                                {if $data['parent'] === $vo['parent']}
+                                {if $data['id'] === $vo['id']}
                                 <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" id="{$field.name}_{$data.id}" autocomplete="off" checked>
                                 <label for="{$field.name}_{$data.id}"><span class="badge text-bg-secondary">{$data.title}</span></label>
                                 {else}
@@ -135,7 +134,18 @@
                             {/if}
                         </div>
                     </div>
-                    {elseif in_array($extra['filter_type'], [2,3])}
+                    {/case}
+
+                    {case 'single-multi'}
+                    <?php
+                    $_alldata = $db->select('psrphp_cms_data', '*', [
+                        'dict_id' => $extra['dict_id'],
+                        'ORDER' => [
+                            'priority' => 'DESC',
+                            'id' => 'ASC',
+                        ],
+                    ]);
+                    ?>
                     <div>
                         <div class="mb-1">
                             <span class="text-secondary small">{$field.title}:</span>
@@ -149,19 +159,130 @@
                                 <input type="radio" class="d-none" id="bx_{$field.name}_" autocomplete="off" checked>
                                 <label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">不限</span></label>
                                 {/if}
-                                {foreach $_subdata as $sub}
-                                {if in_array($sub['alias'], (array)$request->get('filter.'.$field['name']))}
-                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$sub.alias}" id="{$field.name}_{$sub.id}" autocomplete="off" checked>
-                                <label for="{$field.name}_{$sub.id}"><span class="badge text-bg-secondary">{$sub.title}</span></label>
+                                {foreach $_alldata as $vo}
+                                {if $vo['parent'] === null}
+                                {if in_array($vo['alias'], (array)$request->get('filter.'.$field['name']))}
+                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" id="{$field.name}_{$vo.id}" autocomplete="off" checked>
+                                <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-secondary">{$vo.title}</span></label>
                                 {else}
-                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$sub.alias}" id="{$field.name}_{$sub.id}" autocomplete="off">
-                                <label for="{$field.name}_{$sub.id}"><span class="badge text-bg-light text-secondary">{$sub.title}</span></label>
+                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" id="{$field.name}_{$vo.id}" autocomplete="off">
+                                <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-light text-secondary">{$vo.title}</span></label>
+                                {/if}
                                 {/if}
                                 {/foreach}
                             </div>
                         </div>
                     </div>
-                    {/if}
+                    {/case}
+
+                    {case 'multi-single'}
+                    <?php
+                    $_alldata = $db->select('psrphp_cms_data', '*', [
+                        'dict_id' => $extra['dict_id'],
+                        'ORDER' => [
+                            'priority' => 'DESC',
+                            'id' => 'ASC',
+                        ],
+                    ]);
+                    ?>
+                    <div>
+                        <div class="mb-1">
+                            <span class="text-secondary small">{$field.title}:</span>
+                        </div>
+                        <div>
+                            <div class="d-flex flex-wrap gap-1 sub">
+                                {if $request->get('filter.'.$field['name'])}
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="" id="sbbx_{$field.name}">
+                                <label for="sbbx_{$field.name}"><span class="badge text-bg-light text-secondary">不限</span></label>
+                                {else}
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="" id="sbbx_{$field.name}" checked>
+                                <label for="sbbx_{$field.name}"><span class="badge text-bg-secondary">不限</span></label>
+                                {/if}
+                                {foreach $_alldata as $vo}
+                                {if $vo['parent'] === null}
+                                {if $vo['alias'] === $request->get('filter.'.$field['name'])}
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$vo.alias}" id="{$field.name}_{$vo.id}" checked>
+                                <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-secondary">{$vo.title}</span></label>
+                                {else}
+                                <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$vo.alias}" id="{$field.name}_{$vo.id}">
+                                <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-light text-secondary">{$vo.title}</span></label>
+                                {/if}
+                                {/if}
+                                {/foreach}
+                            </div>
+                        </div>
+                    </div>
+                    {/case}
+
+                    {case 'multi-multi-or'}
+                    {case 'multi-multi-and'}
+                    <?php
+                    $_alldata = $db->select('psrphp_cms_data', '*', [
+                        'dict_id' => $extra['dict_id'],
+                        'ORDER' => [
+                            'priority' => 'DESC',
+                            'id' => 'ASC',
+                        ],
+                    ]);
+                    ?>
+                    <div>
+                        <div class="mb-1">
+                            <span class="text-secondary small">{$field.title}:</span>
+                        </div>
+                        <div>
+                            <div class="d-flex flex-wrap gap-1">
+                                {if $request->get('filter.'.$field['name'])}
+                                <input type="radio" class="d-none" id="bx_{$field.name}_" autocomplete="off">
+                                <label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-light text-secondary">不限</span></label>
+                                {else}
+                                <input type="radio" class="d-none" id="bx_{$field.name}_" autocomplete="off" checked>
+                                <label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">不限</span></label>
+                                {/if}
+                                {foreach $_alldata as $vo}
+                                {if $vo['parent'] === null}
+                                {if in_array($vo['alias'], (array)$request->get('filter.'.$field['name']))}
+                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" id="{$field.name}_{$vo.id}" autocomplete="off" checked>
+                                <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-secondary">{$vo.title}</span></label>
+                                {else}
+                                <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" id="{$field.name}_{$vo.id}" autocomplete="off">
+                                <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-light text-secondary">{$vo.title}</span></label>
+                                {/if}
+                                {/if}
+                                {/foreach}
+                            </div>
+                        </div>
+                    </div>
+                    {/case}
+
+                    {case 'bool'}
+                    <div>
+                        <div class="mb-1">
+                            <span class="text-secondary small">{$field.title}:</span>
+                        </div>
+                        <div>
+                            {if $request->get('filter.'.$field['name'], '') >=0}
+                            <input type="radio" class="d-none" name="filter[{$field.name}]" value="" id="bx_{$field.name}_" autocomplete="off">
+                            <label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-light text-secondary">不限</span></label>
+                            {else}
+                            <input type="radio" class="d-none" name="filter[{$field.name}]" value="" id="bx_{$field.name}_" autocomplete="off" checked>
+                            <label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">不限</span></label>
+                            {/if}
+                            {if $request->get('filter.'.$field['name'], '') == 1}
+                            <input type="radio" class="d-none" name="filter[{$field.name}]" value="1" id="bx_{$field.name}_1" autocomplete="off" checked>
+                            <label for="bx_{$field.name}_1" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">是</span></label>
+                            {else}
+                            <input type="radio" class="d-none" name="filter[{$field.name}]" value="1" id="bx_{$field.name}_1" autocomplete="off">
+                            <label for="bx_{$field.name}_1" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-light text-secondary">是</span></label>
+                            {/if}
+                            {if $request->get('filter.'.$field['name'], '') == 0}
+                            <input type="radio" class="d-none" name="filter[{$field.name}]" value="0" id="bx_{$field.name}_0" autocomplete="off" checked>
+                            <label for="bx_{$field.name}_0" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">否</span></label>
+                            {else}
+                            <input type="radio" class="d-none" name="filter[{$field.name}]" value="0" id="bx_{$field.name}_0" autocomplete="off">
+                            <label for="bx_{$field.name}_0" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-light text-secondary">否</span></label>
+                            {/if}
+                        </div>
+                    </div>
                     {/case}
 
                     {case 'int'}
@@ -293,6 +414,16 @@
                                     {$content[$field['name']]}
                                     {/case}
 
+                                    {case 'bool'}
+                                    {if $content[$field['name']] === 1}
+                                    <span>是</span>
+                                    {elseif $content[$field['name']] === 0}
+                                    <span>否</span>
+                                    {else}
+                                    <span>-</span>
+                                    {/if}
+                                    {/case}
+
                                     {case 'markdown'}
                                     {$content[$field['name']]}
                                     {/case}
@@ -305,7 +436,8 @@
                                     {echo $content[$field['name']]}
                                     {/case}
 
-                                    {case 'select'}
+                                    {case 'single-single'}
+                                    {case 'single-multi'}
                                     <?php
                                     $sels = (function () use ($field, $db, $content, $extra) {
                                         $sel = $db->get('psrphp_cms_data', '*', [
@@ -314,20 +446,18 @@
                                         ]);
                                         $datas = $db->select('psrphp_cms_data', '*', [
                                             'dict_id' => $extra['dict_id'],
-                                            'ORDER' => [
-                                                'priority' => 'DESC',
-                                                'id' => 'ASC',
-                                            ],
                                         ]);
-                                        $getparent = function (array $items, array $item) use (&$getparent): array {
+                                        $getparent = function (array $items, array $item = null) use (&$getparent): array {
                                             $res = [];
-                                            foreach ($items as $vo) {
-                                                if ($vo['value'] == $item['parent']) {
-                                                    array_push($res, ...$getparent($items, $vo));
-                                                    break;
+                                            if (!is_null($item)) {
+                                                foreach ($items as $vo) {
+                                                    if ($vo['value'] === $item['parent']) {
+                                                        array_push($res, ...$getparent($items, $vo));
+                                                        break;
+                                                    }
                                                 }
+                                                array_push($res, $item);
                                             }
-                                            array_push($res, $vo);
                                             return $res;
                                         };
                                         return $getparent($datas, $sel);
@@ -340,7 +470,9 @@
                                     </div>
                                     {/case}
 
-                                    {case 'checkbox'}
+                                    {case 'multi-single'}
+                                    {case 'multi-multi-or'}
+                                    {case 'multi-multi-and'}
                                     <?php
                                     $sels = (function () use ($field, $db, $content, $extra) {
                                         $datas = $db->select('psrphp_cms_data', '*', [
@@ -356,7 +488,7 @@
                                                 continue;
                                             }
                                             foreach ($datas as $v) {
-                                                if ($v['value'] == $key) {
+                                                if ($v['value'] === intval($key)) {
                                                     yield $v;
                                                 }
                                             }
