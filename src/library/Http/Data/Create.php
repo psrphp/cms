@@ -49,7 +49,7 @@ class Create extends Common
         }
         $db->insert('psrphp_cms_data', [
             'dict_id' => $dict['id'],
-            'parent' => $request->post('parent'),
+            'parent' => $request->post('parent') == '' ? null : $request->post('parent'),
             'title' => $request->post('title'),
             'alias' => $alias,
             'value' => $this->getVals($db->select('psrphp_cms_data', 'value', [

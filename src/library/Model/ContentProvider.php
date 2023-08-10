@@ -16,17 +16,17 @@ class ContentProvider
     private $wheresql = '';
     private $wherebinds = [];
 
-    private function __construct(int $model_id, array $category_names = null, array $filter = [],  array $qs = [])
+    private function __construct(int $model_id, array $category_names = null, array $filter = [],  array $search = [])
     {
         $this->model = $this->getDb()->get('psrphp_cms_model', '*', [
             'id' => $model_id,
         ]);
-        $this->renderWhere($model_id, $category_names, $filter, $qs);
+        $this->renderWhere($model_id, $category_names, $filter, $search);
     }
 
-    public static function getInstance(int $model_id, array $category_names = null, array $filter = [], array $qs = []): self
+    public static function getInstance(int $model_id, array $category_names = null, array $filter = [], array $search = []): self
     {
-        return new self($model_id, $category_names, $filter, $qs);
+        return new self($model_id, $category_names, $filter, $search);
     }
 
     public function getTotal()
@@ -43,7 +43,7 @@ class ContentProvider
         return $this->getDb()->select('psrphp_cms_content_' . $this->model['name'], '*', Medoo::raw($sql, $binds));
     }
 
-    private function renderWhere(int $model_id, array $category_names = [], array $filter = [],  array $qs = [])
+    private function renderWhere(int $model_id, array $category_names = [], array $filter = [],  array $search = [])
     {
         $where = [];
         $likes = [];
@@ -68,147 +68,18 @@ class ContentProvider
                 'id' => 'ASC',
             ],
         ]) as $field) {
-            $extra = is_null($field['extra']) ? [] : json_decode($field['extra'], true);
-            switch ($field['type']) {
-                case 'single-single':
-                case 'single-multi':
-                    if (isset($filter[$field['name']])) {
-                        $getsubval = function ($items, $val) use (&$getsubval): array {
-                            $res = [];
-                            array_push($res, $val);
-                            foreach ($items as $vo) {
-                                if ($vo['parent'] === $val) {
-                                    array_push($res, ...$getsubval($items, $vo['value']));
-                                }
-                            }
-                            return $res;
-                        };
-                        $datas = $this->getDb()->select('psrphp_cms_data', '*', [
-                            'dict_id' => $extra['dict_id'],
-                        ]);
-                        $vls = [];
-                        foreach ((array)$filter[$field['name']] as $tmp) {
-                            $thisval = $this->getDb()->get('psrphp_cms_data', 'value', [
-                                'dict_id' => $extra['dict_id'],
-                                'alias' => (string)$tmp
-                            ]);
-                            if (!is_null($thisval)) {
-                                array_push($vls, ...$getsubval($datas, $thisval));
-                            }
-                        }
-                        if ($vls) {
-                            $where[] = '`' . $field['name'] . '` in (' . implode(',', $vls) . ')';
-                        }
-                    }
-                    break;
-
-                case 'multi-single':
-                    if (isset($filter[$field['name']])) {
-                        $tmp = $filter[$field['name']];
-                        if (is_string($tmp) && strlen($tmp)) {
-                            $value = $this->getDb()->get('psrphp_cms_data', 'value', [
-                                'dict_id' => $extra['dict_id'],
-                                'alias' => $tmp
-                            ]);
-                            if (!is_null($value)) {
-                                $x = pow(2, $value);
-                                $where[] = '`' . $field['name'] . '` & ' . $x . ' > 0';
-                            }
-                        }
-                    }
-                    break;
-
-                case 'multi-multi-or':
-                    if (isset($filter[$field['name']])) {
-                        $tmp = $filter[$field['name']];
-                        if ($tmp && is_array($tmp)) {
-                            $x = 0;
-                            foreach ($this->getDb()->select('psrphp_cms_data', 'value', [
-                                'dict_id' => $extra['dict_id'],
-                                'alias' => $tmp
-                            ]) as $vl) {
-                                $x += pow(2, $vl);
-                            }
-                            if ($x) {
-                                $where[] = '`' . $field['name'] . '` & ' . $x . ' > 0';
-                            }
-                        }
-                    }
-                    break;
-
-                case 'multi-multi-and':
-                    if (isset($filter[$field['name']])) {
-                        $tmp = $filter[$field['name']];
-                        if ($tmp && is_array($tmp)) {
-                            $x = 0;
-                            foreach ($this->getDb()->select('psrphp_cms_data', 'value', [
-                                'dict_id' => $extra['dict_id'],
-                                'alias' => $tmp
-                            ]) as $vo) {
-                                $x += pow(2, $vo);
-                            }
-                            if ($x) {
-                                $where[] = '`' . $field['name'] . '` & ' . $x . ' = ' . $x;
-                            }
-                        }
-                    }
-                    break;
-
-                case 'text':
-                case 'textarea':
-                case 'code':
-                case 'markdown':
-                case 'editor':
-                    if (isset($qs[$field['name']])) {
-                        $likes[] = '`' . $field['name'] . '` like :' . $field['name'];
-                        $this->wherebinds[':' . $field['name']] = $qs[$field['name']];
-                    }
-                    break;
-
-                case 'bool':
-                    if (!isset($filter[$field['name']])) {
-                        break;
-                    }
-                    if ($filter[$field['name']] == 1) {
-                        $where[] = '`' . $field['name'] . '` = 1';
-                    } elseif ($filter[$field['name']] == 0) {
-                        $where[] = '`' . $field['name'] . '` = 0';
-                    }
-                    break;
-
-                case 'int':
-                case 'float':
-                case 'date':
-                case 'time':
-                case 'datetime':
-                    if (!isset($filter[$field['name']])) {
-                        break;
-                    }
-                    $filter[$field['name']] = array_merge(['min' => '', 'max' => ''], $filter[$field['name']]);
-                    if (is_null($filter[$field['name']]['min'])) {
-                        $filter[$field['name']]['min'] = '';
-                    }
-                    if (is_null($filter[$field['name']]['max'])) {
-                        $filter[$field['name']]['max'] = '';
-                    }
-
-                    $minkey = ':minkey_' . $field['name'];
-                    $maxkey = ':maxkey_' . $field['name'];
-                    if (strlen($filter[$field['name']]['min']) && strlen($filter[$field['name']]['max'])) {
-                        $where[] = '`' . $field['name'] . '` BETWEEN ' . $minkey . ' AND ' . $maxkey;
-                        $this->wherebinds[$minkey] = $filter[$field['name']]['min'];
-                        $this->wherebinds[$maxkey] = $filter[$field['name']]['max'];
-                    } elseif (strlen($filter[$field['name']]['min'])) {
-                        $where[] = '`' . $field['name'] . '`>=' . $minkey;
-                        $this->wherebinds[$minkey] = $filter[$field['name']]['min'];
-                    } elseif (strlen($filter[$field['name']]['max'])) {
-                        $where[] = '`' . $field['name'] . '`<=' . $maxkey;
-                        $this->wherebinds[$maxkey] = $filter[$field['name']]['max'];
-                    }
-                    break;
-
-                default:
-                    break;
+            if (isset($search[$field['name']])) {
+                if ($res = $field['type']::onContentSearch($field, $search[$field['name']])) {
+                    $likes[] = $res['sql'];
+                    $this->wherebinds = array_merge($this->wherebinds, $res['binds']);
+                }
+            }
+            if (isset($filter[$field['name']])) {
+                $field['type']::onContentFilter($field, $filter[$field['name']]);
+                if ($res = $field['type']::onContentFilter($field, $filter[$field['name']])) {
+                    $where[] = $res['sql'];
+                    $this->wherebinds = array_merge($this->wherebinds, $res['binds']);
+                }
             }
         }
 

@@ -9,26 +9,14 @@ use App\Psrphp\Admin\Lib\Response;
 use App\Psrphp\Cms\Model\CategoryProvider;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
-use PsrPHP\Form\Field\Checkbox;
-use PsrPHP\Form\Field\Code;
-use PsrPHP\Form\Field\Cover;
-use PsrPHP\Form\Field\Files;
 use PsrPHP\Form\Field\Hidden;
-use PsrPHP\Form\Field\Input;
-use PsrPHP\Form\Field\Pics;
-use PsrPHP\Form\Field\Radio;
 use PsrPHP\Form\Field\Select;
-use PsrPHP\Form\Field\SimpleMDE;
-use PsrPHP\Form\Field\Summernote;
-use PsrPHP\Form\Field\Textarea;
 use PsrPHP\Request\Request;
-use PsrPHP\Router\Router;
 
 class Update extends Common
 {
     public function get(
         Db $db,
-        Router $router,
         Request $request,
     ) {
         if (!$model = $db->get('psrphp_cms_model', '*', [
@@ -57,139 +45,14 @@ class Update extends Common
                 }
                 return $res;
             })())),
-            ...(function () use ($db, $model, $content, $router): array {
+            ...(function () use ($db, $model, $content): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_field', '*', [
                     'model_id' => $model['id'],
                     'adminedit' => 1,
-                ]) as $vo) {
-                    $extra = json_decode($vo['extra'], true);
-                    switch ($vo['type']) {
-                        case 'single-single':
-                            $res[] = new Select($vo['title'], $vo['name'], $content[$vo['name']] ?? '', (function () use ($db, $extra): array {
-                                return $db->select('psrphp_cms_data', '*', [
-                                    'dict_id' => $extra['dict_id'],
-                                    'ORDER' => [
-                                        'priority' => 'DESC',
-                                        'id' => 'ASC',
-                                    ],
-                                ]);
-                            })());
-                            break;
-
-                        case 'single-multi':
-                            $res[] = new Select($vo['title'], $vo['name'], $content[$vo['name']] ?? '', (function () use ($db, $extra): array {
-                                return $db->select('psrphp_cms_data', '*', [
-                                    'dict_id' => $extra['dict_id'],
-                                    'parent' => null,
-                                    'ORDER' => [
-                                        'priority' => 'DESC',
-                                        'id' => 'ASC',
-                                    ],
-                                ]);
-                            })());
-                            break;
-
-                        case 'multi-single':
-                        case 'multi-multi-or':
-                        case 'multi-multi-and':
-                            $val = $content[$vo['name']] ?? 0;
-                            $vals = [];
-                            for ($i = 0; $i < 32; $i++) {
-                                $pow = pow(2, $i);
-                                if (($val & $pow) == $pow) {
-                                    $vals[] = $i;
-                                }
-                            }
-                            $res[] = new Checkbox($vo['title'], $vo['name'], $vals, (function () use ($db, $extra): array {
-                                $res = [];
-                                foreach ($db->select('psrphp_cms_data', '*', [
-                                    'dict_id' => $extra['dict_id'],
-                                    'parent' => null,
-                                    'ORDER' => [
-                                        'priority' => 'DESC',
-                                        'id' => 'ASC',
-                                    ],
-                                ]) as $data) {
-                                    $res[$data['value']] = $data['title'];
-                                }
-                                return $res;
-                            })());
-                            break;
-                        case 'text':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '');
-                            break;
-                        case 'textarea':
-                            $res[] = new Textarea($vo['title'], $vo['name'], $content[$vo['name']] ?? '');
-                            break;
-                        case 'code':
-                            $res[] = new Code($vo['title'], $vo['name'], $content[$vo['name']] ?? '');
-                            break;
-                        case 'markdown':
-                            $res[] = new SimpleMDE($vo['title'], $vo['name'], $content[$vo['name']] ?? '', $router->build('/psrphp/admin/tool/upload'));
-                            break;
-                        case 'editor':
-                            $res[] = new Summernote($vo['title'], $vo['name'], $content[$vo['name']] ?? '', $router->build('/psrphp/admin/tool/upload'));
-                            break;
-                        case 'bool':
-                            $res[] = new Radio($vo['title'], $vo['name'], $content[$vo['name']] ?? 0, [
-                                0 => '否',
-                                1 => '是',
-                            ]);
-                            break;
-                        case 'int':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'number',
-                                'step' => 1,
-                                'min' => $extra['min'] ?? 0,
-                                'max' => $extra['max'] ?? 100,
-                            ]);
-                            break;
-                        case 'float':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'number',
-                                'min' => $extra['min'] ?? 0,
-                                'max' => $extra['max'] ?? 100,
-                            ]);
-                            break;
-                        case 'time':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'time',
-                            ]);
-                            break;
-                        case 'date':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'date',
-                            ]);
-                            break;
-                        case 'datetime':
-                            $res[] = new Input($vo['title'], $vo['name'], $content[$vo['name']] ?? '', [
-                                'type' => 'datetime-local',
-                            ]);
-                            break;
-                        case 'pic':
-                            $res[] = new Cover($vo['title'], $vo['name'], $content[$vo['name']] ?? '', $router->build('/psrphp/admin/tool/upload'));
-                            break;
-                        case 'pics':
-                            if (isset($content[$vo['name']]) && strlen($content[$vo['name']])) {
-                                $val = json_decode($content[$vo['name']], true);
-                            } else {
-                                $val = [];
-                            }
-                            $res[] = new Pics($vo['title'], $vo['name'], $val, $router->build('/psrphp/admin/tool/upload'));
-                            break;
-                        case 'files':
-                            if (isset($content[$vo['name']]) && strlen($content[$vo['name']])) {
-                                $val = json_decode($content[$vo['name']], true);
-                            } else {
-                                $val = [];
-                            }
-                            $res[] = new Files($vo['title'], $vo['name'], $val, $router->build('/psrphp/admin/tool/upload'));
-                            break;
-
-                        default:
-                            break;
-                    }
+                    'type[!]' => null,
+                ]) as $field) {
+                    array_push($res, ...$field['type']::onUpdateContentForm($field, $content[$field['name']]));
                 }
                 return $res;
             })(),
@@ -218,29 +81,11 @@ class Update extends Common
             if (!$request->has('post.' . $field['name'])) {
                 continue;
             }
-            switch ($field['type']) {
-                case 'pics':
-                case 'files':
-                    $data[$field['name']] = json_encode(
-                        $request->post($field['name'], []),
-                        JSON_UNESCAPED_UNICODE
-                    );
-                    break;
-
-                case 'multi-single':
-                case 'multi-multi-or':
-                case 'multi-multi-and':
-                    $data[$field['name']] = 0;
-                    foreach ($request->post($field['name'], []) as $v) {
-                        $data[$field['name']] += pow(2, $v);
-                    }
-                    break;
-
-                default:
-                    $data[$field['name']] = $request->post($field['name']);
-                    break;
+            if ($field['type']) {
+                $data[$field['name']] = $field['type']::onUpdateContentData($field);
             }
         }
+        $data['category_name'] = $request->post('category_name');
         $db->update('psrphp_cms_content_' . $model['name'], $data, [
             'id' => $content['id'],
         ]);

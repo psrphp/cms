@@ -17,9 +17,10 @@
                     <th class="text-nowrap">后台编辑</th>
                     <th class="text-nowrap">后台列表显示</th>
                     <th class="text-nowrap">后台筛选</th>
+                    <th class="text-nowrap">后台搜索</th>
                     <th class="text-nowrap">后台排序</th>
-                    <th class="text-nowrap">后台检索</th>
                     <th class="text-nowrap">管理</th>
+                    <th class="text-nowrap">排序</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,9 +31,6 @@
                     </td>
                     <td>
                         {$vo.name}
-                        {if $vo['system']}
-                        <span class="badge text-bg-secondary">系统</span>
-                        {/if}
                     </td>
                     <td>
                         {$vo.type}
@@ -59,13 +57,6 @@
                         {/if}
                     </td>
                     <td>
-                        {if $vo['adminorder']}
-                        <span>允许</span>
-                        {else}
-                        <span>-</span>
-                        {/if}
-                    </td>
-                    <td>
                         {if $vo['adminsearch']}
                         <span>允许</span>
                         {else}
@@ -73,10 +64,21 @@
                         {/if}
                     </td>
                     <td>
-                        {if !$vo['system']}
+                        {if $vo['adminorder']}
+                        <span>允许</span>
+                        {else}
+                        <span>-</span>
+                        {/if}
+                    </td>
+                    <td>
+                        {if $vo['type']}
                         <a href="{:$router->build('/psrphp/cms/field/update', ['id'=>$vo['id']])}">编辑</a>
+                        {/if}
+                        {if !$vo['system']}
                         <a href="{:$router->build('/psrphp/cms/field/delete', ['id'=>$vo['id']])}" onclick="return confirm('确定删除吗？删除后不可恢复！');">删除</a>
                         {/if}
+                    </td>
+                    <td>
                         <a href="{echo $router->build('/psrphp/cms/field/priority', ['id'=>$vo['id'],'type'=>'up'])}">上移</a>
                         <a href="{echo $router->build('/psrphp/cms/field/priority', ['id'=>$vo['id'],'type'=>'down'])}">下移</a>
                     </td>
@@ -85,27 +87,11 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="9">
+                    <td colspan="10">
                         添加：
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'text'])}">单行文本</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'textarea'])}">多行文本</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'markdown'])}">Markdown</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'code'])}">代码编辑器</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'editor'])}">富文本编辑器</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'single-single'])}">单选录入-单选筛选</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'single-multi'])}">单选录入-多选筛选</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'multi-single'])}">多选录入-单选筛选</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'multi-multi-or'])}">多选录入-多选或</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'multi-multi-and'])}">多选录入-多选且</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'pic'])}">单图</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'pics'])}">多图</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'files'])}">附件</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'bool'])}">布尔</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'int'])}">整数</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'float'])}">浮点数(小数)</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'datetime'])}">日期时间</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'date'])}">日期</a>
-                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>'time'])}">时间</a>
+                        {foreach $fieldProvider->all() as $vo}
+                        <a href="{:$router->build('/psrphp/cms/field/create', ['model_id'=>$model['id'], 'type'=>$vo])}">{:$vo::getTitle()}</a>
+                        {/foreach}
                     </td>
                 </tr>
             </tfoot>

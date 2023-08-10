@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Psrphp\Cms\Http\Field;
 
 use App\Psrphp\Admin\Http\Common;
+use App\Psrphp\Cms\Model\FieldProvider;
 use PsrPHP\Database\Db;
 use PsrPHP\Framework\Config;
 use PsrPHP\Request\Request;
@@ -30,6 +31,7 @@ class Index extends Common
         return $template->renderFromFile('field/index@psrphp/cms', [
             'model' => $model,
             'fields' => $fields,
+            'fieldProvider' => FieldProvider::getInstance(),
         ]);
     }
 

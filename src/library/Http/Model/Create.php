@@ -87,14 +87,23 @@ class Create extends Common
             'title' => 'ID',
             'name' => 'id',
             'system' => 1,
+            'adminedit' => 0,
+            'adminlist' => 1,
+            'adminfilter' => 0,
+            'adminsearch' => 0,
             'adminorder' => 1,
         ]);
 
         $db->insert('psrphp_cms_field', [
             'model_id' => $model_id,
             'title' => '分类名称',
-            'system' => 1,
             'name' => 'category_name',
+            'system' => 1,
+            'adminedit' => 1,
+            'adminlist' => 1,
+            'adminfilter' => 1,
+            'adminsearch' => 0,
+            'adminorder' => 0,
         ]);
         $db->query('ALTER TABLE <psrphp_cms_content_' . $name . '> ADD category_name varchar(80) NOT NULL DEFAULT \'\' COMMENT \'分类名称\'');
 
