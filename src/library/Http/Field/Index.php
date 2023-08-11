@@ -28,6 +28,9 @@ class Index extends Common
                 'id' => 'ASC',
             ],
         ]);
+        foreach ($fields as &$vo) {
+            $vo = array_merge(json_decode($vo['extra'], true), $vo);
+        }
         return $template->renderFromFile('field/index@psrphp/cms', [
             'model' => $model,
             'fields' => $fields,

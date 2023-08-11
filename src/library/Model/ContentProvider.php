@@ -68,6 +68,7 @@ class ContentProvider
                 'id' => 'ASC',
             ],
         ]) as $field) {
+            $field = array_merge(json_decode($field['extra'], true), $field);
             if (isset($search[$field['name']])) {
                 if ($res = $field['type']::onContentSearch($field, $search[$field['name']])) {
                     $likes[] = $res['sql'];
@@ -75,7 +76,6 @@ class ContentProvider
                 }
             }
             if (isset($filter[$field['name']])) {
-                $field['type']::onContentFilter($field, $filter[$field['name']]);
                 if ($res = $field['type']::onContentFilter($field, $filter[$field['name']])) {
                     $where[] = $res['sql'];
                     $this->wherebinds = array_merge($this->wherebinds, $res['binds']);

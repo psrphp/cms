@@ -45,6 +45,9 @@ class Index extends Common
                     'id' => 'ASC',
                 ],
             ]);
+            foreach ($fields as &$vo) {
+                $vo = array_merge(json_decode($vo['extra'], true), $vo);
+            }
 
             if (strlen($request->get('category_name', ''))) {
                 $category_names = $this->getSubCategorys($categorys, $request->get('category_name', ''));
@@ -52,12 +55,12 @@ class Index extends Common
                 $category_names = [];
             }
 
-            $qs = [];
+            $searchs = [];
             $q = $request->get('q', '');
             if (is_string($q) && strlen($q)) {
                 foreach ($fields as $vo) {
                     if ($vo['adminsearch']) {
-                        $qs[$vo['name']] = '%' . $q . '%';
+                        $searchs[$vo['name']] = '%' . $q . '%';
                     }
                 }
             }
@@ -66,7 +69,7 @@ class Index extends Common
                 $model['id'],
                 $category_names,
                 $request->get('filter', []),
-                $qs
+                $searchs
             );
 
             $total = $contentProvider->getTotal();

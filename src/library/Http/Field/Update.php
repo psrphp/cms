@@ -23,15 +23,16 @@ class Update extends Common
         $field = $db->get('psrphp_cms_field', '*', [
             'id' => $request->get('id'),
         ]);
+        $field = array_merge(json_decode($field['extra'], true), $field);
         $form = new Builder('编辑字段');
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-8'))->addItem(
                     (new Hidden('id', $field['id'])),
                     (new Input('标题', 'title', $field['title']))->set('help', '例如：'),
-                    (new Input('字段', 'name', $field['name']))->set('disabled', true),
+                    (new Input('字段', 'name00', $field['name']))->set('disabled', true),
                     (new Input('类型', 'typedisabled', $field['type']::getTitle()))->set('disabled', true),
-                    ...$field['type']::onUpdateFieldForm($field)
+                    ...($field['type']::onUpdateFieldForm($field) ?: [])
                 )
             )
         );
@@ -55,10 +56,8 @@ class Update extends Common
             'adminsearch' => '',
         ]);
 
-        if ($extra = $request->post('extra', [])) {
-            $extra = array_merge(json_decode($field['extra'], true), $extra);
-            $update['extra'] = json_encode($extra, JSON_UNESCAPED_UNICODE);
-        }
+        $diff = array_diff_key($request->post(), $update, ['id' => '']);
+        $update['extra'] = json_encode(array_merge(json_decode($field['extra'], true), $diff), JSON_UNESCAPED_UNICODE);
 
         $db->update('psrphp_cms_field', $update, [
             'id' => $field['id'],

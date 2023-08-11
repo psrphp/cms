@@ -35,7 +35,7 @@ class Checkbox implements FieldInterface
                 '0' => '不允许',
                 '1' => '允许',
             ]));
-            $res[] = (new Select('数据源', 'extra[dict_id]', '', (function () use ($db): array {
+            $res[] = (new Select('数据源', 'dict_id', '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     $res[] = [
@@ -45,7 +45,7 @@ class Checkbox implements FieldInterface
                 }
                 return $res;
             })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
-            $res[] = (new Radio('筛选类型', 'extra[filtertype]', '0', [
+            $res[] = (new Radio('筛选类型', 'filtertype', '0', [
                 '0' => '单选',
                 '1' => '多选(或)',
                 '2' => '多选(且)',
@@ -77,7 +77,6 @@ class Checkbox implements FieldInterface
             Db $db,
             Router $router
         ) use ($field) {
-            $extra = json_decode($field['extra'], true);
             $res = [];
             $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
                 '0' => '不允许',
@@ -87,7 +86,7 @@ class Checkbox implements FieldInterface
                 '0' => '不允许',
                 '1' => '允许',
             ]));
-            $res[] = (new Select('数据源', 'extra[dict_id]', $extra['dict_id'] ?? '', (function () use ($db): array {
+            $res[] = (new Select('数据源', 'dict_id', $field['dict_id'] ?? '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     $res[] = [
@@ -98,7 +97,7 @@ class Checkbox implements FieldInterface
                 return $res;
             })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
 
-            $res[] = (new Radio('筛选类型', 'extra[filtertype]', $extra['filtertype'] ?? '0', [
+            $res[] = (new Radio('筛选类型', 'filtertype', $field['filtertype'] ?? '0', [
                 '0' => '单选',
                 '1' => '多选(或)',
                 '2' => '多选(且)',
@@ -121,7 +120,6 @@ class Checkbox implements FieldInterface
             Db $db,
         ) use ($field, $value): array {
             $res = [];
-            $extra = json_decode($field['extra'], true);
             $vals = [];
             for ($i = 0; $i < 32; $i++) {
                 $pow = pow(2, $i);
@@ -129,10 +127,10 @@ class Checkbox implements FieldInterface
                     $vals[] = $i;
                 }
             }
-            $res[] = new FieldCheckbox($field['title'], $field['name'], $vals, (function () use ($db, $extra): array {
+            $res[] = new FieldCheckbox($field['title'], $field['name'], $vals, (function () use ($db, $field): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_data', '*', [
-                    'dict_id' => $extra['dict_id'],
+                    'dict_id' => $field['dict_id'],
                     'parent' => null,
                     'ORDER' => [
                         'priority' => 'DESC',
@@ -164,7 +162,6 @@ class Checkbox implements FieldInterface
             Db $db
         ) use ($field, $value): array {
             $res = [];
-            $extra = json_decode($field['extra'], true);
             $vals = [];
             for ($i = 0; $i < 32; $i++) {
                 $pow = pow(2, $i);
@@ -172,10 +169,10 @@ class Checkbox implements FieldInterface
                     $vals[] = $i;
                 }
             }
-            $res[] = new FieldCheckbox($field['title'], $field['name'], $vals, (function () use ($db, $extra): array {
+            $res[] = new FieldCheckbox($field['title'], $field['name'], $vals, (function () use ($db, $field): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_data', '*', [
-                    'dict_id' => $extra['dict_id'],
+                    'dict_id' => $field['dict_id'],
                     'parent' => null,
                     'ORDER' => [
                         'priority' => 'DESC',
@@ -207,12 +204,11 @@ class Checkbox implements FieldInterface
         return Framework::execute(function (
             Db $db
         ) use ($field, $alias): array {
-            $extra = json_decode($field['extra'], true);
-            switch ($extra['filtertype']) {
+            switch ($field['filtertype']) {
                 case '0':
                     if (is_string($alias) && strlen($alias)) {
                         $value = $db->get('psrphp_cms_data', 'value', [
-                            'dict_id' => $extra['dict_id'],
+                            'dict_id' => $field['dict_id'],
                             'alias' => $alias
                         ]);
                         if (!is_null($value)) {
@@ -231,7 +227,7 @@ class Checkbox implements FieldInterface
                     if ($alias && is_array($alias)) {
                         $x = 0;
                         foreach ($db->select('psrphp_cms_data', 'value', [
-                            'dict_id' => $extra['dict_id'],
+                            'dict_id' => $field['dict_id'],
                             'alias' => $alias
                         ]) as $vl) {
                             $x += pow(2, $vl);
@@ -251,7 +247,7 @@ class Checkbox implements FieldInterface
                     if ($alias && is_array($alias)) {
                         $x = 0;
                         foreach ($db->select('psrphp_cms_data', 'value', [
-                            'dict_id' => $extra['dict_id'],
+                            'dict_id' => $field['dict_id'],
                             'alias' => $alias
                         ]) as $vl) {
                             $x += pow(2, $vl);
@@ -286,33 +282,40 @@ class Checkbox implements FieldInterface
             Db $db,
             Template $template
         ) use ($field): string {
-            $extra = json_decode($field['extra'], true);
             $alldata = $db->select('psrphp_cms_data', '*', [
-                'dict_id' => $extra['dict_id'],
+                'dict_id' => $field['dict_id'],
                 'ORDER' => [
                     'priority' => 'DESC',
                     'id' => 'ASC',
                 ],
             ]);
-            switch ($extra['filtertype']) {
+            switch ($field['filtertype']) {
                 case '0':
                     $tpl = <<<'str'
 <div class="d-flex flex-wrap gap-1 sub">
     {if $request->get('filter.'.$field['name'])}
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="" id="sbbx_{$field.name}">
-    <label for="sbbx_{$field.name}"><span class="badge text-bg-light text-secondary">不限</span></label>
+    <label>
+        <span class="badge text-bg-light text-secondary">不限</span>
+        <input type="radio" class="d-none" name="filter[{$field.name}]" value="">
+    </label>
     {else}
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="" id="sbbx_{$field.name}" checked>
-    <label for="sbbx_{$field.name}"><span class="badge text-bg-secondary">不限</span></label>
+    <label>
+        <span class="badge text-bg-secondary">不限</span>
+        <input type="radio" class="d-none" name="filter[{$field.name}]" value="" checked>
+    </label>
     {/if}
     {foreach $alldata as $vo}
     {if $vo['parent'] === null}
     {if $vo['alias'] === $request->get('filter.'.$field['name'])}
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$vo.alias}" id="{$field.name}_{$vo.id}" checked>
-    <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-secondary">{$vo.title}</span></label>
+    <label>
+        <span class="badge text-bg-secondary">{$vo.title}</span>
+        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$vo.alias}" checked>
+    </label>
     {else}
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$vo.alias}" id="{$field.name}_{$vo.id}">
-    <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-light text-secondary">{$vo.title}</span></label>
+    <label>
+        <span class="badge text-bg-light text-secondary">{$vo.title}</span>
+        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$vo.alias}">
+    </label>
     {/if}
     {/if}
     {/foreach}
@@ -325,20 +328,28 @@ str;
                     $tpl = <<<'str'
 <div class="d-flex flex-wrap gap-1">
     {if $request->get('filter.'.$field['name'])}
-    <input type="radio" class="d-none" id="bx_{$field.name}_" autocomplete="off">
-    <label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-light text-secondary">不限</span></label>
+    <label onclick="$(this).siblings('input').removeAttr('checked')">
+        <span class="badge text-bg-light text-secondary">不限</span>
+        <input type="radio" class="d-none" autocomplete="off">
+    </label>
     {else}
-    <input type="radio" class="d-none" id="bx_{$field.name}_" autocomplete="off" checked>
-    <label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">不限</span></label>
+    <label onclick="$(this).siblings('input').removeAttr('checked')">
+        <span class="badge text-bg-secondary">不限</span>
+        <input type="radio" class="d-none" autocomplete="off" checked>
+    </label>
     {/if}
     {foreach $alldata as $vo}
     {if $vo['parent'] === null}
     {if in_array($vo['alias'], (array)$request->get('filter.'.$field['name']))}
-    <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" id="{$field.name}_{$vo.id}" autocomplete="off" checked>
-    <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-secondary">{$vo.title}</span></label>
+    <label>
+        <span class="badge text-bg-secondary">{$vo.title}</span>
+        <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" autocomplete="off" checked>
+    </label>
     {else}
-    <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" id="{$field.name}_{$vo.id}" autocomplete="off">
-    <label for="{$field.name}_{$vo.id}"><span class="badge text-bg-light text-secondary">{$vo.title}</span></label>
+    <label>
+        <span class="badge text-bg-light text-secondary">{$vo.title}</span>
+        <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" autocomplete="off">
+    </label>
     {/if}
     {/if}
     {/foreach}
@@ -363,9 +374,8 @@ str;
             Db $db,
             Template $template
         ) use ($field, $value) {
-            $extra = json_decode($field['extra'], true);
             $datas = $db->select('psrphp_cms_data', '*', [
-                'dict_id' => $extra['dict_id'],
+                'dict_id' => $field['dict_id'],
                 'ORDER' => [
                     'priority' => 'DESC',
                     'id' => 'ASC',

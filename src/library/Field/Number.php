@@ -41,9 +41,9 @@ class Number implements FieldInterface
             '0' => '不允许',
             '1' => '允许',
         ]))->set('help', '此项录入后不可更改');
-        $res[] = (new Input('最小值', 'extra[min]', null, ['type' => 'number']));
-        $res[] = (new Input('最大值', 'extra[max]', null, ['type' => 'number']));
-        $res[] = (new Input('数字间隔', 'extra[step]', null, ['type' => 'number']))->set('help', '若要输入小数，可填0.1、0.01、0.001等等');
+        $res[] = (new Input('最小值', 'min', null, ['type' => 'number']));
+        $res[] = (new Input('最大值', 'max', null, ['type' => 'number']));
+        $res[] = (new Input('数字间隔', 'step', null, ['type' => 'number']))->set('help', '若要输入小数，可填0.1、0.01、0.001等等');
         return $res;
     }
 
@@ -75,7 +75,6 @@ class Number implements FieldInterface
 
     public static function onUpdateFieldForm(array $field): array
     {
-        $extra = json_decode($field['extra'], true);
         $res = [];
         $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
             '0' => '不允许',
@@ -89,9 +88,9 @@ class Number implements FieldInterface
             '0' => '不允许',
             '1' => '允许',
         ]));
-        $res[] = (new Input('最小值', 'extra[min]', $extra['min'] ?? null, ['type' => 'number']));
-        $res[] = (new Input('最大值', 'extra[max]', $extra['max'] ?? null, ['type' => 'number']));
-        $res[] = (new Input('数字间隔', 'extra[step]', $extra['step'] ?? null, ['type' => 'number']))->set('help', '若要输入小数，可填0.1、0.01、0.001等等');
+        $res[] = (new Input('最小值', 'min', $field['min'] ?? null, ['type' => 'number']));
+        $res[] = (new Input('最大值', 'max', $field['max'] ?? null, ['type' => 'number']));
+        $res[] = (new Input('数字间隔', 'step', $field['step'] ?? null, ['type' => 'number']))->set('help', '若要输入小数，可填0.1、0.01、0.001等等');
         return $res;
     }
     public static function onUpdateFieldData(): ?string
@@ -101,13 +100,12 @@ class Number implements FieldInterface
 
     public static function onCreateContentForm(array $field, $value): array
     {
-        $extra = json_decode($field['extra'], true);
         $res = [];
         $res[] = new Input($field['title'], $field['name'], $value, [
             'type' => 'number',
-            'min' => $extra['min'],
-            'max' => $extra['max'],
-            'step' => $extra['step'],
+            'min' => $field['min'],
+            'max' => $field['max'],
+            'step' => $field['step'],
         ]);
         return $res;
     }
@@ -123,13 +121,12 @@ class Number implements FieldInterface
     }
     public static function onUpdateContentForm(array $field, $value): array
     {
-        $extra = json_decode($field['extra'], true);
         $res = [];
         $res[] = new Input($field['title'], $field['name'], $value, [
             'type' => 'number',
-            'min' => $extra['min'],
-            'max' => $extra['max'],
-            'step' => $extra['step'],
+            'min' => $field['min'],
+            'max' => $field['max'],
+            'step' => $field['step'],
         ]);
         return $res;
     }

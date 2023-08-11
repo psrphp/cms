@@ -34,7 +34,7 @@ class Select implements FieldInterface
                 '0' => '不允许',
                 '1' => '允许',
             ]));
-            $res[] = (new FieldSelect('数据源', 'extra[dict_id]', '', (function () use ($db): array {
+            $res[] = (new FieldSelect('数据源', 'dict_id', '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     $res[] = [
@@ -71,7 +71,6 @@ class Select implements FieldInterface
             Db $db,
             Router $router
         ) use ($field) {
-            $extra = json_decode($field['extra'], true);
             $res = [];
             $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
                 '0' => '不允许',
@@ -81,7 +80,7 @@ class Select implements FieldInterface
                 '0' => '不允许',
                 '1' => '允许',
             ]));
-            $res[] = (new FieldSelect('数据源', 'extra[dict_id]', $extra['dict_id'] ?? '', (function () use ($db): array {
+            $res[] = (new FieldSelect('数据源', 'dict_id', $field['dict_id'] ?? '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     $res[] = [
@@ -108,11 +107,10 @@ class Select implements FieldInterface
         return Framework::execute(function (
             Db $db,
         ) use ($field, $value) {
-            $extra = json_decode($field['extra'], true);
             $res = [];
-            $res[] = new FieldSelect($field['title'], $field['name'], $value, (function () use ($db, $extra): array {
+            $res[] = new FieldSelect($field['title'], $field['name'], $value, (function () use ($db, $field): array {
                 return $db->select('psrphp_cms_data', '*', [
-                    'dict_id' => $extra['dict_id'],
+                    'dict_id' => $field['dict_id'],
                     'ORDER' => [
                         'priority' => 'DESC',
                         'id' => 'ASC',
@@ -137,11 +135,10 @@ class Select implements FieldInterface
         return Framework::execute(function (
             Db $db
         ) use ($field, $value): array {
-            $extra = json_decode($field['extra'], true);
             $res = [];
-            $res[] = new FieldSelect($field['title'], $field['name'], $value, (function () use ($db, $extra): array {
+            $res[] = new FieldSelect($field['title'], $field['name'], $value, (function () use ($db, $field): array {
                 return $db->select('psrphp_cms_data', '*', [
-                    'dict_id' => $extra['dict_id'],
+                    'dict_id' => $field['dict_id'],
                     'ORDER' => [
                         'priority' => 'DESC',
                         'id' => 'ASC',
@@ -165,7 +162,6 @@ class Select implements FieldInterface
         return Framework::execute(function (
             Db $db
         ) use ($field, $value): array {
-            $extra = json_decode($field['extra'], true);
             $getsubval = function ($items, $val) use (&$getsubval): array {
                 $res = [];
                 array_push($res, $val);
@@ -177,12 +173,12 @@ class Select implements FieldInterface
                 return $res;
             };
             $datas = $db->select('psrphp_cms_data', '*', [
-                'dict_id' => $extra['dict_id'],
+                'dict_id' => $field['dict_id'],
             ]);
             $vls = [];
             foreach ((array)$value as $tmp) {
                 $thisval = $db->get('psrphp_cms_data', 'value', [
-                    'dict_id' => $extra['dict_id'],
+                    'dict_id' => $field['dict_id'],
                     'alias' => (string)$tmp
                 ]);
                 if (!is_null($thisval)) {
@@ -216,16 +212,22 @@ class Select implements FieldInterface
 {php $_parent = []}
 {foreach $pdata as $vo}
 <div class="d-flex flex-wrap gap-1 top">
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" id="bx_{$field.name}_{$vo['id']}" autocomplete="off">
-    <label for="bx_{$field.name}_{$vo['id']}"><span class="badge text-bg-light text-secondary">不限</span></label>
+    <label>
+        <span class="badge text-bg-light text-secondary">不限</span>
+        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" autocomplete="off">
+    </label>
     {foreach $alldata as $data}
     {if $data['parent'] === $vo['parent']}
     {if $data['id'] === $vo['id']}
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" id="{$field.name}_{$data.id}" autocomplete="off" checked>
-    <label for="{$field.name}_{$data.id}"><span class="badge text-bg-secondary">{$data.title}</span></label>
+    <label>
+        <span class="badge text-bg-secondary">{$data.title}</span>
+        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" autocomplete="off" checked>
+    </label>
     {else}
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" id="{$field.name}_{$data.id}" autocomplete="off">
-    <label for="{$field.name}_{$data.id}"><span class="badge text-bg-light text-secondary">{$data.title}</span></label>
+    <label>
+        <span class="badge text-bg-light text-secondary">{$data.title}</span>
+        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" autocomplete="off">
+    </label>
     {/if}
     {/if}
     {/foreach}
@@ -235,18 +237,21 @@ class Select implements FieldInterface
 
 {if $subdata}
 <div class="d-flex flex-wrap gap-1 sub">
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" id="sbbx_{$field.name}_{$_parent['id']??'0'}" autocomplete="off" checked>
-    <label for="sbbx_{$field.name}_{$_parent['id']??'0'}"><span class="badge text-bg-secondary">不限</span></label>
+    <label>
+        <span class="badge text-bg-secondary">不限</span>
+        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" autocomplete="off" checked>
+    </label>
     {foreach $subdata as $sub}
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$sub.alias}" id="{$field.name}_{$sub.id}" autocomplete="off">
-    <label for="{$field.name}_{$sub.id}"><span class="badge text-bg-light text-secondary">{$sub.title}</span></label>
+    <label>
+        <span class="badge text-bg-light text-secondary">{$sub.title}</span>
+        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$sub.alias}" autocomplete="off">
+    </label>
     {/foreach}
 </div>
 {/if}
 str;
-            $extra = json_decode($field['extra'], true);
             $alldata = $db->select('psrphp_cms_data', '*', [
-                'dict_id' => $extra['dict_id'],
+                'dict_id' => $field['dict_id'],
                 'ORDER' => [
                     'priority' => 'DESC',
                     'id' => 'ASC',
@@ -303,13 +308,12 @@ str;
     {/foreach}
 </div>
 str;
-            $extra = json_decode($field['extra'], true);
             $sel = $db->get('psrphp_cms_data', '*', [
-                'dict_id' => $extra['dict_id'],
+                'dict_id' => $field['dict_id'],
                 'value' => $value
             ]);
             $datas = $db->select('psrphp_cms_data', '*', [
-                'dict_id' => $extra['dict_id'],
+                'dict_id' => $field['dict_id'],
             ]);
             $getparent = function (array $items, array $item = null) use (&$getparent): array {
                 $res = [];

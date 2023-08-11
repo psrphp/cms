@@ -50,7 +50,10 @@ class Create extends Common
                     'adminedit' => 1,
                     'type[!]' => null,
                 ]) as $field) {
-                    array_push($res, ...$field['type']::onCreateContentForm($field, $content[$field['name']]));
+                    $field = array_merge(json_decode($field['extra'], true), $field);
+                    if ($items = $field['type']::onCreateContentForm($field, $content[$field['name']] ?? null)) {
+                        array_push($res, ...$items);
+                    }
                 }
                 return $res;
             })(),

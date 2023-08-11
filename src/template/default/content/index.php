@@ -84,14 +84,20 @@
                             <div>
                                 <input type="radio" class="d-none" name="order[{$field.name}]" value="{$request->get('order.'.$field['name'])}" autocomplete="off" checked>
                                 {if $request->get('order.'.$field['name']) == 'desc'}
-                                <input type="radio" class="d-none" name="order[{$field.name}]" value="asc" id="order_{$field.name}" autocomplete="off">
-                                <label for="order_{$field.name}"><span class="badge text-bg-secondary">{$field.title}↓</span></label>
+                                <label>
+                                    <span class="badge text-bg-secondary">{$field.title}↓</span>
+                                    <input type="radio" class="d-none" name="order[{$field.name}]" value="asc" autocomplete="off">
+                                </label>
                                 {elseif $request->get('order.'.$field['name']) == 'asc'}
-                                <input type="radio" class="d-none" name="order[{$field.name}]" value="" id="order_{$field.name}" autocomplete="off">
-                                <label for="order_{$field.name}"><span class="badge text-bg-secondary">{$field.title}↑</span></label>
+                                <label>
+                                    <span class="badge text-bg-secondary">{$field.title}↑</span>
+                                    <input type="radio" class="d-none" name="order[{$field.name}]" value="" autocomplete="off">
+                                </label>
                                 {else}
-                                <input type="radio" class="d-none" name="order[{$field.name}]" value="desc" id="order_{$field.name}" autocomplete="off">
-                                <label for="order_{$field.name}"><span class="badge text-bg-light text-secondary">{$field.title}</span></label>
+                                <label>
+                                    <span class="badge text-bg-light text-secondary">{$field.title}</span>
+                                    <input type="radio" class="d-none" name="order[{$field.name}]" value="desc" autocomplete="off">
+                                </label>
                                 {/if}
                             </div>
                             {/if}

@@ -137,25 +137,37 @@ class Boolean implements FieldInterface
         ) use ($field) {
             $tpl = <<<'str'
 {if $request->get('filter.'.$field['name'], '') >=0}
-<input type="radio" class="d-none" name="filter[{$field.name}]" value="" id="bx_{$field.name}_" autocomplete="off">
-<label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-light text-secondary">不限</span></label>
+<label onclick="$(this).siblings('input').removeAttr('checked')">
+    <span class="badge text-bg-light text-secondary">不限</span>
+    <input type="radio" class="d-none" name="filter[{$field.name}]" value="" autocomplete="off">
+</label>
 {else}
-<input type="radio" class="d-none" name="filter[{$field.name}]" value="" id="bx_{$field.name}_" autocomplete="off" checked>
-<label for="bx_{$field.name}_" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">不限</span></label>
+<label onclick="$(this).siblings('input').removeAttr('checked')">
+    <span class="badge text-bg-secondary">不限</span>
+    <input type="radio" class="d-none" name="filter[{$field.name}]" value="" autocomplete="off" checked>
+</label>
 {/if}
 {if $request->get('filter.'.$field['name'], '') == 1}
-<input type="radio" class="d-none" name="filter[{$field.name}]" value="1" id="bx_{$field.name}_1" autocomplete="off" checked>
-<label for="bx_{$field.name}_1" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">是</span></label>
+<label onclick="$(this).siblings('input').removeAttr('checked')">
+    <span class="badge text-bg-secondary">是</span>
+    <input type="radio" class="d-none" name="filter[{$field.name}]" value="1" autocomplete="off" checked>
+</label>
 {else}
-<input type="radio" class="d-none" name="filter[{$field.name}]" value="1" id="bx_{$field.name}_1" autocomplete="off">
-<label for="bx_{$field.name}_1" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-light text-secondary">是</span></label>
+<label onclick="$(this).siblings('input').removeAttr('checked')">
+    <span class="badge text-bg-light text-secondary">是</span>
+    <input type="radio" class="d-none" name="filter[{$field.name}]" value="1" autocomplete="off">
+</label>
 {/if}
 {if $request->get('filter.'.$field['name'], '') == 0}
-<input type="radio" class="d-none" name="filter[{$field.name}]" value="0" id="bx_{$field.name}_0" autocomplete="off" checked>
-<label for="bx_{$field.name}_0" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-secondary">否</span></label>
+<label onclick="$(this).siblings('input').removeAttr('checked')">
+    <span class="badge text-bg-secondary">否</span>
+    <input type="radio" class="d-none" name="filter[{$field.name}]" value="0" autocomplete="off" checked>
+</label>
 {else}
-<input type="radio" class="d-none" name="filter[{$field.name}]" value="0" id="bx_{$field.name}_0" autocomplete="off">
-<label for="bx_{$field.name}_0" onclick="$(this).siblings('input').removeAttr('checked')"><span class="badge text-bg-light text-secondary">否</span></label>
+<label onclick="$(this).siblings('input').removeAttr('checked')">
+    <span class="badge text-bg-light text-secondary">否</span>
+    <input type="radio" class="d-none" name="filter[{$field.name}]" value="0" autocomplete="off">
+</label>
 {/if}
 str;
             return $template->renderFromString($tpl, [
