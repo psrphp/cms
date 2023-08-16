@@ -211,22 +211,22 @@ class Select implements FieldInterface
             $tpl = <<<'str'
 {php $_parent = []}
 {foreach $pdata as $vo}
-<div class="d-flex flex-wrap gap-1 top">
+<div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 5px;">
     <label>
-        <span class="badge text-bg-light text-secondary">不限</span>
-        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" autocomplete="off">
+        <input type="radio" style="display: none;" name="filter[{$field.name}]" value="{$_parent['alias']??''}">
+        <span>不限</span>
     </label>
     {foreach $alldata as $data}
     {if $data['parent'] === $vo['parent']}
     {if $data['id'] === $vo['id']}
     <label>
-        <span class="badge text-bg-secondary">{$data.title}</span>
-        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" autocomplete="off" checked>
+        <input type="radio" style="display: none;" name="filter[{$field.name}]" value="{$data.alias}" checked>
+        <span style="color: red;">{$data.title}</span>
     </label>
     {else}
     <label>
-        <span class="badge text-bg-light text-secondary">{$data.title}</span>
-        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$data.alias}" autocomplete="off">
+        <input type="radio" style="display: none;" name="filter[{$field.name}]" value="{$data.alias}">
+        <span>{$data.title}</span>
     </label>
     {/if}
     {/if}
@@ -236,15 +236,15 @@ class Select implements FieldInterface
 {/foreach}
 
 {if $subdata}
-<div class="d-flex flex-wrap gap-1 sub">
+<div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 5px;">
     <label>
-        <span class="badge text-bg-secondary">不限</span>
-        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$_parent['alias']??''}" autocomplete="off" checked>
+        <input type="radio" style="display: none;" name="filter[{$field.name}]" value="{$_parent['alias']??''}" checked>
+        <span style="color: red;">不限</span>
     </label>
     {foreach $subdata as $sub}
     <label>
-        <span class="badge text-bg-light text-secondary">{$sub.title}</span>
-        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$sub.alias}" autocomplete="off">
+        <input type="radio" style="display: none;" name="filter[{$field.name}]" value="{$sub.alias}">
+        <span>{$sub.title}</span>
     </label>
     {/foreach}
 </div>
@@ -302,7 +302,7 @@ str;
             Template $template
         ) use ($field, $value) {
             $tpl = <<<'str'
-<div class="d-flex gap-1">
+<div style="display: flex;flex-direction: wrap;flex-wrap: wrap;gap: 5px;">
     {foreach $sels as $v}
     <div>{$v['title']}</div>
     {/foreach}

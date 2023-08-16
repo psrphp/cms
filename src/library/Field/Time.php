@@ -154,12 +154,12 @@ class Time implements FieldInterface
             Template $template
         ) use ($field) {
             $tpl = <<<'str'
-<div class="d-flex gap-1">
+<div style="display: flex;flex-direction: column;gap: 5px;">
     <div>
-        <input type="time" name="filter[{$field['name']}][min]" value="{$request->get('filter.'.$field['name'].'.min')}" class="form-control form-control-sm">
+        <input type="time" name="filter[{$field['name']}][min]" value="{$request->get('filter.'.$field['name'].'.min')}">
     </div>
     <div>
-        <input type="time" name="filter[{$field['name']}][max]" value="{$request->get('filter.'.$field['name'].'.max')}" class="form-control form-control-sm">
+        <input type="time" name="filter[{$field['name']}][max]" value="{$request->get('filter.'.$field['name'].'.max')}">
     </div>
 </div>
 str;

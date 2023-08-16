@@ -292,29 +292,29 @@ class Checkbox implements FieldInterface
             switch ($field['filtertype']) {
                 case '0':
                     $tpl = <<<'str'
-<div class="d-flex flex-wrap gap-1 sub">
+<div>
     {if $request->get('filter.'.$field['name'])}
     <label>
-        <span class="badge text-bg-light text-secondary">不限</span>
-        <input type="radio" class="d-none" name="filter[{$field.name}]" value="">
+        <input type="radio" style="display: none;" name="filter[{$field.name}]" value="">
+        <span>不限</span>
     </label>
     {else}
     <label>
-        <span class="badge text-bg-secondary">不限</span>
-        <input type="radio" class="d-none" name="filter[{$field.name}]" value="" checked>
+        <input type="radio" style="display: none;" name="filter[{$field.name}]" value="" checked>
+        <span style="color: red;">不限</span>
     </label>
     {/if}
     {foreach $alldata as $vo}
     {if $vo['parent'] === null}
     {if $vo['alias'] === $request->get('filter.'.$field['name'])}
     <label>
-        <span class="badge text-bg-secondary">{$vo.title}</span>
-        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$vo.alias}" checked>
+        <input type="radio" style="display: none;" name="filter[{$field.name}]" value="{$vo.alias}" checked>
+        <span style="color: red;">{$vo.title}</span>
     </label>
     {else}
     <label>
-        <span class="badge text-bg-light text-secondary">{$vo.title}</span>
-        <input type="radio" class="d-none" name="filter[{$field.name}]" value="{$vo.alias}">
+        <input type="radio" style="display: none;" name="filter[{$field.name}]" value="{$vo.alias}">
+        <span>{$vo.title}</span>
     </label>
     {/if}
     {/if}
@@ -326,29 +326,18 @@ str;
                 case '1':
                 case '2':
                     $tpl = <<<'str'
-<div class="d-flex flex-wrap gap-1">
-    {if $request->get('filter.'.$field['name'])}
-    <label onclick="$(this).siblings('input').removeAttr('checked')">
-        <span class="badge text-bg-light text-secondary">不限</span>
-        <input type="radio" class="d-none" autocomplete="off">
-    </label>
-    {else}
-    <label onclick="$(this).siblings('input').removeAttr('checked')">
-        <span class="badge text-bg-secondary">不限</span>
-        <input type="radio" class="d-none" autocomplete="off" checked>
-    </label>
-    {/if}
+<div>
     {foreach $alldata as $vo}
     {if $vo['parent'] === null}
     {if in_array($vo['alias'], (array)$request->get('filter.'.$field['name']))}
     <label>
-        <span class="badge text-bg-secondary">{$vo.title}</span>
-        <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" autocomplete="off" checked>
+        <input type="checkbox" style="display: none;" name="filter[{$field.name}][]" value="{$vo.alias}" autocomplete="off" checked>
+        <span style="color: red;">{$vo.title}</span>
     </label>
     {else}
     <label>
-        <span class="badge text-bg-light text-secondary">{$vo.title}</span>
-        <input type="checkbox" class="d-none" name="filter[{$field.name}][]" value="{$vo.alias}" autocomplete="off">
+        <input type="checkbox" style="display: none;" name="filter[{$field.name}][]" value="{$vo.alias}" autocomplete="off">
+        <span>{$vo.title}</span>
     </label>
     {/if}
     {/if}
@@ -395,7 +384,7 @@ str;
             }
 
             $tpl = <<<'str'
-<div class="d-flex gap-1">
+<div style="display: flex;flex-wrap: wrap;gap: 5px;">
     {foreach $sels as $v}
     <div>{$v['title']}</div>
     {/foreach}

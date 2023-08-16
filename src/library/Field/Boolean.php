@@ -137,36 +137,36 @@ class Boolean implements FieldInterface
         ) use ($field) {
             $tpl = <<<'str'
 {if $request->get('filter.'.$field['name'], '') >=0}
-<label onclick="$(this).siblings('input').removeAttr('checked')">
-    <span class="badge text-bg-light text-secondary">不限</span>
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="" autocomplete="off">
+<label>
+    <input type="radio" style="display: none;" name="filter[{$field.name}]" value="">
+    <span>不限</span>
 </label>
 {else}
-<label onclick="$(this).siblings('input').removeAttr('checked')">
-    <span class="badge text-bg-secondary">不限</span>
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="" autocomplete="off" checked>
+<label>
+    <input type="radio" style="display: none;" name="filter[{$field.name}]" value="" checked>
+    <span style="color:red;">不限</span>
 </label>
 {/if}
 {if $request->get('filter.'.$field['name'], '') == 1}
-<label onclick="$(this).siblings('input').removeAttr('checked')">
-    <span class="badge text-bg-secondary">是</span>
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="1" autocomplete="off" checked>
+<label>
+    <input type="radio" style="display: none;" name="filter[{$field.name}]" value="1" checked>
+    <span style="color:red;">是</span>
 </label>
 {else}
-<label onclick="$(this).siblings('input').removeAttr('checked')">
-    <span class="badge text-bg-light text-secondary">是</span>
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="1" autocomplete="off">
+<label>
+    <input type="radio" style="display: none;" name="filter[{$field.name}]" value="1">
+    <span>是</span>
 </label>
 {/if}
 {if $request->get('filter.'.$field['name'], '') == 0}
-<label onclick="$(this).siblings('input').removeAttr('checked')">
-    <span class="badge text-bg-secondary">否</span>
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="0" autocomplete="off" checked>
+<label>
+    <input type="radio" style="display: none;" name="filter[{$field.name}]" value="0" checked>
+    <span style="color:red;">否</span>
 </label>
 {else}
-<label onclick="$(this).siblings('input').removeAttr('checked')">
-    <span class="badge text-bg-light text-secondary">否</span>
-    <input type="radio" class="d-none" name="filter[{$field.name}]" value="0" autocomplete="off">
+<label>
+    <input type="radio" style="display: none;" name="filter[{$field.name}]" value="0">
+    <span>否</span>
 </label>
 {/if}
 str;

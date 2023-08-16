@@ -133,7 +133,7 @@ class Pics implements FieldInterface
             Template $template
         ) use ($field, $value) {
             $tpl = <<<'str'
-<div class="d-flex gap-1">
+<div style="display: flex;flex-direction: wrap;flex-wrap: wrap;gap: 5px;">
     {foreach $items as $vo}
     <div>
         <img src="{$vo.src}" alt="" width="100" height="100">

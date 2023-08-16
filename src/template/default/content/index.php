@@ -1,294 +1,230 @@
 {include common/header@psrphp/admin}
-<style>
-    a {
-        text-decoration: none;
-    }
-</style>
-<div class="container">
-    <div class="h1 my-4">内容管理</div>
-    {if isset($model)}
-    <div class="mb-3">
-        <div class="d-flex gap-3">
-            <form id="form_1" action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
-                <div class="row gy-2 gx-3 align-items-center mb-3">
-                    <div class="col-auto">
-                        <label class="visually-hidden">模型</label>
-                        <select class="form-select" name="model_id" onchange="document.getElementById('form_1').submit();">
-                            {foreach $models as $vo}
-                            <option {if $request->get('model_id')==$vo['id']}selected{/if} value="{$vo.id}">{$vo.title}</option>
-                            {/foreach}
-                        </select>
-                    </div>
-                </div>
-            </form>
-            <form id="form_2" action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
-                <div class="row gy-2 gx-3 align-items-center mb-3">
-                    <input type="hidden" name="model_id" value="{$model.id}">
-                    <div class="col-auto selcc">
-                        <style>
-                            .selcc>div>.mt-2>label {
-                                display: none;
-                            }
-
-                            .selcc>div>.mt-2 {
-                                margin-top: 0 !important;
-                            }
-                        </style>
-                        <?php
-                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), $categorys);
-                        ?>
-                    </div>
-                </div>
-            </form>
-            <script>
-                $("#form_2 select").bind('change', function() {
-                    document.getElementById('form_2').submit();
-                });
-            </script>
-        </div>
-        <div>
-            <form action="{echo $router->build('/psrphp/cms/content/index')}" id="form_3">
-                <input type="hidden" name="model_id" value="{$model.id}">
-                <input type="hidden" name="category_name" value="{$request->get('category_name')}">
-                <div class="d-flex flex-column gap-2">
-                    {foreach $fields as $field}
-                    {if $field['type'] && $field['adminfilter']}
-                    <div>
-                        <div class="mb-1">
-                            <span class="text-secondary small">{$field['title']}:</span>
-                        </div>
-                        <div>
-                            {echo $field['type']::onFilter($field)}
-                        </div>
-                    </div>
-                    {/if}
+<h1>内容管理</h1>
+{if isset($model)}
+<form action="{echo $router->build('/psrphp/cms/content/index')}" id="form_3">
+    <input type="hidden" name="model_id" value="{$model.id}">
+    <input type="hidden" name="category_name" value="{$request->get('category_name')}">
+    <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
+        <fieldset>
+            <legend>模型</legend>
+            <form action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
+                <select name="model_id" onchange="this.form.submit();">
+                    {foreach $models as $vo}
+                    <option {if $request->get('model_id')==$vo['id']}selected{/if} value="{$vo.id}">{$vo.title}</option>
                     {/foreach}
-
-                    <div>
-                        <div class="mb-1">
-                            <span class="text-secondary small">搜索:</span>
-                        </div>
-                        <div class="d-flex">
-                            <div>
-                                <input type="search" name="q" value="{$request->get('q')}" class="form-control form-control-sm" placeholder="请输入搜索词：">
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="mb-1">
-                            <span class="text-secondary small">排序:</span>
-                        </div>
-                        <div class="d-flex gap-2">
-                            {foreach $fields as $field}
-                            {if $field['adminorder']}
-                            <div>
-                                <input type="radio" class="d-none" name="order[{$field.name}]" value="{$request->get('order.'.$field['name'])}" autocomplete="off" checked>
-                                {if $request->get('order.'.$field['name']) == 'desc'}
-                                <label>
-                                    <span class="badge text-bg-secondary">{$field.title}↓</span>
-                                    <input type="radio" class="d-none" name="order[{$field.name}]" value="asc" autocomplete="off">
-                                </label>
-                                {elseif $request->get('order.'.$field['name']) == 'asc'}
-                                <label>
-                                    <span class="badge text-bg-secondary">{$field.title}↑</span>
-                                    <input type="radio" class="d-none" name="order[{$field.name}]" value="" autocomplete="off">
-                                </label>
-                                {else}
-                                <label>
-                                    <span class="badge text-bg-light text-secondary">{$field.title}</span>
-                                    <input type="radio" class="d-none" name="order[{$field.name}]" value="desc" autocomplete="off">
-                                </label>
-                                {/if}
-                            </div>
-                            {/if}
-                            {/foreach}
-                        </div>
-                    </div>
-                </div>
+                </select>
             </form>
-            <script>
-                $(function() {
-                    $("#form_3 input").on("change", function() {
-                        $("#form_3").submit();
-                    });
-                });
-            </script>
-        </div>
-    </div>
-    <div class="my-3">
-        <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$model['id']])}" class="btn btn-primary">添加内容</a>
-    </div>
-    <div class="table-responsive">
-        <table class="table table-bordered" id="tablexx">
-            <thead>
-                <tr>
-                    <th class="text-nowrap" style="width:30px;">#</th>
-                    <th class="text-nowrap">信息</th>
-                </tr>
-            </thead>
-            <tbody>
-                {foreach $contents as $content}
-                <tr>
-                    <td>
-                        <div class="form-check">
-                            <input type="checkbox" name="ids[]" value="{$content.id}" class="form-check-input" id="checkbox_{$content.id}">
-                        </div>
-                    </td>
-                    <td>
-                        <table>
-                            <tr>
-                                <td>ID：</td>
-                                <td>
-                                    {$content.id}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>栏目：</td>
-                                <td>
-                                    {if isset($categorys[$content['category_name']])}
-                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_name'=>$content['category_name']])}">{$categorys[$content['category_name']]['title']}</a>
-                                    {else}
-                                    <a href="{echo $router->build('/psrphp/cms/content/index',['model_id'=>$model['id'], 'category_name'=>$content['category_name']])}">未知栏目</a>
-                                    {/if}
-                                </td>
-                            </tr>
-                            {foreach $fields as $field}
-                            {if $field['type'] && $field['adminlist']}
-                            <tr>
-                                <td>{$field.title}：</td>
-                                <td>
-                                    {echo $field['type']::onShow($field, $content[$field['name']])}
-                                </td>
-                            </tr>
-                            {/if}
-                            {/foreach}
-                        </table>
-                        <div>
-                            <a href="{echo $router->build('/psrphp/cms/content/update', ['model_id'=>$model['id'], 'id'=>$content['id']])}">编辑</a>
-                            <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$model['id'], 'copyfrom'=>$content['id']])}">复制</a>
-                        </div>
-                    </td>
-                </tr>
-                {/foreach}
-            </tbody>
-        </table>
-    </div>
-    <div class="mb-3">
-        <form class="row gy-2 gx-3 align-items-center">
-            <div class="col-auto">
-                <button class="btn btn-secondary" type="button" id="fanxuan">全选/反选</button>
-                <script>
-                    $(document).ready(function() {
-                        $("#fanxuan").on("click", function() {
-                            $("#tablexx td :checkbox").each(function() {
-                                $(this).prop("checked", !$(this).prop("checked"));
-                            });
-                        });
-                    });
-                </script>
-            </div>
-            <div class="col-auto">
-                <button type="button" class="btn btn-danger" id="delete">删除</button>
-                <script>
-                    $(document).ready(function() {
-                        $("#delete").bind('click', function() {
-                            if (confirm('确定删除吗？删除后不可恢复！')) {
-                                var ids = [];
-                                $.each($('#tablexx input:checkbox:checked'), function() {
-                                    ids.push($(this).val());
-                                });
-                                $.ajax({
-                                    type: "POST",
-                                    url: "{echo $router->build('/psrphp/cms/content/delete')}",
-                                    data: {
-                                        model_id: "{$model.id}",
-                                        ids: ids
-                                    },
-                                    dataType: "JSON",
-                                    success: function(response) {
-                                        if (response.errcode) {
-                                            alert(response.message);
-                                        } else {
-                                            location.reload();
-                                        }
-                                    }
-                                });
-                            }
-                        });
-                    });
-                </script>
-            </div>
+        </fieldset>
 
-            <div class="col-auto">
-                <div class="d-flex">
-                    <div id="selcc">
-                        <style>
-                            #selcc>div>.mt-2>label {
-                                display: none;
-                            }
-
-                            #selcc>div>.mt-2 {
-                                margin-top: 0 !important;
-                            }
-                        </style>
-                        <?php
-                        echo new PsrPHP\Form\Field\Select('分类', 'category_name', '', $categorys);
-                        ?>
-                    </div>
-                    <div>
-                        <button class="btn btn-primary" type="button" id="inlineFormCustomSelect">移动</button>
-                    </div>
+        <fieldset>
+            <legend>分类</legend>
+            <form action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
+                <input type="hidden" name="model_id" value="{$model.id}">
+                <div class="selcc">
+                    <style>
+                        .selcc>div>:first-child {
+                            display: none;
+                        }
+                    </style>
+                    <?php
+                    echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), $categorys);
+                    ?>
                 </div>
                 <script>
-                    $(function() {
-                        $("#inlineFormCustomSelect").bind('click', function() {
-                            var category_name = $("#selcc input")[0].value;
-                            if (category_name >= 0) {
-                                var ids = [];
-                                $.each($('#tablexx input:checkbox:checked'), function() {
-                                    ids.push($(this).val());
-                                });
-                                $.ajax({
-                                    type: "POST",
-                                    url: "{echo $router->build('/psrphp/cms/content/move')}",
-                                    data: {
-                                        model_id: "{$model.id}",
-                                        ids: ids,
-                                        category_name: category_name,
-                                    },
-                                    dataType: "JSON",
-                                    success: function(response) {
-                                        if (response.errcode) {
-                                            alert(response.message);
-                                        } else {
-                                            location.reload();
-                                        }
-                                    }
-                                });
+                    (function() {
+                        var selects = document.querySelectorAll('.selcc select');
+                        for (const key in selects) {
+                            if (Object.hasOwnProperty.call(selects, key)) {
+                                const sel = selects[key];
+                                sel.addEventListener('change', () => {
+                                    event.target.form.submit();
+                                })
                             }
-                        });
-                    });
+                        }
+                    })()
                 </script>
+            </form>
+        </fieldset>
+        {foreach $fields as $field}
+        {if $field['type'] && $field['adminfilter']}
+        <fieldset>
+            <legend>{$field['title']}:</legend>
+            <div>{echo $field['type']::onFilter($field)}</div>
+        </fieldset>
+        {/if}
+        {/foreach}
+        <fieldset>
+            <legend>搜索:</legend>
+            <input type="search" name="q" value="{$request->get('q')}" placeholder="请输入搜索词：">
+        </fieldset>
+        <fieldset>
+            <legend>排序:</legend>
+            <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 5px;">
+                {foreach $fields as $field}
+                {if $field['adminorder']}
+                <div>
+                    <input type="radio" style="display: none;" name="order[{$field.name}]" value="{$request->get('order.'.$field['name'])}" checked>
+                    {if $request->get('order.'.$field['name']) == 'desc'}
+                    <label>
+                        <input type="radio" style="display: none;" name="order[{$field.name}]" value="asc">
+                        <span style="color:red;">{$field.title}↓</span>
+                    </label>
+                    {elseif $request->get('order.'.$field['name']) == 'asc'}
+                    <label>
+                        <input type="radio" style="display: none;" name="order[{$field.name}]" value="">
+                        <span style="color:red;">{$field.title}↑</span>
+                    </label>
+                    {else}
+                    <label>
+                        <input type="radio" style="display: none;" name="order[{$field.name}]" value="desc">
+                        <span>{$field.title}</span>
+                    </label>
+                    {/if}
+                </div>
+                {/if}
+                {/foreach}
+            </div>
+        </fieldset>
+    </div>
+</form>
+<script>
+    (function() {
+        var inputs = document.querySelectorAll("#form_3 input");
+        for (const key in inputs) {
+            if (Object.hasOwnProperty.call(inputs, key)) {
+                const ele = inputs[key];
+                ele.addEventListener('change', () => {
+                    event.target.form.submit();
+                })
+            }
+        }
+    })()
+</script>
+
+<div>
+    <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$model['id']])}">添加内容</a>
+</div>
+
+<div style="overflow-x: auto;">
+    <table id="tablemain">
+        <thead>
+            <tr>
+                <th style="width:30px;">#</th>
+                <th>分类</th>
+                {foreach $fields as $field}
+                {if $field['type'] && $field['adminlist']}
+                <th>{$field.title}</th>
+                {/if}
+                {/foreach}
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {foreach $contents as $content}
+            <tr>
+                <td>
+                    <label>
+                        <input type="checkbox" value="{$content.id}"><span>{$content.id}</span>
+                    </label>
+                </td>
+                <td>
+                    {if isset($categorys[$content['category_name']])}
+                    <span>{$categorys[$content['category_name']]['title']}</span>
+                    {else}
+                    <span>-</span>
+                    {/if}
+                </td>
+                {foreach $fields as $field}
+                {if $field['type'] && $field['adminlist']}
+                <td>{echo $field['type']::onShow($field, $content[$field['name']])}</td>
+                {/if}
+                {/foreach}
+                <td>
+                    <a href="{echo $router->build('/psrphp/cms/content/update', ['model_id'=>$model['id'], 'id'=>$content['id']])}">编辑</a>
+                    <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$model['id'], 'copyfrom'=>$content['id']])}">复制</a>
+                </td>
+            </tr>
+            {/foreach}
+        </tbody>
+    </table>
+</div>
+
+<div style="display: flex;flex-wrap: wrap;gap: 5px;">
+    <div>
+        <button type="button" id="fanxuan">全选/反选</button>
+        <script>
+            (function() {
+                var fanxuanbtn = document.getElementById("fanxuan");
+                fanxuanbtn.addEventListener('click', () => {
+                    var checklist = document.querySelectorAll("#tablemain td input");
+                    checklist.forEach(element => {
+                        element.click();
+                    });
+                })
+            })()
+        </script>
+    </div>
+
+    <div>
+        <form action="{echo $router->build('/psrphp/cms/content/delete')}" method="POST">
+            <input type="hidden" name="model_id" value="{$model.id}">
+            <input type="hidden" name="ids" value="">
+            <button type="submit" onclick="return confirm('确定删除吗？删除后不可恢复！')">删除</button>
+        </form>
+    </div>
+
+    <div>
+        <form action="{echo $router->build('/psrphp/cms/content/move')}" method="POST">
+            <input type="hidden" name="model_id" value="{$model.id}">
+            <input type="hidden" name="ids" value="">
+            <div style="display: flex;flex-wrap: wrap;gap: 5px;">
+                <div class="xselect">
+                    <style>
+                        .xselect>div>:first-child {
+                            display: none;
+                        }
+                    </style>
+                    <?php
+                    echo new PsrPHP\Form\Field\Select('分类', 'category_name', '', $categorys);
+                    ?>
+                </div>
+                <button type="submit" onclick="return confirm('确定移动吗？')">移动</button>
             </div>
         </form>
     </div>
-    <nav class="mb-3">
-        <ul class="pagination">
-            {foreach $pagination as $v}
-            {if $v=='...'}
-            <li class="page-item disabled"><a class="page-link" href="javascript:void(0);">{$v}</a></li>
-            {elseif isset($v['current'])}
-            <li class="page-item active"><a class="page-link" href="javascript:void(0);">{$v.page}</a></li>
-            {else}
-            <li class="page-item"><a class="page-link" href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>$v['page']]))}">{$v.page}</a></li>
-            {/if}
-            {/foreach}
-        </ul>
-    </nav>
-    {else}
+</div>
+<script>
+    (() => {
+        var checklist = document.querySelectorAll("#tablemain td input");
+        checklist.forEach(element => {
+            element.addEventListener('click', () => {
+                var checklist = document.querySelectorAll("#tablemain td input");
+                var ids = [];
+                checklist.forEach(ele => {
+                    if (ele.checked) {
+                        ids.push(ele.value);
+                    }
+                })
+                document.getElementsByName("ids").forEach(ele => {
+                    ele.value = ids.join(',');
+                });
+            })
+        });
+    })()
+</script>
+
+<div style="display: flex;flex-direction: row;flex-wrap: wrap;">
+    <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>1]))}">首页</a>
+    <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>max($request->get('page')-1, 1)]))}">上一页</a>
+    <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>min($request->get('page')+1, $maxpage)]))}">下一页</a>
+    <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>$maxpage]))}">末页</a>
+</div>
+{else}
+<fieldset>
+    <legend>请选择数据模型</legend>
     {foreach $models as $vo}
     <a href="{echo $router->build('/psrphp/cms/content/index', ['model_id'=>$vo['id']])}">{$vo.title}</a>
     {/foreach}
-    {/if}
-</div>
+</fieldset>
+{/if}
 {include common/footer@psrphp/admin}

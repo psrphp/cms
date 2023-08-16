@@ -23,7 +23,7 @@ class Move extends Common
         $db->update('psrphp_cms_content_' . $model['name'], [
             'category_name' => $request->post('category_name'),
         ], [
-            'id' => $request->post('ids'),
+            'id' => explode(',', $request->post('ids')),
         ]);
         return Response::success('操作成功！');
     }

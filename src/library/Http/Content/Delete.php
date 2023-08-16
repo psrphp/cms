@@ -21,7 +21,7 @@ class Delete extends Common
             return Response::error('模型不存在！');
         }
         $db->delete('psrphp_cms_content_' . $model['name'], [
-            'id' => $request->post('ids'),
+            'id' => explode(',', $request->post('ids')),
         ]);
         return Response::success('操作成功！');
     }

@@ -8,7 +8,6 @@ use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Cms\Model\CategoryProvider;
 use App\Psrphp\Cms\Model\ContentProvider;
 use PsrPHP\Database\Db;
-use PsrPHP\Pagination\Pagination;
 use PsrPHP\Request\Request;
 use PsrPHP\Template\Template;
 
@@ -17,8 +16,7 @@ class Index extends Common
     public function get(
         Db $db,
         Request $request,
-        Template $template,
-        Pagination $pagination
+        Template $template
     ) {
         $models = $db->select('psrphp_cms_model', '*');
         $model_id = $request->get('model_id');
@@ -83,6 +81,8 @@ class Index extends Common
                 $size
             );
 
+            $data['maxpage'] = ceil($total / $size) ?: 1;
+
             return $template->renderFromFile('content/index@psrphp/cms', [
                 'model' => $model,
                 'models' => $models,
@@ -90,9 +90,9 @@ class Index extends Common
                 'categorys' => $categorys,
                 'contents' => $contents,
                 'total' => $total,
+                'maxpage' => ceil($total / $size) ?: 1,
                 'page' => $page,
                 'size' => $size,
-                'pagination' => $pagination->render($page, $total, $size),
             ]);
         } else {
             return $template->renderFromFile('content/index@psrphp/cms', [
