@@ -28,7 +28,7 @@ class Text implements FieldInterface
             '0' => '不允许',
             '1' => '允许',
         ]));
-        $res[] = (new Radio('是否作为后台的搜索字段', 'adminsearch', 1, [
+        $res[] = (new Radio('是否作为后台的搜索字段', 'adminsearch', '1', [
             '0' => '否',
             '1' => '是',
         ]));

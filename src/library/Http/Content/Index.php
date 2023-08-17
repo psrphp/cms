@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Psrphp\Cms\Http\Content;
 
 use App\Psrphp\Admin\Http\Common;
+use App\Psrphp\Admin\Lib\Response;
 use App\Psrphp\Cms\Model\CategoryProvider;
 use App\Psrphp\Cms\Model\ContentProvider;
 use PsrPHP\Database\Db;
@@ -16,14 +17,17 @@ class Index extends Common
     public function get(
         Db $db,
         Request $request,
-        Template $template
+        Template $template,
+        ContentProvider $contentProvider
     ) {
         $models = $db->select('psrphp_cms_model', '*');
         $model_id = $request->get('model_id');
         if ($model_id) {
-            $model = $db->get('psrphp_cms_model', '*', [
+            if (!$model = $db->get('psrphp_cms_model', '*', [
                 'id' => $model_id,
-            ]);
+            ])) {
+                return Response::error('模型不存在');
+            }
 
             $categorys = [];
             foreach (CategoryProvider::getInstance($model['id'])->all() as $vo) {
@@ -63,17 +67,13 @@ class Index extends Common
                 }
             }
 
-            $contentProvider = ContentProvider::getInstance(
+            $page = intval($request->get('page', 1)) ?: 1;
+            $size = min(100, intval($request->get('size', 20)) ?: 20);
+            $res = $contentProvider->select(
                 $model['id'],
                 $category_names,
                 $request->get('filter', []),
-                $searchs
-            );
-
-            $total = $contentProvider->getTotal();
-            $page = intval($request->get('page', 1)) ?: 1;
-            $size = min(100, intval($request->get('size', 20)) ?: 20);
-            $contents = $contentProvider->select(
+                $searchs,
                 $request->get('order', [
                     'id' => 'DESC',
                 ]),
@@ -81,16 +81,16 @@ class Index extends Common
                 $size
             );
 
-            $data['maxpage'] = ceil($total / $size) ?: 1;
+            $data['maxpage'] = ceil($res['total'] / $size) ?: 1;
 
             return $template->renderFromFile('content/index@psrphp/cms', [
                 'model' => $model,
                 'models' => $models,
                 'fields' => $fields,
                 'categorys' => $categorys,
-                'contents' => $contents,
-                'total' => $total,
-                'maxpage' => ceil($total / $size) ?: 1,
+                'contents' => $res['contents'],
+                'total' => $res['total'],
+                'maxpage' => ceil($res['total'] / $size) ?: 1,
                 'page' => $page,
                 'size' => $size,
             ]);

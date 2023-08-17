@@ -7,40 +7,37 @@ namespace App\Psrphp\Cms\Model;
 use Exception;
 use Medoo\Medoo;
 use PsrPHP\Database\Db;
-use PsrPHP\Framework\Framework;
 
 class ContentProvider
 {
-    private $model;
+    private $db;
 
     private $wheresql = '';
     private $wherebinds = [];
 
-    private function __construct(int $model_id, array $category_names = null, array $filter = [],  array $search = [])
+    public function __construct(
+        Db $db
+    ) {
+        $this->db = $db;
+    }
+
+    public function select(int $model_id, array $category_names = [], array $filter = [], array $search = [], array $order = [], int $page = 1, int $size = 10): array
     {
-        $this->model = $this->getDb()->get('psrphp_cms_model', '*', [
+        $res = [];
+
+        $this->wheresql = '';
+        $this->wherebinds = [];
+
+        $model = $this->db->get('psrphp_cms_model', '*', [
             'id' => $model_id,
         ]);
         $this->renderWhere($model_id, $category_names, $filter, $search);
-    }
+        $res['total'] = $this->db->count('psrphp_cms_content_' . $model['name'], Medoo::raw($this->wheresql, $this->wherebinds));
 
-    public static function getInstance(int $model_id, array $category_names = null, array $filter = [], array $search = []): self
-    {
-        return new self($model_id, $category_names, $filter, $search);
-    }
-
-    public function getTotal()
-    {
-        return $this->getDb()->count('psrphp_cms_content_' . $this->model['name'], Medoo::raw($this->wheresql, $this->wherebinds));
-    }
-
-    public function select(array $order = [], int $page = 1, int $size = 10)
-    {
-        $sql = $this->wheresql;
-        $binds = $this->wherebinds;
-        $this->renderOrder($order, $sql, $binds);
-        $this->renderLimit($page, $size, $sql, $binds);
-        return $this->getDb()->select('psrphp_cms_content_' . $this->model['name'], '*', Medoo::raw($sql, $binds));
+        $this->renderOrder($order);
+        $this->renderLimit($page, $size);
+        $res['contents'] = $this->db->select('psrphp_cms_content_' . $model['name'], '*', Medoo::raw($this->wheresql, $this->wherebinds));
+        return $res;
     }
 
     private function renderWhere(int $model_id, array $category_names = [], array $filter = [],  array $search = [])
@@ -61,7 +58,7 @@ class ContentProvider
             $where[] = '`category_name` in (' . implode(',', $catn) . ')';
         }
 
-        foreach ($this->getDb()->select('psrphp_cms_field', '*', [
+        foreach ($this->db->select('psrphp_cms_field', '*', [
             'model_id' => $model_id,
             'ORDER' => [
                 'priority' => 'DESC',
@@ -92,7 +89,7 @@ class ContentProvider
         }
     }
 
-    private function renderOrder(array $order, string &$string, array &$binds)
+    private function renderOrder(array $order)
     {
         $orders = [];
         foreach ($order as $key => $vo) {
@@ -106,23 +103,14 @@ class ContentProvider
         }
 
         if ($orders) {
-            $string .= ' ORDER BY ' . implode(',', $orders);
+            $this->wheresql .= ' ORDER BY ' . implode(',', $orders);
         }
     }
 
-    private function renderLimit(int $page, int $size, string &$string, array &$binds)
+    private function renderLimit(int $page, int $size)
     {
-        $string .= ' LIMIT :start, :size';
-        $binds[':start'] = ($page - 1) * $size;
-        $binds[':size'] = $size;
-    }
-
-    private function getDb(): Db
-    {
-        return Framework::execute(function (
-            Db $db,
-        ): Db {
-            return $db;
-        });
+        $this->wheresql .= ' LIMIT :start, :size';
+        $this->wherebinds[':start'] = ($page - 1) * $size;
+        $this->wherebinds[':size'] = $size;
     }
 }
