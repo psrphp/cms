@@ -1,49 +1,46 @@
 {include common/header@psrphp/admin}
 <h1>内容管理</h1>
 {if isset($model)}
+<fieldset>
+    <legend>模型</legend>
+    <form action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
+        <select name="model_id" onchange="this.form.submit();">
+            {foreach $models as $vo}
+            <option {if $request->get('model_id')==$vo['id']}selected{/if} value="{$vo.id}">{$vo.title}</option>
+            {/foreach}
+        </select>
+    </form>
+</fieldset>
+
 <form action="{echo $router->build('/psrphp/cms/content/index')}" id="form_3">
     <input type="hidden" name="model_id" value="{$model.id}">
     <input type="hidden" name="category_name" value="{$request->get('category_name')}">
     <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
         <fieldset>
-            <legend>模型</legend>
-            <form action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
-                <select name="model_id" onchange="this.form.submit();">
-                    {foreach $models as $vo}
-                    <option {if $request->get('model_id')==$vo['id']}selected{/if} value="{$vo.id}">{$vo.title}</option>
-                    {/foreach}
-                </select>
-            </form>
-        </fieldset>
-
-        <fieldset>
             <legend>分类</legend>
-            <form action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
-                <input type="hidden" name="model_id" value="{$model.id}">
-                <div class="selcc">
-                    <style>
-                        .selcc>div>:first-child {
-                            display: none;
+            <div class="selcc">
+                <style>
+                    .selcc>div>:first-child {
+                        display: none;
+                    }
+                </style>
+                <?php
+                echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), $categorys);
+                ?>
+            </div>
+            <script>
+                (function() {
+                    var selects = document.querySelectorAll('.selcc select');
+                    for (const key in selects) {
+                        if (Object.hasOwnProperty.call(selects, key)) {
+                            const sel = selects[key];
+                            sel.addEventListener('change', () => {
+                                event.target.form.submit();
+                            })
                         }
-                    </style>
-                    <?php
-                    echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), $categorys);
-                    ?>
-                </div>
-                <script>
-                    (function() {
-                        var selects = document.querySelectorAll('.selcc select');
-                        for (const key in selects) {
-                            if (Object.hasOwnProperty.call(selects, key)) {
-                                const sel = selects[key];
-                                sel.addEventListener('change', () => {
-                                    event.target.form.submit();
-                                })
-                            }
-                        }
-                    })()
-                </script>
-            </form>
+                    }
+                })()
+            </script>
         </fieldset>
         {foreach $fields as $field}
         {if $field['type'] && $field['adminfilter']}
@@ -57,6 +54,8 @@
             <legend>搜索:</legend>
             <input type="search" name="q" value="{$request->get('q')}" placeholder="请输入搜索词：">
         </fieldset>
+    </div>
+    <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
         <fieldset>
             <legend>排序:</legend>
             <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 5px;">
@@ -90,10 +89,12 @@
 <script>
     (function() {
         var inputs = document.querySelectorAll("#form_3 input");
+        console.info(inputs)
         for (const key in inputs) {
             if (Object.hasOwnProperty.call(inputs, key)) {
                 const ele = inputs[key];
                 ele.addEventListener('change', () => {
+                    console.info(event.target)
                     event.target.form.submit();
                 })
             }
@@ -101,15 +102,22 @@
     })()
 </script>
 
-<div>
+<div style="margin: 20px 0;">
     <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$model['id']])}">添加内容</a>
 </div>
 
-<div style="overflow-x: auto;">
+<style>
+    #tablemain * {
+        white-space: nowrap;
+    }
+</style>
+
+<div style="overflow-x: auto;margin-top: 20px;">
     <table id="tablemain">
         <thead>
             <tr>
-                <th style="width:30px;">#</th>
+                <th style="width:22px;">#</th>
+                <th>ID</th>
                 <th>分类</th>
                 {foreach $fields as $field}
                 {if $field['type'] && $field['adminlist']}
@@ -123,10 +131,9 @@
             {foreach $contents as $content}
             <tr>
                 <td>
-                    <label>
-                        <input type="checkbox" value="{$content.id}"><span>{$content.id}</span>
-                    </label>
+                    <input type="checkbox" value="{$content.id}">
                 </td>
+                <td><span>{$content.id}</span></td>
                 <td>
                     {if isset($categorys[$content['category_name']])}
                     <span>{$categorys[$content['category_name']]['title']}</span>
@@ -148,8 +155,7 @@
         </tbody>
     </table>
 </div>
-
-<div style="display: flex;flex-wrap: wrap;gap: 5px;">
+<div style="display: flex;flex-wrap: wrap;gap: 5px;margin-top: 5px;">
     <div>
         <button type="button" id="fanxuan">全选/反选</button>
         <script>
@@ -213,7 +219,7 @@
     })()
 </script>
 
-<div style="display: flex;flex-direction: row;flex-wrap: wrap;">
+<div style="display: flex;flex-direction: row;flex-wrap: wrap;margin-top: 20px;">
     <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>1]))}">首页</a>
     <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>max($request->get('page')-1, 1)]))}">上一页</a>
     <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>min($request->get('page')+1, $maxpage)]))}">下一页</a>

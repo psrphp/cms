@@ -39,6 +39,7 @@ return [
                     'adminorder' => 1,
                     'adminfilter' => 1,
                     'adminlist' => 1,
+                    'extra' => json_encode([]),
                 ]);
                 $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD create_time datetime DEFAULT CURRENT_TIMESTAMP COMMENT \'创建时间\'');
 
@@ -51,6 +52,7 @@ return [
                     'adminorder' => 1,
                     'adminfilter' => 1,
                     'adminlist' => 1,
+                    'extra' => json_encode([]),
                 ]);
                 $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD update_time datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT \'更新时间\'');
             });

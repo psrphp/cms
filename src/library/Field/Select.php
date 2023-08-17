@@ -302,7 +302,7 @@ str;
             Template $template
         ) use ($field, $value) {
             $tpl = <<<'str'
-<div style="display: flex;flex-direction: wrap;flex-wrap: wrap;gap: 5px;">
+<div style="display: flex;flex-direction: wrap;flex-wrap: nowrap;gap: 5px;">
     {foreach $sels as $v}
     <div>{$v['title']}</div>
     {/foreach}

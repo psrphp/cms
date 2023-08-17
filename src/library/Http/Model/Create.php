@@ -92,6 +92,7 @@ class Create extends Common
             'adminfilter' => 0,
             'adminsearch' => 0,
             'adminorder' => 1,
+            'extra' => json_encode([]),
         ]);
 
         $db->insert('psrphp_cms_field', [
@@ -104,6 +105,7 @@ class Create extends Common
             'adminfilter' => 1,
             'adminsearch' => 0,
             'adminorder' => 0,
+            'extra' => json_encode([]),
         ]);
         $db->query('ALTER TABLE <psrphp_cms_content_' . $name . '> ADD category_name varchar(80) NOT NULL DEFAULT \'\' COMMENT \'分类名称\'');
 
