@@ -50,27 +50,33 @@ class Index extends Common
             }
             $filters = array_merge($filters, $request->get('filter', []));
 
-            $page = intval($request->get('page', 1)) ?: 1;
-            $size = min(100, intval($request->get('size', 20)) ?: 20);
-            $res = $contentProvider->select(
+            $total = $contentProvider->count(
                 $model['id'],
                 $filters,
-                $request->get('order', [
-                    'id' => 'DESC',
-                ]),
+            );
+
+            $page = intval($request->get('page', 1)) ?: 1;
+            $size = min(100, intval($request->get('size', 20)) ?: 20);
+            $order = $request->get('order', [
+                'id' => 'DESC',
+            ]);
+            $contents = $contentProvider->select(
+                $model['id'],
+                $filters,
+                $order,
                 $page,
                 $size
             );
 
-            $data['maxpage'] = ceil($res['total'] / $size) ?: 1;
+            $data['maxpage'] = ceil($total / $size) ?: 1;
 
             return $template->renderFromFile('content/index@psrphp/cms', [
                 'model' => $model,
                 'models' => $models,
                 'fields' => $fields,
-                'contents' => $res['contents'],
-                'total' => $res['total'],
-                'maxpage' => ceil($res['total'] / $size) ?: 1,
+                'contents' => $contents,
+                'total' => $total,
+                'maxpage' => ceil($total / $size) ?: 1,
                 'page' => $page,
                 'size' => $size,
             ]);

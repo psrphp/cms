@@ -20,7 +20,6 @@ class ContentProvider
 
     public function select(int $model_id, array $filters = [], array $orders = [], int $page = 1, int $size = 10): array
     {
-        $res = [];
         $sql = '';
 
         $wheres = [];
@@ -49,18 +48,9 @@ class ContentProvider
             }
         }
 
-        // var_dump($wheres);
-        // die;
         if ($wheres) {
             $sql .= ' WHERE ' . $this->build($wheres);
         }
-
-        // var_dump($binds);
-        // var_dump($wheres);
-        // echo $this->db->debug()->count('psrphp_cms_content_' . $model['name'], Medoo::raw($sql, $binds));
-        // die;
-
-        $res['total'] = $this->db->count('psrphp_cms_content_' . $model['name'], Medoo::raw($sql, $binds));
 
         $tmps = [];
         foreach ($orders as $key => $vo) {
@@ -80,11 +70,47 @@ class ContentProvider
         $binds[':start'] = ($page - 1) * $size;
         $binds[':size'] = $size;
 
-        $res['contents'] = $this->db->select('psrphp_cms_content_' . $model['name'], '*', Medoo::raw($sql, $binds));
-        return $res;
+        return $this->db->select('psrphp_cms_content_' . $model['name'], '*', Medoo::raw($sql, $binds));
     }
 
-    public function build(array $where, string $type = 'and')
+    public function count(int $model_id, array $filters = [])
+    {
+        $sql = '';
+
+        $wheres = [];
+        $binds = [];
+
+        $model = $this->db->get('psrphp_cms_model', '*', [
+            'id' => $model_id,
+        ]);
+
+        foreach ($this->db->select('psrphp_cms_field', '*', [
+            'model_id' => $model_id,
+            'ORDER' => [
+                'priority' => 'DESC',
+                'id' => 'ASC',
+            ],
+        ]) as $field) {
+            $field = array_merge(json_decode($field['extra'], true), $field);
+            if (isset($filters[$field['name']])) {
+                $tmp = $field['type']::buildFilterSql($field, $filters[$field['name']]);
+                if (isset($tmp['where']) && $tmp['where']) {
+                    $wheres = array_merge_recursive($wheres, $tmp['where']);
+                }
+                if (isset($tmp['binds']) && $tmp['binds']) {
+                    $binds = array_merge($binds, $tmp['binds']);
+                }
+            }
+        }
+
+        if ($wheres) {
+            $sql .= ' WHERE ' . $this->build($wheres);
+        }
+
+        return $this->db->count('psrphp_cms_content_' . $model['name'], Medoo::raw($sql, $binds));
+    }
+
+    private function build(array $where, string $type = 'and')
     {
         if (isset($where['and'])) {
             $and = $where['and'];
