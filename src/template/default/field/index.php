@@ -17,7 +17,6 @@
             <th>后台编辑</th>
             <th>后台列表显示</th>
             <th>后台筛选</th>
-            <th>后台搜索</th>
             <th>后台排序</th>
             <th>管理</th>
             <th>排序</th>
@@ -51,13 +50,6 @@
             </td>
             <td>
                 {if $vo['adminfilter']}
-                <span>允许</span>
-                {else}
-                <span>-</span>
-                {/if}
-            </td>
-            <td>
-                {if $vo['adminsearch']}
                 <span>允许</span>
                 {else}
                 <span>-</span>

@@ -60,7 +60,7 @@ class Boolean implements FieldInterface
     public static function getCreateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Radio($field['title'], $field['name'], $value, [
+        $res[] = new Radio($field['title'], $field['name'], $value ? 1 : 0, [
             0 => '否',
             1 => '是',
         ]);
@@ -81,7 +81,7 @@ class Boolean implements FieldInterface
     public static function getUpdateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Radio($field['title'], $field['name'], $value, [
+        $res[] = new Radio($field['title'], $field['name'], $value ? 1 : 0, [
             0 => '否',
             1 => '是',
         ]);

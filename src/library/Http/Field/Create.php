@@ -12,7 +12,6 @@ use PsrPHP\Form\Component\Col;
 use PsrPHP\Form\Component\Row;
 use PsrPHP\Form\Field\Hidden;
 use PsrPHP\Form\Field\Input;
-use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 
 class Create extends Common
@@ -72,7 +71,6 @@ class Create extends Common
             'adminlist' => $request->post('adminlist', 0),
             'adminfilter' => $request->post('adminfilter', 0),
             'adminorder' => $request->post('adminorder', 0),
-            'adminsearch' => $request->post('adminsearch', 0),
         ];
         $data['extra'] = json_encode(array_diff_key($request->post(), $data), JSON_UNESCAPED_UNICODE);
 

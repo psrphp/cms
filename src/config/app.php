@@ -42,7 +42,6 @@ CREATE TABLE `prefix_psrphp_cms_field` (
     `adminlist` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台列表显示',
     `adminfilter` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台筛选',
     `adminorder` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台排序',
-    `adminsearch` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台检索',
     `extra` text COMMENT '其他数据',
     `priority` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
     PRIMARY KEY (`id`) USING BTREE

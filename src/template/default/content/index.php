@@ -25,10 +25,12 @@
     <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
         {foreach $fields as $field}
         {if $field['type'] && $field['adminfilter']}
+        {if $tmp = $field['type']::getFilterForm($field)}
         <fieldset>
             <legend>{$field['title']}:</legend>
-            <div>{echo $field['type']::getFilterForm($field)}</div>
+            <div>{echo $tmp}</div>
         </fieldset>
+        {/if}
         {/if}
         {/foreach}
         <fieldset>

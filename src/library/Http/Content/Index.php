@@ -39,15 +39,16 @@ class Index extends Common
                 $vo = array_merge(json_decode($vo['extra'], true), $vo);
             }
 
-            $filters = $request->get('filter', []);
+            $filters = [];
             $q = $request->get('q', '');
             if (is_string($q) && strlen($q)) {
                 foreach ($fields as $vo) {
-                    if ($vo['adminsearch']) {
+                    if ($vo['adminfilter']) {
                         $filters[$vo['name']] = '%' . $q . '%';
                     }
                 }
             }
+            $filters = array_merge($filters, $request->get('filter', []));
 
             $page = intval($request->get('page', 1)) ?: 1;
             $size = min(100, intval($request->get('size', 20)) ?: 20);
