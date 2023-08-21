@@ -130,6 +130,8 @@
             <tr style="display: none;">
                 <td colspan="{$fieldtypenum + 3}">
                     <dl>
+                        <dt>ID</dt>
+                        <dd>{$content.id}</dd>
                         {foreach $fields as $field}
                         {if $field['type']}
                         <dt>{$field.title}</dt>

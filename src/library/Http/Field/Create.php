@@ -76,7 +76,11 @@ class Create extends Common
 
         $db->insert('psrphp_cms_field', $data);
 
-        $type::getCreateFieldSql();
+        $sql = $sql = $type::getCreateFieldSql($model['name'], $name);
+        if (strlen($sql)) {
+            $db->query($sql);
+        }
+
         return Response::success('操作成功！', 'javascript:history.go(-2)');
     }
 }
