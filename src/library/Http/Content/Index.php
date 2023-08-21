@@ -57,12 +57,12 @@ class Index extends Common
                 $category_names = [];
             }
 
-            $searchs = [];
+            $filters = $request->get('filter', []);
             $q = $request->get('q', '');
             if (is_string($q) && strlen($q)) {
                 foreach ($fields as $vo) {
                     if ($vo['adminsearch']) {
-                        $searchs[$vo['name']] = '%' . $q . '%';
+                        $filters[$vo['name']] = '%' . $q . '%';
                     }
                 }
             }
@@ -72,8 +72,7 @@ class Index extends Common
             $res = $contentProvider->select(
                 $model['id'],
                 $category_names,
-                $request->get('filter', []),
-                $searchs,
+                $filters,
                 $request->get('order', [
                     'id' => 'DESC',
                 ]),

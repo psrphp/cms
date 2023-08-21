@@ -8,26 +8,26 @@ return [
 DROP TABLE IF EXISTS `prefix_psrphp_cms_dict`;
 CREATE TABLE `prefix_psrphp_cms_dict` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
-    `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
+    `title` varchar(255) NOT NULL COMMENT '标题',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='数据源表';
 DROP TABLE IF EXISTS `prefix_psrphp_cms_data`;
 CREATE TABLE `prefix_psrphp_cms_data` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `dict_id` int(10) unsigned NOT NULL COMMENT '数据源ID',
-    `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
-    `alias` varchar(255) NOT NULL COMMENT '别名',
     `value` int(10) unsigned NOT NULL COMMENT '',
-    `parent` int(10) unsigned DEFAULT NULL COMMENT '上级',
+    `parent` int(10) unsigned COMMENT '上级',
+    `title` varchar(255) NOT NULL COMMENT '标题',
+    `alias` varchar(255) COMMENT '别名',
     `priority` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='数据源数据表';
 DROP TABLE IF EXISTS `prefix_psrphp_cms_model`;
 CREATE TABLE `prefix_psrphp_cms_model` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
-    `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
+    `title` varchar(255) NOT NULL COMMENT '标题',
     `name` varchar(255) NOT NULL COMMENT '名称',
-    `type` varchar(255) NOT NULL DEFAULT '' COMMENT '类型',
+    `type` varchar(255) COMMENT '类型',
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='内容模型表';
 DROP TABLE IF EXISTS `prefix_psrphp_cms_field`;
@@ -35,7 +35,7 @@ CREATE TABLE `prefix_psrphp_cms_field` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
     `model_id` int(10) unsigned NOT NULL COMMENT '模型ID',
     `system` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '系统字段',
-    `title` varchar(255) NOT NULL DEFAULT '' COMMENT '标题',
+    `title` varchar(255) NOT NULL COMMENT '标题',
     `name` varchar(255) NOT NULL COMMENT '字段',
     `type` varchar(255) NOT NULL COMMENT '类型',
     `adminedit` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许通过表单编辑',

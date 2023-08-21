@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Database\Db;
 use PsrPHP\Form\Field\Input;
 use PsrPHP\Form\Field\Radio;
 use PsrPHP\Framework\Framework;
@@ -18,7 +17,7 @@ class Number implements FieldInterface
         return '数字';
     }
 
-    public static function onCreateFieldForm(): array
+    public static function getCreateFieldForm(): array
     {
         $res = [];
         $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', '1', [
@@ -33,7 +32,7 @@ class Number implements FieldInterface
             '0' => '不允许',
             '1' => '允许',
         ]));
-        $res[] = (new Radio('是否允许负数', 'negative', '0', [
+        $res[] = (new Radio('是否允许负数', 'is_negative', '0', [
             '0' => '不允许',
             '1' => '允许',
         ]))->set('help', '此项录入后不可更改');
@@ -47,33 +46,26 @@ class Number implements FieldInterface
         return $res;
     }
 
-    public static function onCreateFieldData()
+    public static function getCreateFieldSql(string $model_name, string $field_name): string
     {
-        Framework::execute(function (
-            Db $db,
-            Request $request
-        ) {
-            $model = $db->get('psrphp_cms_model', '*', [
-                'id' => $request->post('model_id'),
-            ]);
-
-            if ($request->post('is_float')) {
-                if ($request->post('negative') == 1) {
-                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $request->post('name') . '` float');
-                } else {
-                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $request->post('name') . '` float unsigned');
-                }
+        $is_float = isset($_POST['is_float']) && $_POST['is_float'];
+        $is_negative = isset($_POST['is_negative']) && $_POST['is_negative'];
+        if ($is_float) {
+            if ($is_negative) {
+                return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` float';
             } else {
-                if ($request->post('negative') == 1) {
-                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $request->post('name') . '` int(11)');
-                } else {
-                    $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $request->post('name') . '` int(10) unsigned');
-                }
+                return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` float unsigned';
             }
-        });
+        } else {
+            if ($is_negative) {
+                return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` int(11)';
+            } else {
+                return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` int(10) unsigned';
+            }
+        }
     }
 
-    public static function onUpdateFieldForm(array $field): array
+    public static function getUpdateFieldForm(array $field): array
     {
         $res = [];
         $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
@@ -93,12 +85,8 @@ class Number implements FieldInterface
         $res[] = (new Input('数字间隔', 'step', $field['step'] ?? null, ['type' => 'number']))->set('help', '若要输入小数，可填0.1、0.01、0.001等等');
         return $res;
     }
-    public static function onUpdateFieldData(): ?string
-    {
-        return null;
-    }
 
-    public static function onCreateContentForm(array $field, $value): array
+    public static function getCreateContentForm(array $field, $value = null): array
     {
         $res = [];
         $res[] = new Input($field['title'], $field['name'], $value, [
@@ -109,7 +97,8 @@ class Number implements FieldInterface
         ]);
         return $res;
     }
-    public static function onCreateContentData(array $field): ?string
+
+    public static function getCreateContentData(array $field): ?string
     {
         return Framework::execute(function (
             Request $request,
@@ -119,7 +108,8 @@ class Number implements FieldInterface
             }
         });
     }
-    public static function onUpdateContentForm(array $field, $value): array
+
+    public static function getUpdateContentForm(array $field, $value = null): array
     {
         $res = [];
         $res[] = new Input($field['title'], $field['name'], $value, [
@@ -130,7 +120,8 @@ class Number implements FieldInterface
         ]);
         return $res;
     }
-    public static function onUpdateContentData(array $field): ?string
+
+    public static function getUpdateContentData(array $field, $oldvalue): ?string
     {
         return Framework::execute(function (
             Request $request,
@@ -139,7 +130,7 @@ class Number implements FieldInterface
         });
     }
 
-    public static function onContentFilter(array $field, $value): array
+    public static function buildFilterSql(array $field, $value): array
     {
         if (!is_array($value)) {
             return [];
@@ -154,7 +145,9 @@ class Number implements FieldInterface
         $maxkey = ':maxkey_' . $field['name'];
         if (strlen($value['min']) && strlen($value['max'])) {
             return [
-                'sql' => '`' . $field['name'] . '` BETWEEN ' . $minkey . ' AND ' . $maxkey,
+                'where' => [
+                    '`' . $field['name'] . '` BETWEEN ' . $minkey . ' AND ' . $maxkey,
+                ],
                 'binds' => [
                     $minkey => $value['min'],
                     $maxkey => $value['max'],
@@ -162,14 +155,18 @@ class Number implements FieldInterface
             ];
         } elseif (strlen($value['min'])) {
             return [
-                'sql' => '`' . $field['name'] . '`>=' . $minkey,
+                'where' => [
+                    '`' . $field['name'] . '`>=' . $minkey,
+                ],
                 'binds' => [
                     $minkey => $value['min'],
                 ]
             ];
         } elseif (strlen($value['max'])) {
             return [
-                'sql' => '`' . $field['name'] . '`<=' . $maxkey,
+                'where' => [
+                    '`' . $field['name'] . '`<=' . $maxkey,
+                ],
                 'binds' => [
                     $maxkey => $value['max'],
                 ]
@@ -178,12 +175,7 @@ class Number implements FieldInterface
         return [];
     }
 
-    public static function onContentSearch(array $field, string $value): array
-    {
-        return [];
-    }
-
-    public static function onFilter(array $field): string
+    public static function getFilterForm(array $field, $value = null): string
     {
         return Framework::execute(function (
             Template $template
@@ -204,7 +196,7 @@ str;
         });
     }
 
-    public static function onShow(array $field, $value): string
+    public static function parseToHtml(array $field, $value): string
     {
         return (string)$value;
     }

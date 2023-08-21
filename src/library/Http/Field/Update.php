@@ -32,7 +32,7 @@ class Update extends Common
                     (new Input('标题', 'title', $field['title']))->set('help', '例如：'),
                     (new Input('字段', 'name00', $field['name']))->set('disabled', true),
                     (new Input('类型', 'typedisabled', $field['type']::getTitle()))->set('disabled', true),
-                    ...($field['type']::onUpdateFieldForm($field) ?: [])
+                    ...($field['type']::getUpdateFieldForm($field) ?: [])
                 )
             )
         );

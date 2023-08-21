@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Database\Db;
 use PsrPHP\Form\Field\Radio;
 use PsrPHP\Form\Field\SimpleMDE;
 use PsrPHP\Framework\Framework;
@@ -18,7 +17,7 @@ class Markdown implements FieldInterface
         return 'Markdown编辑器';
     }
 
-    public static function onCreateFieldForm(): array
+    public static function getCreateFieldForm(): array
     {
         $res = [];
         $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', '1', [
@@ -36,20 +35,12 @@ class Markdown implements FieldInterface
         return $res;
     }
 
-    public static function onCreateFieldData()
+    public static function getCreateFieldSql(string $model_name, string $field_name): string
     {
-        Framework::execute(function (
-            Db $db,
-            Request $request
-        ) {
-            $model = $db->get('psrphp_cms_model', '*', [
-                'id' => $request->post('model_id'),
-            ]);
-            $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $request->post('name') . '` text');
-        });
+        return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` text';
     }
 
-    public static function onUpdateFieldForm(array $field): array
+    public static function getUpdateFieldForm(array $field): array
     {
         $res = [];
         $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
@@ -67,12 +58,7 @@ class Markdown implements FieldInterface
         return $res;
     }
 
-    public static function onUpdateFieldData(): ?string
-    {
-        return null;
-    }
-
-    public static function onCreateContentForm(array $field, $value): array
+    public static function getCreateContentForm(array $field, $value = null): array
     {
         return Framework::execute(function (
             Router $router
@@ -82,7 +68,8 @@ class Markdown implements FieldInterface
             return $res;
         });
     }
-    public static function onCreateContentData(array $field): ?string
+
+    public static function getCreateContentData(array $field): ?string
     {
         return Framework::execute(function (
             Request $request,
@@ -93,7 +80,7 @@ class Markdown implements FieldInterface
         });
     }
 
-    public static function onUpdateContentForm(array $field, $value): array
+    public static function getUpdateContentForm(array $field, $value = null): array
     {
         return Framework::execute(function (
             Router $router
@@ -104,7 +91,7 @@ class Markdown implements FieldInterface
         });
     }
 
-    public static function onUpdateContentData(array $field): ?string
+    public static function getUpdateContentData(array $field, $oldvalue): ?string
     {
         return Framework::execute(function (
             Request $request,
@@ -113,27 +100,26 @@ class Markdown implements FieldInterface
         });
     }
 
-    public static function onContentFilter(array $field, $value): array
-    {
-        return [];
-    }
-
-    public static function onContentSearch(array $field, string $value): array
+    public static function buildFilterSql(array $field, $value): array
     {
         return [
-            'sql' => '`' . $field['name'] . '` like :' . $field['name'],
+            'where' => [
+                'or' => [
+                    '`' . $field['name'] . '` like :' . $field['name']
+                ],
+            ],
             'binds' => [
                 ':' . $field['name'] => $value
             ],
         ];
     }
 
-    public static function onFilter(array $field): string
+    public static function getFilterForm(array $field, $value = null): string
     {
         return '';
     }
 
-    public static function onShow(array $field, $value): string
+    public static function parseToHtml(array $field, $value): string
     {
         // todo..
         return '<pre>' . $value . '</pre>';

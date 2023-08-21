@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Database\Db;
 use PsrPHP\Form\Field\Radio;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
@@ -17,7 +16,7 @@ class Boolean implements FieldInterface
         return '布尔';
     }
 
-    public static function onCreateFieldForm(): array
+    public static function getCreateFieldForm(): array
     {
         $res = [];
         $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', '1', [
@@ -35,20 +34,12 @@ class Boolean implements FieldInterface
         return $res;
     }
 
-    public static function onCreateFieldData()
+    public static function getCreateFieldSql(string $model_name, string $field_name): string
     {
-        Framework::execute(function (
-            Db $db,
-            Request $request
-        ) {
-            $model = $db->get('psrphp_cms_model', '*', [
-                'id' => $request->post('model_id'),
-            ]);
-            $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $request->post('name') . '` tinyint(3) unsigned');
-        });
+        return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` tinyint(3) unsigned';
     }
 
-    public static function onUpdateFieldForm(array $field): array
+    public static function getUpdateFieldForm(array $field): array
     {
         $res = [];
         $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
@@ -65,12 +56,8 @@ class Boolean implements FieldInterface
         ]));
         return $res;
     }
-    public static function onUpdateFieldData(): ?string
-    {
-        return null;
-    }
 
-    public static function onCreateContentForm(array $field, $value): array
+    public static function getCreateContentForm(array $field, $value = null): array
     {
         $res = [];
         $res[] = new Radio($field['title'], $field['name'], $value, [
@@ -79,17 +66,19 @@ class Boolean implements FieldInterface
         ]);
         return $res;
     }
-    public static function onCreateContentData(array $field): ?string
+
+    public static function getCreateContentData(array $field): bool
     {
         return Framework::execute(function (
             Request $request,
-        ) use ($field): ?string {
+        ) use ($field): bool {
             if ($request->has('post.' . $field['name'])) {
-                return $request->post($field['name']);
+                return $request->post($field['name']) ? true : false;
             }
         });
     }
-    public static function onUpdateContentForm(array $field, $value): array
+
+    public static function getUpdateContentForm(array $field, $value = null): array
     {
         $res = [];
         $res[] = new Radio($field['title'], $field['name'], $value, [
@@ -98,38 +87,17 @@ class Boolean implements FieldInterface
         ]);
         return $res;
     }
-    public static function onUpdateContentData(array $field): ?string
+
+    public static function getUpdateContentData(array $field, $oldvalue): bool
     {
         return Framework::execute(function (
             Request $request,
-        ) use ($field) {
-            return $request->post($field['name']);
+        ) use ($field): bool {
+            return $request->post($field['name']) ? true : false;
         });
     }
 
-    public static function onContentFilter(array $field, $value): array
-    {
-        if ($value == 1) {
-            return [
-                'sql' => '`' . $field['name'] . '` = 1',
-                'binds' => [],
-            ];
-        } elseif ($value == 0) {
-            return [
-                'sql' => '`' . $field['name'] . '` = 0',
-                'binds' => [],
-            ];
-        } else {
-            return [];
-        }
-    }
-
-    public static function onContentSearch(array $field, string $value): array
-    {
-        return [];
-    }
-
-    public static function onFilter(array $field): string
+    public static function getFilterForm(array $field, $value = null): string
     {
 
         return Framework::execute(function (
@@ -176,7 +144,28 @@ str;
         });
     }
 
-    public static function onShow(array $field, $value): string
+    public static function buildFilterSql(array $field, $value): array
+    {
+        if ($value == 1) {
+            return [
+                'where' => [
+                    '`' . $field['name'] . '` = 1',
+                ],
+                'binds' => [],
+            ];
+        } elseif ($value == 0) {
+            return [
+                'where' => [
+                    '`' . $field['name'] . '` = 0',
+                ],
+                'binds' => [],
+            ];
+        } else {
+            return [];
+        }
+    }
+
+    public static function parseToHtml(array $field, $value): string
     {
         if ($value) {
             return '<span>是</span>';

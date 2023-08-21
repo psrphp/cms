@@ -1,21 +1,23 @@
 {include common/header@psrphp/admin}
 <h1>内容管理</h1>
 {if isset($model)}
-<fieldset>
-    <legend>模型</legend>
+<div style="display: flex;gap: 10px;margin-bottom: 10px;">
     <form action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
-        <select name="model_id" onchange="this.form.submit();">
-            {foreach $models as $vo}
-            <option {if $request->get('model_id')==$vo['id']}selected{/if} value="{$vo.id}">{$vo.title}</option>
-            {/foreach}
-        </select>
+        <fieldset>
+            <legend>模型</legend>
+            <select name="model_id" onchange="this.form.submit();">
+                {foreach $models as $vo}
+                {if $request->get('model_id')==$vo['id']}
+                <option selected value="{$vo.id}">{$vo.title}</option>
+                {else}
+                <option value="{$vo.id}">{$vo.title}</option>
+                {/if}
+                {/foreach}
+            </select>
+        </fieldset>
     </form>
-</fieldset>
-
-<form action="{echo $router->build('/psrphp/cms/content/index')}" id="form_3">
-    <input type="hidden" name="model_id" value="{$model.id}">
-    <input type="hidden" name="category_name" value="{$request->get('category_name')}">
-    <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
+    <form action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
+        <input type="hidden" name="model_id" value="{$model.id}">
         <fieldset>
             <legend>分类</legend>
             <div class="selcc">
@@ -42,11 +44,18 @@
                 })()
             </script>
         </fieldset>
+    </form>
+</div>
+
+<form action="{echo $router->build('/psrphp/cms/content/index')}" id="form_3">
+    <input type="hidden" name="model_id" value="{$model.id}">
+    <input type="hidden" name="category_name" value="{$request->get('category_name')}">
+    <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
         {foreach $fields as $field}
         {if $field['type'] && $field['adminfilter']}
         <fieldset>
             <legend>{$field['title']}:</legend>
-            <div>{echo $field['type']::onFilter($field)}</div>
+            <div>{echo $field['type']::getFilterForm($field)}</div>
         </fieldset>
         {/if}
         {/foreach}
@@ -55,7 +64,7 @@
             <input type="search" name="q" value="{$request->get('q')}" placeholder="请输入搜索词：">
         </fieldset>
     </div>
-    <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
+    <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;margin-top: 10px;">
         <fieldset>
             <legend>排序:</legend>
             <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 5px;">
@@ -89,12 +98,10 @@
 <script>
     (function() {
         var inputs = document.querySelectorAll("#form_3 input");
-        console.info(inputs)
         for (const key in inputs) {
             if (Object.hasOwnProperty.call(inputs, key)) {
                 const ele = inputs[key];
                 ele.addEventListener('change', () => {
-                    console.info(event.target)
                     event.target.form.submit();
                 })
             }
@@ -119,8 +126,10 @@
                 <th style="width:22px;">#</th>
                 <th>ID</th>
                 <th>分类</th>
+                <?php $fieldtypenum = 0; ?>
                 {foreach $fields as $field}
                 {if $field['type'] && $field['adminlist']}
+                <?php $fieldtypenum += 1; ?>
                 <th>{$field.title}</th>
                 {/if}
                 {/foreach}
@@ -143,12 +152,27 @@
                 </td>
                 {foreach $fields as $field}
                 {if $field['type'] && $field['adminlist']}
-                <td>{echo $field['type']::onShow($field, $content[$field['name']])}</td>
+                <td>{echo $field['type']::parseToHtml($field, $content[$field['name']])}</td>
                 {/if}
                 {/foreach}
                 <td>
                     <a href="{echo $router->build('/psrphp/cms/content/update', ['model_id'=>$model['id'], 'id'=>$content['id']])}">编辑</a>
                     <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$model['id'], 'copyfrom'=>$content['id']])}">复制</a>
+                    <a href="javascript:void(0)" onclick="event.target.parentNode.parentNode.nextElementSibling.style.display=event.target.parentNode.parentNode.nextElementSibling.style.display=='table-row'?'none':'table-row'">详情</a>
+                </td>
+            </tr>
+            <tr style="display: none;">
+                <td colspan="{$fieldtypenum + 4}">
+                    <dl>
+                        {foreach $fields as $field}
+                        {if $field['type']}
+                        <dt>{$field.title}</dt>
+                        <dd>
+                            {echo $field['type']::parseToHtml($field, $content[$field['name']])}
+                        </dd>
+                        {/if}
+                        {/foreach}
+                    </dl>
                 </td>
             </tr>
             {/foreach}

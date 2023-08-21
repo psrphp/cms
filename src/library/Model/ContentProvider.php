@@ -12,38 +12,23 @@ class ContentProvider
 {
     private $db;
 
-    private $wheresql = '';
-    private $wherebinds = [];
-
     public function __construct(
         Db $db
     ) {
         $this->db = $db;
     }
 
-    public function select(int $model_id, array $category_names = [], array $filter = [], array $search = [], array $order = [], int $page = 1, int $size = 10): array
+    public function select(int $model_id, array $category_names = [], array $filters = [], array $orders = [], int $page = 1, int $size = 10): array
     {
         $res = [];
+        $sql = '';
 
-        $this->wheresql = '';
-        $this->wherebinds = [];
+        $wheres = [];
+        $binds = [];
 
         $model = $this->db->get('psrphp_cms_model', '*', [
             'id' => $model_id,
         ]);
-        $this->renderWhere($model_id, $category_names, $filter, $search);
-        $res['total'] = $this->db->count('psrphp_cms_content_' . $model['name'], Medoo::raw($this->wheresql, $this->wherebinds));
-
-        $this->renderOrder($order);
-        $this->renderLimit($page, $size);
-        $res['contents'] = $this->db->select('psrphp_cms_content_' . $model['name'], '*', Medoo::raw($this->wheresql, $this->wherebinds));
-        return $res;
-    }
-
-    private function renderWhere(int $model_id, array $category_names = [], array $filter = [],  array $search = [])
-    {
-        $where = [];
-        $likes = [];
 
         if ($category_names) {
             $catn = [];
@@ -52,10 +37,10 @@ class ContentProvider
                     throw new Exception("参数[categorys_names]错误");
                 }
                 $key = ':catname_' . $vo;
+                $binds[$key] = $vo;
                 $catn[] = $key;
-                $this->wherebinds[$key] = $vo;
             }
-            $where[] = '`category_name` in (' . implode(',', $catn) . ')';
+            $wheres[] = '`category_name` in (' . implode(',', $catn) . ')';
         }
 
         foreach ($this->db->select('psrphp_cms_field', '*', [
@@ -66,51 +51,70 @@ class ContentProvider
             ],
         ]) as $field) {
             $field = array_merge(json_decode($field['extra'], true), $field);
-            if (isset($search[$field['name']])) {
-                if ($res = $field['type']::onContentSearch($field, $search[$field['name']])) {
-                    $likes[] = $res['sql'];
-                    $this->wherebinds = array_merge($this->wherebinds, $res['binds']);
+            if (isset($filters[$field['name']])) {
+                $tmp = $field['type']::buildFilterSql($field, $filters[$field['name']]);
+                if (isset($tmp['where']) && $tmp['where']) {
+                    $wheres = array_merge_recursive($wheres, $tmp['where']);
                 }
-            }
-            if (isset($filter[$field['name']])) {
-                if ($res = $field['type']::onContentFilter($field, $filter[$field['name']])) {
-                    $where[] = $res['sql'];
-                    $this->wherebinds = array_merge($this->wherebinds, $res['binds']);
+                if (isset($tmp['binds']) && $tmp['binds']) {
+                    $binds = array_merge($binds, $tmp['binds']);
                 }
             }
         }
 
-        if ($likes) {
-            $where[] = '(' . implode(' OR ', $likes) . ')';
+        // var_dump($wheres);
+        // die;
+        if ($wheres) {
+            $sql .= ' WHERE ' . $this->build($wheres);
         }
 
-        if ($where) {
-            $this->wheresql = ' WHERE ' . implode(' AND ', $where);
-        }
-    }
+        // var_dump($binds);
+        // var_dump($wheres);
+        // echo $this->db->debug()->count('psrphp_cms_content_' . $model['name'], Medoo::raw($sql, $binds));
+        // die;
 
-    private function renderOrder(array $order)
-    {
-        $orders = [];
-        foreach ($order as $key => $vo) {
+        $res['total'] = $this->db->count('psrphp_cms_content_' . $model['name'], Medoo::raw($sql, $binds));
+
+        $tmps = [];
+        foreach ($orders as $key => $vo) {
             $vo = strtolower($vo);
             if (!preg_match('/^[A-Za-z0-9_]+$/', $key)) {
                 throw new Exception("参数错误");
             }
             if (in_array($vo, ['desc', 'asc'])) {
-                $orders[] = '`' . $key . '` ' . $vo;
+                $tmps[] = '`' . $key . '` ' . $vo;
             }
         }
-
-        if ($orders) {
-            $this->wheresql .= ' ORDER BY ' . implode(',', $orders);
+        if ($tmps) {
+            $sql .= ' ORDER BY ' . implode(',', $tmps);
         }
+
+        $sql .= ' LIMIT :start, :size';
+        $binds[':start'] = ($page - 1) * $size;
+        $binds[':size'] = $size;
+
+        $res['contents'] = $this->db->select('psrphp_cms_content_' . $model['name'], '*', Medoo::raw($sql, $binds));
+        return $res;
     }
 
-    private function renderLimit(int $page, int $size)
+    public function build(array $where, string $type = 'and')
     {
-        $this->wheresql .= ' LIMIT :start, :size';
-        $this->wherebinds[':start'] = ($page - 1) * $size;
-        $this->wherebinds[':size'] = $size;
+        if (isset($where['and'])) {
+            $and = $where['and'];
+            unset($where['and']);
+            if ($tmp = $this->build($and, 'and')) {
+                $where[] = $tmp;
+            }
+        }
+        if (isset($where['or'])) {
+            $or = $where['or'];
+            unset($where['or']);
+            if ($tmp = $this->build($or, 'or')) {
+                $where[] = $tmp;
+            }
+        }
+        if ($where) {
+            return '(' . implode(' ' . $type . ' ', $where) . ')';
+        }
     }
 }

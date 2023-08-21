@@ -20,7 +20,7 @@ class Checkbox implements FieldInterface
         return '多选';
     }
 
-    public static function onCreateFieldForm(): array
+    public static function getCreateFieldForm(): array
     {
         return Framework::execute(function (
             Db $db,
@@ -58,20 +58,12 @@ class Checkbox implements FieldInterface
         });
     }
 
-    public static function onCreateFieldData()
+    public static function getCreateFieldSql(string $model_name, string $field_name): string
     {
-        Framework::execute(function (
-            Db $db,
-            Request $request
-        ) {
-            $model = $db->get('psrphp_cms_model', '*', [
-                'id' => $request->post('model_id'),
-            ]);
-            $db->query('ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $request->post('name') . '` int(10) unsigned NOT NULL DEFAULT \'0\'');
-        });
+        return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` int(10) unsigned NOT NULL DEFAULT \'0\'';
     }
 
-    public static function onUpdateFieldForm(array $field): array
+    public static function getUpdateFieldForm(array $field): array
     {
         return Framework::execute(function (
             Db $db,
@@ -109,12 +101,8 @@ class Checkbox implements FieldInterface
             return $res;
         });
     }
-    public static function onUpdateFieldData(): ?string
-    {
-        return null;
-    }
 
-    public static function onCreateContentForm(array $field, $value): array
+    public static function getCreateContentForm(array $field, $value = null): array
     {
         return Framework::execute(function (
             Db $db,
@@ -144,7 +132,8 @@ class Checkbox implements FieldInterface
             return $res;
         });
     }
-    public static function onCreateContentData(array $field): int
+
+    public static function getCreateContentData(array $field): int
     {
         return Framework::execute(function (
             Request $request,
@@ -156,7 +145,8 @@ class Checkbox implements FieldInterface
             return $res;
         });
     }
-    public static function onUpdateContentForm(array $field, $value): array
+
+    public static function getUpdateContentForm(array $field, $value = null): array
     {
         return Framework::execute(function (
             Db $db
@@ -186,7 +176,8 @@ class Checkbox implements FieldInterface
             return $res;
         });
     }
-    public static function onUpdateContentData(array $field): int
+
+    public static function getUpdateContentData(array $field, $oldvalue): int
     {
         return Framework::execute(function (
             Request $request,
@@ -199,7 +190,7 @@ class Checkbox implements FieldInterface
         });
     }
 
-    public static function onContentFilter(array $field, $alias): array
+    public static function buildFilterSql(array $field, $alias): array
     {
         return Framework::execute(function (
             Db $db
@@ -214,7 +205,9 @@ class Checkbox implements FieldInterface
                         if (!is_null($value)) {
                             $x = pow(2, $value);
                             return [
-                                'sql' => '`' . $field['name'] . '` & ' . $x . ' > 0',
+                                'where' => [
+                                    '`' . $field['name'] . '` & ' . $x . ' > 0',
+                                ],
                                 'binds' => []
                             ];
                         } else {
@@ -234,7 +227,9 @@ class Checkbox implements FieldInterface
                         }
                         if ($x) {
                             return [
-                                'sql' => '`' . $field['name'] . '` & ' . $x . ' > 0',
+                                'where' => [
+                                    '`' . $field['name'] . '` & ' . $x . ' > 0',
+                                ],
                                 'binds' => []
                             ];
                         } else {
@@ -254,7 +249,9 @@ class Checkbox implements FieldInterface
                         }
                         if ($x) {
                             return [
-                                'sql' => '`' . $field['name'] . '` & ' . $x . ' = ' . $x,
+                                'where' => [
+                                    '`' . $field['name'] . '` & ' . $x . ' = ' . $x,
+                                ],
                                 'binds' => []
                             ];
                         } else {
@@ -271,12 +268,7 @@ class Checkbox implements FieldInterface
         });
     }
 
-    public static function onContentSearch(array $field, string $value): array
-    {
-        return [];
-    }
-
-    public static function onFilter(array $field): string
+    public static function getFilterForm(array $field, $value = null): string
     {
         return Framework::execute(function (
             Db $db,
@@ -357,7 +349,7 @@ str;
         });
     }
 
-    public static function onShow(array $field, $value): string
+    public static function parseToHtml(array $field, $value): string
     {
         return Framework::execute(function (
             Db $db,

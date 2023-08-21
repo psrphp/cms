@@ -53,7 +53,7 @@ class Update extends Common
                     'type[!]' => null,
                 ]) as $field) {
                     $field = array_merge(json_decode($field['extra'], true), $field);
-                    if ($items = $field['type']::onUpdateContentForm($field, $content[$field['name']])) {
+                    if ($items = $field['type']::getUpdateContentForm($field, $content[$field['name']])) {
                         array_push($res, ...$items);
                     }
                 }
@@ -81,11 +81,8 @@ class Update extends Common
         foreach ($db->select('psrphp_cms_field', '*', [
             'model_id' => $model['id'],
         ]) as $field) {
-            if (!$request->has('post.' . $field['name'])) {
-                continue;
-            }
             if ($field['type']) {
-                $data[$field['name']] = $field['type']::onUpdateContentData($field);
+                $data[$field['name']] = $field['type']::getUpdateContentData($field, $content[$field['name']]);
             }
         }
         $data['category_name'] = $request->post('category_name');
