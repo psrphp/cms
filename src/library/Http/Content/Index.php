@@ -68,8 +68,6 @@ class Index extends Common
                 $size
             );
 
-            $data['maxpage'] = ceil($total / $size) ?: 1;
-
             return $template->renderFromFile('content/index@psrphp/cms', [
                 'model' => $model,
                 'models' => $models,
