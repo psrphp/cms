@@ -1,11 +1,12 @@
 {include common/header@psrphp/admin}
 <h1>内容管理</h1>
-{if isset($model)}
+
 <div style="display: flex;gap: 10px;margin-bottom: 10px;">
     <form action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
         <fieldset>
             <legend>模型</legend>
             <select name="model_id" onchange="this.form.submit();">
+                <option value="">请选择</option>
                 {foreach $models as $vo}
                 {if $request->get('model_id')==$vo['id']}
                 <option selected value="{$vo.id}">{$vo.title}</option>
@@ -16,40 +17,11 @@
             </select>
         </fieldset>
     </form>
-    <form action="{echo $router->build('/psrphp/cms/content/index')}" method="GET">
-        <input type="hidden" name="model_id" value="{$model.id}">
-        <fieldset>
-            <legend>分类</legend>
-            <div class="selcc">
-                <style>
-                    .selcc>div>:first-child {
-                        display: none;
-                    }
-                </style>
-                <?php
-                echo new PsrPHP\Form\Field\Select('分类', 'category_name', $request->get('category_name'), $categorys);
-                ?>
-            </div>
-            <script>
-                (function() {
-                    var selects = document.querySelectorAll('.selcc select');
-                    for (const key in selects) {
-                        if (Object.hasOwnProperty.call(selects, key)) {
-                            const sel = selects[key];
-                            sel.addEventListener('change', () => {
-                                event.target.form.submit();
-                            })
-                        }
-                    }
-                })()
-            </script>
-        </fieldset>
-    </form>
 </div>
 
+{if isset($model)}
 <form action="{echo $router->build('/psrphp/cms/content/index')}" id="form_3">
     <input type="hidden" name="model_id" value="{$model.id}">
-    <input type="hidden" name="category_name" value="{$request->get('category_name')}">
     <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
         {foreach $fields as $field}
         {if $field['type'] && $field['adminfilter']}
@@ -125,7 +97,6 @@
             <tr>
                 <th style="width:22px;">#</th>
                 <th>ID</th>
-                <th>分类</th>
                 <?php $fieldtypenum = 0; ?>
                 {foreach $fields as $field}
                 {if $field['type'] && $field['adminlist']}
@@ -143,13 +114,6 @@
                     <input type="checkbox" value="{$content.id}">
                 </td>
                 <td><span>{$content.id}</span></td>
-                <td>
-                    {if isset($categorys[$content['category_name']])}
-                    <span>{$categorys[$content['category_name']]['title']}</span>
-                    {else}
-                    <span>-</span>
-                    {/if}
-                </td>
                 {foreach $fields as $field}
                 {if $field['type'] && $field['adminlist']}
                 <td>{echo $field['type']::parseToHtml($field, $content[$field['name']])}</td>
@@ -162,7 +126,7 @@
                 </td>
             </tr>
             <tr style="display: none;">
-                <td colspan="{$fieldtypenum + 4}">
+                <td colspan="{$fieldtypenum + 3}">
                     <dl>
                         {foreach $fields as $field}
                         {if $field['type']}
@@ -202,26 +166,6 @@
             <button type="submit" onclick="return confirm('确定删除吗？删除后不可恢复！')">删除</button>
         </form>
     </div>
-
-    <div>
-        <form action="{echo $router->build('/psrphp/cms/content/move')}" method="POST">
-            <input type="hidden" name="model_id" value="{$model.id}">
-            <input type="hidden" name="ids" value="">
-            <div style="display: flex;flex-wrap: wrap;gap: 5px;">
-                <div class="xselect">
-                    <style>
-                        .xselect>div>:first-child {
-                            display: none;
-                        }
-                    </style>
-                    <?php
-                    echo new PsrPHP\Form\Field\Select('分类', 'category_name', '', $categorys);
-                    ?>
-                </div>
-                <button type="submit" onclick="return confirm('确定移动吗？')">移动</button>
-            </div>
-        </form>
-    </div>
 </div>
 <script>
     (() => {
@@ -249,12 +193,5 @@
     <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>min($request->get('page')+1, $maxpage)]))}">下一页</a>
     <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>$maxpage]))}">末页</a>
 </div>
-{else}
-<fieldset>
-    <legend>请选择数据模型</legend>
-    {foreach $models as $vo}
-    <a href="{echo $router->build('/psrphp/cms/content/index', ['model_id'=>$vo['id']])}">{$vo.title}</a>
-    {/foreach}
-</fieldset>
 {/if}
 {include common/footer@psrphp/admin}

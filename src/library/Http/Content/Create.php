@@ -6,11 +6,9 @@ namespace App\Psrphp\Cms\Http\Content;
 
 use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Admin\Lib\Response;
-use App\Psrphp\Cms\Model\CategoryProvider;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
 use PsrPHP\Form\Field\Hidden;
-use PsrPHP\Form\Field\Select;
 use PsrPHP\Request\Request;
 
 class Create extends Common
@@ -31,18 +29,6 @@ class Create extends Common
 
         return (new Builder('创建内容'))->addItem(
             (new Hidden('model_id', $model['id'])),
-            (new Select('栏目', 'category_name', $content['category_name'] ?? '', (function () use ($model): array {
-                $res = [];
-                foreach (CategoryProvider::getInstance($model['id'])->all() as $vo) {
-                    $res[] = [
-                        'value' => $vo['name'],
-                        'title' => $vo['title'],
-                        'parent' => $vo['parent'],
-                        'group' => $vo['group'],
-                    ];
-                }
-                return $res;
-            })())),
             ...(function () use ($db, $model, $content): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_field', '*', [
@@ -78,7 +64,6 @@ class Create extends Common
                 $data[$field['name']] = $field['type']::getCreateContentData($field);
             }
         }
-        $data['category_name'] = $request->post('category_name');
         $db->insert('psrphp_cms_content_' . $model['name'], $data);
         return Response::success('操作成功！');
     }

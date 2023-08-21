@@ -6,11 +6,9 @@ namespace App\Psrphp\Cms\Http\Content;
 
 use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Admin\Lib\Response;
-use App\Psrphp\Cms\Model\CategoryProvider;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
 use PsrPHP\Form\Field\Hidden;
-use PsrPHP\Form\Field\Select;
 use PsrPHP\Request\Request;
 
 class Update extends Common
@@ -33,18 +31,6 @@ class Update extends Common
         return (new Builder('编辑内容'))->addItem(
             (new Hidden('model_id', $model['id'])),
             (new Hidden('id', $content['id'])),
-            (new Select('栏目', 'category_name', $content['category_name'] ?? 0, (function () use ($model): array {
-                $res = [];
-                foreach (CategoryProvider::getInstance($model['id'])->all() as $vo) {
-                    $res[] = [
-                        'value' => $vo['name'],
-                        'title' => $vo['title'],
-                        'parent' => $vo['parent'],
-                        'group' => $vo['group'],
-                    ];
-                }
-                return $res;
-            })())),
             ...(function () use ($db, $model, $content): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_field', '*', [
@@ -85,7 +71,6 @@ class Update extends Common
                 $data[$field['name']] = $field['type']::getUpdateContentData($field, $content[$field['name']]);
             }
         }
-        $data['category_name'] = $request->post('category_name');
         $db->update('psrphp_cms_content_' . $model['name'], $data, [
             'id' => $content['id'],
         ]);

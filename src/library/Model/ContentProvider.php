@@ -18,7 +18,7 @@ class ContentProvider
         $this->db = $db;
     }
 
-    public function select(int $model_id, array $category_names = [], array $filters = [], array $orders = [], int $page = 1, int $size = 10): array
+    public function select(int $model_id, array $filters = [], array $orders = [], int $page = 1, int $size = 10): array
     {
         $res = [];
         $sql = '';
@@ -29,19 +29,6 @@ class ContentProvider
         $model = $this->db->get('psrphp_cms_model', '*', [
             'id' => $model_id,
         ]);
-
-        if ($category_names) {
-            $catn = [];
-            foreach ($category_names as $vo) {
-                if (!preg_match('/^[A-Za-z0-9_]+$/', $vo)) {
-                    throw new Exception("参数[categorys_names]错误");
-                }
-                $key = ':catname_' . $vo;
-                $binds[$key] = $vo;
-                $catn[] = $key;
-            }
-            $wheres[] = '`category_name` in (' . implode(',', $catn) . ')';
-        }
 
         foreach ($this->db->select('psrphp_cms_field', '*', [
             'model_id' => $model_id,
