@@ -1,9 +1,15 @@
 <?php
 
-use PsrPHP\Framework\Script;
+declare(strict_types=1);
 
-return [
-    'install' => function () {
+namespace App\Psrphp\Cms\Psrphp;
+
+use PsrPHP\Framework\Script as FrameworkScript;
+
+class Script
+{
+    public static function onInstall()
+    {
         $sql = <<<'str'
 DROP TABLE IF EXISTS `prefix_psrphp_cms_dict`;
 CREATE TABLE `prefix_psrphp_cms_dict` (
@@ -47,17 +53,17 @@ CREATE TABLE `prefix_psrphp_cms_field` (
     PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='模型字段表';
 str;
-        Script::execSql($sql);
-    },
-    'unInstall' => function () {
+        FrameworkScript::execSql($sql);
+    }
+
+    public static function onUnInstall()
+    {
         $sql = <<<'str'
 DROP TABLE IF EXISTS `prefix_psrphp_cms_dict`;
 DROP TABLE IF EXISTS `prefix_psrphp_cms_data`;
 DROP TABLE IF EXISTS `prefix_psrphp_cms_model`;
 DROP TABLE IF EXISTS `prefix_psrphp_cms_field`;
 str;
-        Script::execSql($sql);
-    },
-    'update' => function () {
-    },
-];
+        FrameworkScript::execSql($sql);
+    }
+}
