@@ -18,10 +18,6 @@ class Updatetime implements FieldInterface
     public static function getCreateFieldForm(): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许后台列表显示', 'adminlist', '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         $res[] = (new Radio('是否允许后台排序', 'adminorder', '1', [
             '0' => '不允许',
             '1' => '允许',
@@ -37,10 +33,6 @@ class Updatetime implements FieldInterface
     public static function getUpdateFieldForm(array $field): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许后台列表显示', 'adminlist', $field['adminlist'] ?? '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         $res[] = (new Radio('是否允许后台排序', 'adminorder', $field['adminorder'] ?? '1', [
             '0' => '不允许',
             '1' => '允许',

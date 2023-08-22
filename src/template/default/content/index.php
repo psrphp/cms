@@ -118,7 +118,13 @@
                 <td><span>{$content.id}</span></td>
                 {foreach $fields as $field}
                 {if $field['type'] && $field['adminlist']}
-                <td>{echo $field['type']::parseToHtml($field, $content[$field['name']])}</td>
+                <td>
+                    {if $field['adminlisttpl']}
+                    {echo $template->renderFromString($field['adminlisttpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
+                    {else}
+                    {echo $field['type']::parseToHtml($field, $content[$field['name']])}
+                    {/if}
+                </td>
                 {/if}
                 {/foreach}
                 <td>
@@ -136,7 +142,11 @@
                         {if $field['type']}
                         <dt>{$field.title}</dt>
                         <dd>
+                            {if $field['adminlisttpl']}
+                            {echo $template->renderFromString($field['adminlisttpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
+                            {else}
                             {echo $field['type']::parseToHtml($field, $content[$field['name']])}
+                            {/if}
                         </dd>
                         {/if}
                         {/foreach}

@@ -24,10 +24,6 @@ class Pic implements FieldInterface
             '0' => '不允许',
             '1' => '允许',
         ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
-        $res[] = (new Radio('是否允许后台列表显示', 'adminlist', '0', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         return $res;
     }
 
@@ -43,10 +39,6 @@ class Pic implements FieldInterface
             '0' => '不允许',
             '1' => '允许',
         ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
-        $res[] = (new Radio('是否允许后台列表显示', 'adminlist', $field['adminlist'] ?? '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         return $res;
     }
 

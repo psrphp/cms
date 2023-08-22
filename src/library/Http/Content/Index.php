@@ -79,7 +79,7 @@ class Index extends Common
                 'size' => $size,
             ]);
         } else {
-            return $template->renderFromFile('content/index@psrphp/cms', [
+            return $template->renderfroms('content/index@psrphp/cms', [
                 'models' => $models,
             ]);
         }

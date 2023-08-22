@@ -14,8 +14,8 @@
             <th>标题</th>
             <th>字段</th>
             <th>类型</th>
-            <th>后台编辑</th>
             <th>后台列表显示</th>
+            <th>后台编辑</th>
             <th>后台筛选</th>
             <th>后台排序</th>
             <th>管理</th>
@@ -35,14 +35,14 @@
                 {$vo.type}
             </td>
             <td>
-                {if $vo['adminedit']}
+                {if $vo['adminlist']}
                 <span>允许</span>
                 {else}
                 <span>-</span>
                 {/if}
             </td>
             <td>
-                {if $vo['adminlist']}
+                {if $vo['adminedit']}
                 <span>允许</span>
                 {else}
                 <span>-</span>

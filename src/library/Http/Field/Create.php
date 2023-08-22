@@ -10,8 +10,10 @@ use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
 use PsrPHP\Form\Component\Col;
 use PsrPHP\Form\Component\Row;
+use PsrPHP\Form\Field\Code;
 use PsrPHP\Form\Field\Hidden;
 use PsrPHP\Form\Field\Input;
+use PsrPHP\Form\Field\Radio;
 use PsrPHP\Request\Request;
 
 class Create extends Common
@@ -34,6 +36,11 @@ class Create extends Common
                     (new Input('标题', 'title', '')),
                     (new Input('字段名称', 'name', ''))->set('help', '字段名称只能由字母开头，字母、数字、下划线组成'),
                     (new Input('类型', 'typedisabled', $type::getTitle()))->set('disabled', true),
+                    (new Radio('是否允许后台列表显示', 'adminlist', '0', [
+                        '0' => '不允许',
+                        '1' => '允许',
+                    ])),
+                    (new Code('后台显示模板', 'adminlisttpl'))->set('help', '自定义显示模板，额外变量：$field, $value, $content'),
                     ...($type::getCreateFieldForm() ?: [])
                 )
             )
@@ -67,8 +74,9 @@ class Create extends Common
             'type' => $type,
             'name' => $name,
             'title' => $request->post('title'),
-            'adminedit' => $request->post('adminedit', 0),
             'adminlist' => $request->post('adminlist', 0),
+            'adminlisttpl' => strlen($request->post('adminlisttpl', '')) ? $request->post('adminlisttpl', '') : null,
+            'adminedit' => $request->post('adminedit', 0),
             'adminfilter' => $request->post('adminfilter', 0),
             'adminorder' => $request->post('adminorder', 0),
         ];
