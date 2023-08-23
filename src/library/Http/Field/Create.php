@@ -33,9 +33,10 @@ class Create extends Common
                 (new Col('col-md-9'))->addItem(
                     (new Hidden('model_id', $model['id'])),
                     (new Hidden('type', $request->get('type'))),
-                    (new Input('标题', 'title', '')),
-                    (new Input('字段名称', 'name', ''))->set('help', '字段名称只能由字母开头，字母、数字、下划线组成'),
-                    (new Input('类型', 'typedisabled', $type::getTitle()))->set('disabled', true),
+                    (new Input('分组', 'group'))->set('required', 1)->set('help', '例如：基本信息'),
+                    (new Input('标题', 'title')),
+                    (new Input('字段名称', 'name'))->set('help', '字段名称只能由字母开头，字母、数字、下划线组成'),
+                    (new Input('类型', 'type', $type::getTitle()))->set('disabled', true),
                     (new Radio('是否允许后台列表显示', 'adminlist', '0', [
                         '0' => '不允许',
                         '1' => '允许',
@@ -73,6 +74,7 @@ class Create extends Common
             'model_id' => $model['id'],
             'type' => $type,
             'name' => $name,
+            'group' => $request->post('group'),
             'title' => $request->post('title'),
             'adminlist' => $request->post('adminlist', 0),
             'adminlisttpl' => strlen($request->post('adminlisttpl', '')) ? $request->post('adminlisttpl', '') : null,

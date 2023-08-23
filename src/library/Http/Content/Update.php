@@ -8,6 +8,9 @@ use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Admin\Lib\Response;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
+use PsrPHP\Form\Component\Col;
+use PsrPHP\Form\Component\Fieldset;
+use PsrPHP\Form\Component\Row;
 use PsrPHP\Form\Field\Hidden;
 use PsrPHP\Request\Request;
 
@@ -32,18 +35,32 @@ class Update extends Common
             (new Hidden('model_id', $model['id'])),
             (new Hidden('id', $content['id'])),
             ...(function () use ($db, $model, $content): array {
-                $res = [];
+                $groups = [];
                 foreach ($db->select('psrphp_cms_field', '*', [
                     'model_id' => $model['id'],
                     'adminedit' => 1,
                     'type[!]' => null,
-                ]) as $field) {
-                    $field = array_merge(json_decode($field['extra'], true), $field);
-                    if ($items = $field['type']::getUpdateContentForm($field, $content[$field['name']])) {
-                        array_push($res, ...$items);
-                    }
+                ]) as $vo) {
+                    $vo['group'] = $vo['group'] ?: '未分组';
+                    $groups[$vo['group']][] = $vo;
                 }
-                return $res;
+
+                $row = new Row;
+                foreach ($groups as $group => $fields) {
+                    $items = [];
+                    foreach ($fields as $field) {
+                        $field = array_merge(json_decode($field['extra'], true), $field);
+                        if ($tmps = $field['type']::getCreateContentForm($field, $content[$field['name']] ?? null)) {
+                            array_push($items, ...$tmps);
+                        }
+                    }
+                    $row->addCol(
+                        (new Col)->addItem(
+                            (new Fieldset((string)$group))->addItem(...$items)
+                        )
+                    );
+                }
+                return [$row];
             })(),
         );
     }

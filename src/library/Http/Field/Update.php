@@ -31,9 +31,10 @@ class Update extends Common
             (new Row())->addCol(
                 (new Col('col-md-8'))->addItem(
                     (new Hidden('id', $field['id'])),
-                    (new Input('标题', 'title', $field['title']))->set('help', '例如：'),
-                    (new Input('字段', 'name00', $field['name']))->set('disabled', true),
-                    (new Input('类型', 'typedisabled', $field['type']::getTitle()))->set('disabled', true),
+                    (new Input('分组', 'group', $field['group']))->set('required', 1)->set('help', '例如：基本信息'),
+                    (new Input('标题', 'title', $field['title']))->set('help', '例如：客户电话'),
+                    (new Input('字段', 'name', $field['name']))->set('disabled', true),
+                    (new Input('类型', 'type', $field['type']::getTitle()))->set('disabled', true),
                     (new Radio('是否允许后台列表显示', 'adminlist', $field['adminlist'], [
                         '0' => '不允许',
                         '1' => '允许',
@@ -55,6 +56,7 @@ class Update extends Common
         ]);
 
         $update = [
+            'group' => $request->post('group'),
             'title' => $request->post('title'),
             'adminlist' => $request->post('adminlist', 0),
             'adminlisttpl' => strlen($request->post('adminlisttpl', '')) ? $request->post('adminlisttpl', '') : null,

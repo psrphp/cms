@@ -23,58 +23,73 @@
         </tr>
     </thead>
     <tbody>
+        <?php $groups = []; ?>
         {foreach $fields as $vo}
+        <?php $vo['group'] = $vo['group'] ?: '未分组'; ?>
+        {if !in_array($vo['group'], $groups)}
+        <?php $groups[] = $vo['group']; ?>
         <tr>
-            <td>
-                {$vo.title}
-            </td>
-            <td>
-                {$vo.name}
-            </td>
-            <td>
-                {$vo.type}
-            </td>
-            <td>
-                {if $vo['adminlist']}
-                <span>允许</span>
-                {else}
-                <span>-</span>
-                {/if}
-            </td>
-            <td>
-                {if $vo['adminedit']}
-                <span>允许</span>
-                {else}
-                <span>-</span>
-                {/if}
-            </td>
-            <td>
-                {if $vo['adminfilter']}
-                <span>允许</span>
-                {else}
-                <span>-</span>
-                {/if}
-            </td>
-            <td>
-                {if $vo['adminorder']}
-                <span>允许</span>
-                {else}
-                <span>-</span>
-                {/if}
-            </td>
-            <td>
-                {if $vo['type']}
-                <a href="{:$router->build('/psrphp/cms/field/update', ['id'=>$vo['id']])}">编辑</a>
-                {/if}
-                {if !$vo['system']}
-                <a href="{:$router->build('/psrphp/cms/field/delete', ['id'=>$vo['id']])}" onclick="return confirm('确定删除吗？删除后不可恢复！');">删除</a>
-                {/if}
-            </td>
-            <td>
-                <a href="{echo $router->build('/psrphp/cms/field/priority', ['id'=>$vo['id'],'type'=>'up'])}">上移</a>
-                <a href="{echo $router->build('/psrphp/cms/field/priority', ['id'=>$vo['id'],'type'=>'down'])}">下移</a>
+            <td colspan="9">
+                <span style="font-weight: bold;">{$vo['group']}</span>
             </td>
         </tr>
+        {foreach $fields as $sub}
+        <?php $sub['group'] = $sub['group'] ?: '未分组'; ?>
+        {if $sub['group'] == $vo['group']}
+        <tr>
+            <td>
+                <span>{$sub.title}</span>
+            </td>
+            <td>
+                {$sub.name}
+            </td>
+            <td>
+                {$sub.type}
+            </td>
+            <td>
+                {if $sub['adminlist']}
+                <span>允许</span>
+                {else}
+                <span>-</span>
+                {/if}
+            </td>
+            <td>
+                {if $sub['adminedit']}
+                <span>允许</span>
+                {else}
+                <span>-</span>
+                {/if}
+            </td>
+            <td>
+                {if $sub['adminfilter']}
+                <span>允许</span>
+                {else}
+                <span>-</span>
+                {/if}
+            </td>
+            <td>
+                {if $sub['adminorder']}
+                <span>允许</span>
+                {else}
+                <span>-</span>
+                {/if}
+            </td>
+            <td>
+                {if $sub['type']}
+                <a href="{:$router->build('/psrphp/cms/field/update', ['id'=>$sub['id']])}">编辑</a>
+                {/if}
+                {if !$sub['system']}
+                <a href="{:$router->build('/psrphp/cms/field/delete', ['id'=>$sub['id']])}" onclick="return confirm('确定删除吗？删除后不可恢复！');">删除</a>
+                {/if}
+            </td>
+            <td>
+                <a href="{echo $router->build('/psrphp/cms/field/priority', ['id'=>$sub['id'],'type'=>'up'])}">上移</a>
+                <a href="{echo $router->build('/psrphp/cms/field/priority', ['id'=>$sub['id'],'type'=>'down'])}">下移</a>
+            </td>
+        </tr>
+        {/if}
+        {/foreach}
+        {/if}
         {/foreach}
     </tbody>
 </table>

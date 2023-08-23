@@ -84,6 +84,7 @@ class Create extends Common
 
         $db->insert('psrphp_cms_field', [
             'model_id' => $model_id,
+            'group' => '基本信息',
             'title' => 'ID',
             'name' => 'id',
             'system' => 1,
