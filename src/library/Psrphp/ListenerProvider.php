@@ -26,46 +26,63 @@ use App\Psrphp\Cms\Http\Content\Index as ContentIndex;
 use App\Psrphp\Cms\Http\Model\Index;
 use App\Psrphp\Cms\Model\FieldProvider;
 use App\Psrphp\Cms\Model\ModelCreaterProvider;
-use PsrPHP\Framework\Listener;
+use Psr\EventDispatcher\ListenerProviderInterface;
+use PsrPHP\Framework\Framework;
 
-class ListenerProvider extends Listener
+class ListenerProvider implements ListenerProviderInterface
 {
-    public function __construct()
+    public function getListenersForEvent(object $event): iterable
     {
-        $this->add(MenuProvider::class, function (
-            MenuProvider $provider
-        ) {
-            $provider->add('模型管理', Index::class);
-            $provider->add('内容管理', ContentIndex::class);
-        });
-
-        $this->add(ModelCreaterProvider::class, function (
-            ModelCreaterProvider $provider,
-        ) {
-            $provider->add('base', '基本数据模型', function () {
-            });
-        });
-
-        $this->add(FieldProvider::class, function (
-            FieldProvider $provider
-        ) {
-            $provider->add(Text::class);
-            $provider->add(Textarea::class);
-            $provider->add(Datetime::class);
-            $provider->add(Createtime::class);
-            $provider->add(Updatetime::class);
-            $provider->add(Date::class);
-            $provider->add(Time::class);
-            $provider->add(Number::class);
-            $provider->add(Boolean::class);
-            $provider->add(Code::class);
-            $provider->add(WYSIWYG::class);
-            $provider->add(Markdown::class);
-            $provider->add(Pic::class);
-            $provider->add(Pics::class);
-            $provider->add(Files::class);
-            $provider->add(Select::class);
-            $provider->add(Checkbox::class);
-        });
+        if (is_a($event, MenuProvider::class)) {
+            yield function () use ($event) {
+                Framework::execute(function (
+                    MenuProvider $provider
+                ) {
+                    $provider->add('模型管理', Index::class);
+                    $provider->add('内容管理', ContentIndex::class);
+                }, [
+                    MenuProvider::class => $event,
+                ]);
+            };
+        }
+        if (is_a($event, ModelCreaterProvider::class)) {
+            yield function () use ($event) {
+                Framework::execute(function (
+                    ModelCreaterProvider $provider,
+                ) {
+                    $provider->add('base', '基本数据模型', function () {
+                    });
+                }, [
+                    ModelCreaterProvider::class => $event,
+                ]);
+            };
+        }
+        if (is_a($event, FieldProvider::class)) {
+            yield function () use ($event) {
+                Framework::execute(function (
+                    FieldProvider $provider
+                ) {
+                    $provider->add(Text::class);
+                    $provider->add(Textarea::class);
+                    $provider->add(Datetime::class);
+                    $provider->add(Createtime::class);
+                    $provider->add(Updatetime::class);
+                    $provider->add(Date::class);
+                    $provider->add(Time::class);
+                    $provider->add(Number::class);
+                    $provider->add(Boolean::class);
+                    $provider->add(Code::class);
+                    $provider->add(WYSIWYG::class);
+                    $provider->add(Markdown::class);
+                    $provider->add(Pic::class);
+                    $provider->add(Pics::class);
+                    $provider->add(Files::class);
+                    $provider->add(Select::class);
+                    $provider->add(Checkbox::class);
+                }, [
+                    FieldProvider::class => $event,
+                ]);
+            };
+        }
     }
 }
