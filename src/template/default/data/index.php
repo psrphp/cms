@@ -3,7 +3,7 @@
 <div>
     <a href="{:$router->build('/psrphp/cms/data/create', ['dict_id'=>$dict['id'], 'parent'=>$request->get('parent')])}">新增</a>
 </div>
-<table>
+<table style="margin-top: 15px;">
     <thead>
         <tr>
             <th>标题</th>

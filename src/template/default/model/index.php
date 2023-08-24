@@ -3,7 +3,7 @@
 <div>
     <a href="{:$router->build('/psrphp/cms/model/create')}">新增</a>
 </div>
-<table>
+<table style="margin-top: 15px;">
     <thead>
         <tr>
             <th>模型</th>

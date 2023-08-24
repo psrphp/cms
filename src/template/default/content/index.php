@@ -83,7 +83,7 @@
     })()
 </script>
 
-<div style="margin: 20px 0;">
+<div style="margin-top: 15px;">
     <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$model['id']])}">添加内容</a>
 </div>
 
@@ -93,7 +93,7 @@
     }
 </style>
 
-<div style="overflow-x: auto;margin-top: 20px;">
+<div style="overflow-x: auto;margin-top: 15px;">
     <table id="tablemain">
         <thead>
             <tr>

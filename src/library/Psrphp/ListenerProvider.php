@@ -22,8 +22,9 @@ use App\Psrphp\Cms\Field\Textarea;
 use App\Psrphp\Cms\Field\Time;
 use App\Psrphp\Cms\Field\Updatetime;
 use App\Psrphp\Cms\Field\WYSIWYG;
-use App\Psrphp\Cms\Http\Content\Index as ContentIndex;
-use App\Psrphp\Cms\Http\Model\Index;
+use App\Psrphp\Cms\Http\Content\Index;
+use App\Psrphp\Cms\Http\Dict\Index as DictIndex;
+use App\Psrphp\Cms\Http\Model\Index as ModelIndex;
 use App\Psrphp\Cms\Model\FieldProvider;
 use App\Psrphp\Cms\Model\ModelCreaterProvider;
 use Psr\EventDispatcher\ListenerProviderInterface;
@@ -38,8 +39,9 @@ class ListenerProvider implements ListenerProviderInterface
                 Framework::execute(function (
                     MenuProvider $provider
                 ) {
-                    $provider->add('模型管理', Index::class);
-                    $provider->add('内容管理', ContentIndex::class);
+                    $provider->add('内容管理', Index::class);
+                    $provider->add('模型管理', ModelIndex::class);
+                    $provider->add('数据字典', DictIndex::class);
                 }, [
                     MenuProvider::class => $event,
                 ]);
