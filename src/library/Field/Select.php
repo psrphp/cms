@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Psrphp\Cms\Field;
 
 use PsrPHP\Database\Db;
-use PsrPHP\Form\Field\Radio;
 use PsrPHP\Form\Field\Select as FieldSelect;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
@@ -19,6 +18,16 @@ class Select implements FieldInterface
         return '单选';
     }
 
+    public static function isOrderable(): bool
+    {
+        return false;
+    }
+
+    public static function isSearchable(): bool
+    {
+        return false;
+    }
+
     public static function getCreateFieldForm(): array
     {
         return Framework::execute(function (
@@ -26,10 +35,6 @@ class Select implements FieldInterface
             Router $router
         ): array {
             $res = [];
-            $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', '1', [
-                '0' => '不允许',
-                '1' => '允许',
-            ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
             $res[] = (new FieldSelect('数据源', 'dict_id', '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
@@ -40,10 +45,6 @@ class Select implements FieldInterface
                 }
                 return $res;
             })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
-            $res[] = (new Radio('是否允许后台筛选', 'adminfilter', '1', [
-                '0' => '不允许',
-                '1' => '允许',
-            ]));
             return $res;
         });
     }
@@ -60,10 +61,6 @@ class Select implements FieldInterface
             Router $router
         ) use ($field) {
             $res = [];
-            $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
-                '0' => '不允许',
-                '1' => '允许',
-            ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
             $res[] = (new FieldSelect('数据源', 'dict_id', $field['dict_id'] ?? '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
@@ -74,10 +71,6 @@ class Select implements FieldInterface
                 }
                 return $res;
             })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
-            $res[] = (new Radio('是否允许后台筛选', 'adminfilter', $field['adminfilter'] ?? '1', [
-                '0' => '不允许',
-                '1' => '允许',
-            ]));
             return $res;
         });
     }
@@ -170,9 +163,7 @@ class Select implements FieldInterface
             }
             if ($vls) {
                 return [
-                    'where' => [
-                        '`' . $field['name'] . '` in (' . implode(',', $vls) . ')',
-                    ],
+                    'where' => '`' . $field['name'] . '` in (' . implode(',', $vls) . ')',
                     'binds' => [],
                 ];
             } else {

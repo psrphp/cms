@@ -16,17 +16,19 @@ class Boolean implements FieldInterface
         return '布尔';
     }
 
+    public static function isOrderable(): bool
+    {
+        return false;
+    }
+
+    public static function isSearchable(): bool
+    {
+        return false;
+    }
+
     public static function getCreateFieldForm(): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
-        $res[] = (new Radio('是否允许后台筛选', 'adminfilter', '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         return $res;
     }
 
@@ -38,14 +40,6 @@ class Boolean implements FieldInterface
     public static function getUpdateFieldForm(array $field): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
-        $res[] = (new Radio('是否允许后台排序', 'adminfilter', $field['adminfilter'] ?? '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         return $res;
     }
 
@@ -140,16 +134,12 @@ str;
     {
         if ($value == 1) {
             return [
-                'where' => [
-                    '`' . $field['name'] . '` = 1',
-                ],
+                'where' => '`' . $field['name'] . '` = 1',
                 'binds' => [],
             ];
         } elseif ($value == 0) {
             return [
-                'where' => [
-                    '`' . $field['name'] . '` = 0',
-                ],
+                'where' => '`' . $field['name'] . '` = 0',
                 'binds' => [],
             ];
         } else {

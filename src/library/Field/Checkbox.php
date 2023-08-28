@@ -20,6 +20,16 @@ class Checkbox implements FieldInterface
         return '多选';
     }
 
+    public static function isOrderable(): bool
+    {
+        return false;
+    }
+
+    public static function isSearchable(): bool
+    {
+        return false;
+    }
+
     public static function getCreateFieldForm(): array
     {
         return Framework::execute(function (
@@ -27,10 +37,6 @@ class Checkbox implements FieldInterface
             Router $router
         ): array {
             $res = [];
-            $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', '1', [
-                '0' => '不允许',
-                '1' => '允许',
-            ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
             $res[] = (new Select('数据源', 'dict_id', '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
@@ -45,10 +51,6 @@ class Checkbox implements FieldInterface
                 '0' => '单选',
                 '1' => '多选(或)',
                 '2' => '多选(且)',
-            ]));
-            $res[] = (new Radio('是否允许后台筛选', 'adminfilter', '1', [
-                '0' => '不允许',
-                '1' => '允许',
             ]));
             return $res;
         });
@@ -66,10 +68,6 @@ class Checkbox implements FieldInterface
             Router $router
         ) use ($field) {
             $res = [];
-            $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
-                '0' => '不允许',
-                '1' => '允许',
-            ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
             $res[] = (new Select('数据源', 'dict_id', $field['dict_id'] ?? '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
@@ -85,10 +83,6 @@ class Checkbox implements FieldInterface
                 '0' => '单选',
                 '1' => '多选(或)',
                 '2' => '多选(且)',
-            ]));
-            $res[] = (new Radio('是否允许后台筛选', 'adminfilter', $field['adminfilter'] ?? '1', [
-                '0' => '不允许',
-                '1' => '允许',
             ]));
             return $res;
         });
@@ -197,9 +191,7 @@ class Checkbox implements FieldInterface
                         if (!is_null($value)) {
                             $x = pow(2, $value);
                             return [
-                                'where' => [
-                                    '`' . $field['name'] . '` & ' . $x . ' > 0',
-                                ],
+                                'where' =>  '`' . $field['name'] . '` & ' . $x . ' > 0',
                                 'binds' => []
                             ];
                         } else {
@@ -219,9 +211,7 @@ class Checkbox implements FieldInterface
                         }
                         if ($x) {
                             return [
-                                'where' => [
-                                    '`' . $field['name'] . '` & ' . $x . ' > 0',
-                                ],
+                                'where' => '`' . $field['name'] . '` & ' . $x . ' > 0',
                                 'binds' => []
                             ];
                         } else {
@@ -241,9 +231,7 @@ class Checkbox implements FieldInterface
                         }
                         if ($x) {
                             return [
-                                'where' => [
-                                    '`' . $field['name'] . '` & ' . $x . ' = ' . $x,
-                                ],
+                                'where' => '`' . $field['name'] . '` & ' . $x . ' = ' . $x,
                                 'binds' => []
                             ];
                         } else {

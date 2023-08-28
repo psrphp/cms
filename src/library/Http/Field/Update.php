@@ -35,11 +35,11 @@ class Update extends Common
                     (new Input('标题', 'title', $field['title']))->set('help', '例如：客户电话'),
                     (new Input('字段', 'name', $field['name']))->set('disabled', true),
                     (new Input('类型', 'type', $field['type']::getTitle()))->set('disabled', true),
-                    (new Radio('是否允许后台列表显示', 'adminlist', $field['adminlist'], [
+                    (new Radio('是否允许后台列表显示', 'show', $field['show'], [
                         '0' => '不允许',
                         '1' => '允许',
                     ])),
-                    (new Code('后台显示模板', 'adminlisttpl', $field['adminlisttpl']))->set('help', '自定义显示模板，额外变量：$field, $value, $content'),
+                    (new Code('后台显示模板', 'tpl', $field['tpl']))->set('help', '自定义显示模板，额外变量：$field, $value, $content'),
                     ...($field['type']::getUpdateFieldForm($field) ?: [])
                 )
             )
@@ -58,11 +58,8 @@ class Update extends Common
         $update = [
             'group' => $request->post('group'),
             'title' => $request->post('title'),
-            'adminlist' => $request->post('adminlist', 0),
-            'adminlisttpl' => strlen($request->post('adminlisttpl', '')) ? $request->post('adminlisttpl', '') : null,
-            'adminedit' => $request->post('adminedit', 0),
-            'adminfilter' => $request->post('adminfilter', 0),
-            'adminorder' => $request->post('adminorder', 0),
+            'show' => $request->post('show', 0),
+            'tpl' => strlen($request->post('tpl', '')) ? $request->post('tpl', '') : null,
         ];
 
         $diff = array_diff_key($request->post(), $update, ['id' => '']);

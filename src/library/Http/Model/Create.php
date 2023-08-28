@@ -88,10 +88,7 @@ class Create extends Common
             'title' => 'ID',
             'name' => 'id',
             'system' => 1,
-            'adminedit' => 0,
-            'adminlist' => 1,
-            'adminfilter' => 0,
-            'adminorder' => 1,
+            'show' => 1,
             'extra' => json_encode([]),
         ]);
 

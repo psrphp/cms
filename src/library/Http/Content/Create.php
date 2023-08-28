@@ -36,7 +36,6 @@ class Create extends Common
                 $groups = [];
                 foreach ($db->select('psrphp_cms_field', '*', [
                     'model_id' => $model['id'],
-                    'adminedit' => 1,
                     'type[!]' => null,
                 ]) as $vo) {
                     $groups[$vo['group'] ?: '未分组'][] = $vo;
@@ -51,11 +50,13 @@ class Create extends Common
                             array_push($items, ...$tmps);
                         }
                     }
-                    $row->addCol(
-                        (new Col)->addItem(
-                            (new Fieldset((string)$group))->addItem(...$items)
-                        )
-                    );
+                    if ($items) {
+                        $row->addCol(
+                            (new Col)->addItem(
+                                (new Fieldset((string)$group))->addItem(...$items)
+                            )
+                        );
+                    }
                 }
                 return [$row];
             })(),

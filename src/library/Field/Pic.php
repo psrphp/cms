@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Psrphp\Cms\Field;
 
 use PsrPHP\Form\Field\Cover;
-use PsrPHP\Form\Field\Radio;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 use PsrPHP\Router\Router;
@@ -17,13 +16,19 @@ class Pic implements FieldInterface
         return '单图';
     }
 
+    public static function isOrderable(): bool
+    {
+        return false;
+    }
+
+    public static function isSearchable(): bool
+    {
+        return false;
+    }
+    
     public static function getCreateFieldForm(): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
         return $res;
     }
 
@@ -35,10 +40,6 @@ class Pic implements FieldInterface
     public static function getUpdateFieldForm(array $field): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
         return $res;
     }
 

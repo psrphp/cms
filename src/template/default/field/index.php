@@ -14,10 +14,7 @@
             <th>标题</th>
             <th>字段</th>
             <th>类型</th>
-            <th>后台列表显示</th>
-            <th>后台编辑</th>
-            <th>后台筛选</th>
-            <th>后台排序</th>
+            <th>列表显示</th>
             <th>管理</th>
             <th>排序</th>
         </tr>
@@ -29,7 +26,7 @@
         {if !in_array($vo['group'], $groups)}
         <?php $groups[] = $vo['group']; ?>
         <tr>
-            <td colspan="9">
+            <td colspan="6">
                 <span style="font-weight: bold;">{$vo['group']}</span>
             </td>
         </tr>
@@ -47,28 +44,7 @@
                 {$sub.type}
             </td>
             <td>
-                {if $sub['adminlist']}
-                <span>允许</span>
-                {else}
-                <span>-</span>
-                {/if}
-            </td>
-            <td>
-                {if $sub['adminedit']}
-                <span>允许</span>
-                {else}
-                <span>-</span>
-                {/if}
-            </td>
-            <td>
-                {if $sub['adminfilter']}
-                <span>允许</span>
-                {else}
-                <span>-</span>
-                {/if}
-            </td>
-            <td>
-                {if $sub['adminorder']}
+                {if $sub['show']}
                 <span>允许</span>
                 {else}
                 <span>-</span>

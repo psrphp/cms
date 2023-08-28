@@ -17,17 +17,19 @@ class Number implements FieldInterface
         return '数字';
     }
 
+    public static function isOrderable(): bool
+    {
+        return true;
+    }
+
+    public static function isSearchable(): bool
+    {
+        return false;
+    }
+
     public static function getCreateFieldForm(): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
-        $res[] = (new Radio('是否允许后台排序', 'adminorder', '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         $res[] = (new Radio('是否允许负数', 'is_negative', '0', [
             '0' => '不允许',
             '1' => '允许',
@@ -64,14 +66,6 @@ class Number implements FieldInterface
     public static function getUpdateFieldForm(array $field): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许通过表单编辑', 'adminedit', $field['adminedit'] ?? '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]))->set('help', '某些数据为程序更新的可设置为不可编辑，比如点击量，用户评分等等');
-        $res[] = (new Radio('是否允许后台排序', 'adminorder', $field['adminorder'] ?? '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         $res[] = (new Input('最小值', 'min', $field['min'] ?? null, ['type' => 'number']));
         $res[] = (new Input('最大值', 'max', $field['max'] ?? null, ['type' => 'number']));
         $res[] = (new Input('数字间隔', 'step', $field['step'] ?? null, ['type' => 'number']))->set('help', '若要输入小数，可填0.1、0.01、0.001等等');
@@ -137,9 +131,7 @@ class Number implements FieldInterface
         $maxkey = ':maxkey_' . $field['name'];
         if (strlen($value['min']) && strlen($value['max'])) {
             return [
-                'where' => [
-                    '`' . $field['name'] . '` BETWEEN ' . $minkey . ' AND ' . $maxkey,
-                ],
+                'where' =>  '`' . $field['name'] . '` BETWEEN ' . $minkey . ' AND ' . $maxkey,
                 'binds' => [
                     $minkey => $value['min'],
                     $maxkey => $value['max'],
@@ -147,18 +139,14 @@ class Number implements FieldInterface
             ];
         } elseif (strlen($value['min'])) {
             return [
-                'where' => [
-                    '`' . $field['name'] . '`>=' . $minkey,
-                ],
+                'where' => '`' . $field['name'] . '`>=' . $minkey,
                 'binds' => [
                     $minkey => $value['min'],
                 ]
             ];
         } elseif (strlen($value['max'])) {
             return [
-                'where' => [
-                    '`' . $field['name'] . '`<=' . $maxkey,
-                ],
+                'where' => '`' . $field['name'] . '`<=' . $maxkey,
                 'binds' => [
                     $maxkey => $value['max'],
                 ]

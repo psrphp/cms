@@ -39,17 +39,7 @@ class Index extends Common
                 $vo = array_merge(json_decode($vo['extra'], true), $vo);
             }
 
-            $filters = [];
-            $q = $request->get('q', '');
-            if (is_string($q) && strlen($q)) {
-                foreach ($fields as $vo) {
-                    if ($vo['adminfilter']) {
-                        $filters[$vo['name']] = '%' . $q . '%';
-                    }
-                }
-            }
-            $filters = array_merge($filters, $request->get('filter', []));
-
+            $filters = $request->get('filter', []);
             $total = $contentProvider->count(
                 $model['id'],
                 $filters,
@@ -63,6 +53,7 @@ class Index extends Common
             $contents = $contentProvider->select(
                 $model['id'],
                 $filters,
+                $request->get('q', ''),
                 $order,
                 $page,
                 $size

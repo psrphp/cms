@@ -7,6 +7,8 @@ namespace App\Psrphp\Cms\Field;
 interface FieldInterface
 {
     public static function getTitle(): string;
+    public static function isOrderable(): bool;
+    public static function isSearchable(): bool;
 
     public static function getCreateFieldForm(): array;
     public static function getCreateFieldSql(string $model_name, string $field_name): string;

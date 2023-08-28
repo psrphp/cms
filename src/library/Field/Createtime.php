@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Form\Field\Input;
-use PsrPHP\Form\Field\Radio;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Template\Template;
 
@@ -16,13 +14,19 @@ class Createtime implements FieldInterface
         return '创建时间';
     }
 
+    public static function isOrderable(): bool
+    {
+        return true;
+    }
+
+    public static function isSearchable(): bool
+    {
+        return false;
+    }
+
     public static function getCreateFieldForm(): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许后台排序', 'adminorder', '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         return $res;
     }
 
@@ -34,19 +38,12 @@ class Createtime implements FieldInterface
     public static function getUpdateFieldForm(array $field): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许后台排序', 'adminorder', $field['adminorder'] ?? '1', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]));
         return $res;
     }
 
     public static function getCreateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, [
-            'type' => 'datetime-local',
-        ]);
         return $res;
     }
 
@@ -58,9 +55,6 @@ class Createtime implements FieldInterface
     public static function getUpdateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, [
-            'type' => 'datetime-local',
-        ]);
         return $res;
     }
 
@@ -84,9 +78,7 @@ class Createtime implements FieldInterface
         $maxkey = ':maxkey_' . $field['name'];
         if (strlen($value['min']) && strlen($value['max'])) {
             return [
-                'where' => [
-                    '`' . $field['name'] . '` BETWEEN ' . $minkey . ' AND ' . $maxkey,
-                ],
+                'where' =>  '`' . $field['name'] . '` BETWEEN ' . $minkey . ' AND ' . $maxkey,
                 'binds' => [
                     $minkey => $value['min'],
                     $maxkey => $value['max'],
@@ -94,18 +86,14 @@ class Createtime implements FieldInterface
             ];
         } elseif (strlen($value['min'])) {
             return [
-                'where' => [
-                    '`' . $field['name'] . '`>=' . $minkey,
-                ],
+                'where' => '`' . $field['name'] . '`>=' . $minkey,
                 'binds' => [
                     $minkey => $value['min'],
                 ]
             ];
         } elseif (strlen($value['max'])) {
             return [
-                'where' => [
-                    '`' . $field['name'] . '`<=' . $maxkey,
-                ],
+                'where' =>  '`' . $field['name'] . '`<=' . $maxkey,
                 'binds' => [
                     $maxkey => $value['max'],
                 ]

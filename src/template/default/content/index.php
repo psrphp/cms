@@ -24,7 +24,7 @@
     <input type="hidden" name="model_id" value="{$model.id}">
     <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
         {foreach $fields as $field}
-        {if $field['type'] && $field['adminfilter']}
+        {if $field['type']}
         {if $tmp = $field['type']::getFilterForm($field)}
         <fieldset>
             <legend>{$field['title']}:</legend>
@@ -43,7 +43,7 @@
             <legend>排序:</legend>
             <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 5px;">
                 {foreach $fields as $field}
-                {if $field['adminorder']}
+                {if ($field['name']=='id') || ($field['type'] && $field['type']::isOrderable())}
                 <div>
                     <input type="radio" style="display: none;" name="order[{$field.name}]" value="{$request->get('order.'.$field['name'])}" checked>
                     {if $request->get('order.'.$field['name']) == 'desc'}
@@ -101,7 +101,7 @@
                 <th>ID</th>
                 <?php $fieldtypenum = 0; ?>
                 {foreach $fields as $field}
-                {if $field['type'] && $field['adminlist']}
+                {if $field['type'] && $field['show']}
                 <?php $fieldtypenum += 1; ?>
                 <th>{$field.title}</th>
                 {/if}
@@ -117,10 +117,10 @@
                 </td>
                 <td><span>{$content.id}</span></td>
                 {foreach $fields as $field}
-                {if $field['type'] && $field['adminlist']}
+                {if $field['type'] && $field['show']}
                 <td>
-                    {if $field['adminlisttpl']}
-                    {echo $template->renderFromString($field['adminlisttpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
+                    {if $field['tpl']}
+                    {echo $template->renderFromString($field['tpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
                     {else}
                     {echo $field['type']::parseToHtml($field, $content[$field['name']])}
                     {/if}
@@ -142,8 +142,8 @@
                         {if $field['type']}
                         <dt>{$field.title}</dt>
                         <dd>
-                            {if $field['adminlisttpl']}
-                            {echo $template->renderFromString($field['adminlisttpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
+                            {if $field['tpl']}
+                            {echo $template->renderFromString($field['tpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
                             {else}
                             {echo $field['type']::parseToHtml($field, $content[$field['name']])}
                             {/if}

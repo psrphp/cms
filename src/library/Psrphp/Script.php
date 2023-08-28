@@ -45,11 +45,8 @@ CREATE TABLE `prefix_psrphp_cms_field` (
     `title` varchar(255) NOT NULL COMMENT '标题',
     `name` varchar(255) NOT NULL COMMENT '字段',
     `type` varchar(255) NOT NULL COMMENT '类型',
-    `adminlist` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台列表显示',
-    `adminlisttpl` text COMMENT '后台列表显示模板',
-    `adminedit` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许通过表单编辑',
-    `adminfilter` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台筛选',
-    `adminorder` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台排序',
+    `show` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台列表显示',
+    `tpl` text COMMENT '后台列表显示模板',
     `extra` text COMMENT '其他数据',
     `priority` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
     PRIMARY KEY (`id`) USING BTREE

@@ -37,11 +37,11 @@ class Create extends Common
                     (new Input('标题', 'title')),
                     (new Input('字段名称', 'name'))->set('help', '字段名称只能由字母开头，字母、数字、下划线组成'),
                     (new Input('类型', 'type', $type::getTitle()))->set('disabled', true),
-                    (new Radio('是否允许后台列表显示', 'adminlist', '0', [
+                    (new Radio('是否允许后台列表显示', 'show', '0', [
                         '0' => '不允许',
                         '1' => '允许',
                     ])),
-                    (new Code('后台显示模板', 'adminlisttpl'))->set('help', '自定义显示模板，额外变量：$field, $value, $content'),
+                    (new Code('后台显示模板', 'tpl'))->set('help', '自定义显示模板，额外变量：$field, $value, $content'),
                     ...($type::getCreateFieldForm() ?: [])
                 )
             )
@@ -76,11 +76,8 @@ class Create extends Common
             'name' => $name,
             'group' => $request->post('group'),
             'title' => $request->post('title'),
-            'adminlist' => $request->post('adminlist', 0),
-            'adminlisttpl' => strlen($request->post('adminlisttpl', '')) ? $request->post('adminlisttpl', '') : null,
-            'adminedit' => $request->post('adminedit', 0),
-            'adminfilter' => $request->post('adminfilter', 0),
-            'adminorder' => $request->post('adminorder', 0),
+            'show' => $request->post('show', 0),
+            'tpl' => strlen($request->post('tpl', '')) ? $request->post('tpl', '') : null,
         ];
         $data['extra'] = json_encode(array_diff_key($request->post(), $data), JSON_UNESCAPED_UNICODE);
 

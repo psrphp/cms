@@ -18,7 +18,7 @@ class ContentProvider
         $this->db = $db;
     }
 
-    public function select(int $model_id, array $filters = [], array $orders = [], int $page = 1, int $size = 10): array
+    public function select(int $model_id, array $filters = [], string $q = '', array $orders = [], int $page = 1, int $size = 10): array
     {
         $sql = '';
 
@@ -29,22 +29,42 @@ class ContentProvider
             'id' => $model_id,
         ]);
 
-        foreach ($this->db->select('psrphp_cms_field', '*', [
+        $fields = $this->db->select('psrphp_cms_field', '*', [
             'model_id' => $model_id,
             'ORDER' => [
                 'priority' => 'DESC',
                 'id' => 'ASC',
             ],
-        ]) as $field) {
+        ]);
+
+        foreach ($fields as $field) {
             $field = array_merge(json_decode($field['extra'], true), $field);
-            if (isset($filters[$field['name']])) {
+            if (isset($filters[$field['name']]) && $field['type']) {
                 $tmp = $field['type']::buildFilterSql($field, $filters[$field['name']]);
                 if (isset($tmp['where']) && $tmp['where']) {
-                    $wheres = array_merge_recursive($wheres, $tmp['where']);
+                    $wheres[] = $tmp['where'];
                 }
                 if (isset($tmp['binds']) && $tmp['binds']) {
                     $binds = array_merge($binds, $tmp['binds']);
                 }
+            }
+        }
+
+        if (strlen($q)) {
+            $orsqls = [];
+            $orbinds = [];
+            foreach ($fields as $field) {
+                if (!$field['type']) {
+                    continue;
+                }
+                if ($field['type']::isSearchable()) {
+                    $orsqls[] = '`' . $field['name'] . '` like :' . $field['name'];
+                    $orbinds[':' . $field['name']] = '%' . $q . '%';
+                }
+            }
+            if ($orsqls) {
+                $wheres[] = '(' . implode(' OR ', $orsqls) . ')';
+                $binds = array_merge($binds, $orbinds);
             }
         }
 
@@ -73,7 +93,7 @@ class ContentProvider
         return $this->db->select('psrphp_cms_content_' . $model['name'], '*', Medoo::raw($sql, $binds));
     }
 
-    public function count(int $model_id, array $filters = [])
+    public function count(int $model_id, array $filters = [], string $q = '')
     {
         $sql = '';
 
@@ -84,22 +104,42 @@ class ContentProvider
             'id' => $model_id,
         ]);
 
-        foreach ($this->db->select('psrphp_cms_field', '*', [
+        $fields = $this->db->select('psrphp_cms_field', '*', [
             'model_id' => $model_id,
             'ORDER' => [
                 'priority' => 'DESC',
                 'id' => 'ASC',
             ],
-        ]) as $field) {
+        ]);
+
+        foreach ($fields as $field) {
             $field = array_merge(json_decode($field['extra'], true), $field);
-            if (isset($filters[$field['name']])) {
+            if (isset($filters[$field['name']]) && $field['type']) {
                 $tmp = $field['type']::buildFilterSql($field, $filters[$field['name']]);
                 if (isset($tmp['where']) && $tmp['where']) {
-                    $wheres = array_merge_recursive($wheres, $tmp['where']);
+                    $wheres[] = $tmp['where'];
                 }
                 if (isset($tmp['binds']) && $tmp['binds']) {
                     $binds = array_merge($binds, $tmp['binds']);
                 }
+            }
+        }
+
+        if (strlen($q)) {
+            $orsqls = [];
+            $orbinds = [];
+            foreach ($fields as $field) {
+                if (!$field['type']) {
+                    continue;
+                }
+                if ($field['type']::isSearchable()) {
+                    $orsqls[] = '`' . $field['name'] . '` like :' . $field['name'];
+                    $orbinds[':' . $field['name']] = '%' . $q . '%';
+                }
+            }
+            if ($orsqls) {
+                $wheres[] = '(' . implode(' OR ', $orsqls) . ')';
+                $binds = array_merge($binds, $orbinds);
             }
         }
 
