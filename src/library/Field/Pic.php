@@ -95,7 +95,7 @@ class Pic implements FieldInterface
         return [];
     }
 
-    public static function parseToHtml(array $field, $value): string
+    public static function parseToHtml(array $field, $value, array $content): string
     {
         if (is_string($value) && strlen($value)) {
             return '<img src="' . $value . '" alt="" width="100" height="100">';

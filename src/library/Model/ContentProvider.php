@@ -25,9 +25,11 @@ class ContentProvider
         $wheres = [];
         $binds = [];
 
-        $model = $this->db->get('psrphp_cms_model', '*', [
+        if (!$model = $this->db->get('psrphp_cms_model', '*', [
             'id' => $model_id,
-        ]);
+        ])) {
+            return [];
+        }
 
         $fields = $this->db->select('psrphp_cms_field', '*', [
             'model_id' => $model_id,
@@ -69,7 +71,8 @@ class ContentProvider
         }
 
         if ($wheres) {
-            $sql .= ' WHERE ' . $this->build($wheres);
+            // $sql .= ' WHERE ' . $this->build($wheres);
+            $sql .= ' WHERE ' . implode(' and ', $wheres);
         }
 
         $tmps = [];
@@ -90,19 +93,22 @@ class ContentProvider
         $binds[':start'] = ($page - 1) * $size;
         $binds[':size'] = $size;
 
-        return $this->db->select('psrphp_cms_content_' . $model['name'], '*', Medoo::raw($sql, $binds));
+        $res = $this->db->select('psrphp_cms_content_' . $model['name'], '*', Medoo::raw($sql, $binds));
+        return is_array($res) ? $res : [];
     }
 
-    public function count(int $model_id, array $filters = [], string $q = '')
+    public function count(int $model_id, array $filters = [], string $q = ''): int
     {
         $sql = '';
 
         $wheres = [];
         $binds = [];
 
-        $model = $this->db->get('psrphp_cms_model', '*', [
+        if (!$model = $this->db->get('psrphp_cms_model', '*', [
             'id' => $model_id,
-        ]);
+        ])) {
+            return 0;
+        }
 
         $fields = $this->db->select('psrphp_cms_field', '*', [
             'model_id' => $model_id,
@@ -144,10 +150,12 @@ class ContentProvider
         }
 
         if ($wheres) {
-            $sql .= ' WHERE ' . $this->build($wheres);
+            // $sql .= ' WHERE ' . $this->build($wheres);
+            $sql .= ' WHERE ' . implode(' and ', $wheres);
         }
 
-        return $this->db->count('psrphp_cms_content_' . $model['name'], Medoo::raw($sql, $binds));
+        $res = $this->db->count('psrphp_cms_content_' . $model['name'], Medoo::raw($sql, $binds));
+        return $res === false ? 0 : $res;
     }
 
     private function build(array $where, string $type = 'and')

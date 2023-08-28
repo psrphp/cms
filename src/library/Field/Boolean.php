@@ -147,7 +147,7 @@ str;
         }
     }
 
-    public static function parseToHtml(array $field, $value): string
+    public static function parseToHtml(array $field, $value, array $content): string
     {
         if ($value) {
             return '<span>是</span>';

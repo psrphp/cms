@@ -122,7 +122,7 @@
                     {if $field['tpl']}
                     {echo $template->renderFromString($field['tpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
                     {else}
-                    {echo $field['type']::parseToHtml($field, $content[$field['name']])}
+                    {echo $field['type']::parseToHtml($field, $content[$field['name']], $content)}
                     {/if}
                 </td>
                 {/if}
@@ -145,7 +145,7 @@
                             {if $field['tpl']}
                             {echo $template->renderFromString($field['tpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
                             {else}
-                            {echo $field['type']::parseToHtml($field, $content[$field['name']])}
+                            {echo $field['type']::parseToHtml($field, $content[$field['name']], $content)}
                             {/if}
                         </dd>
                         {/if}

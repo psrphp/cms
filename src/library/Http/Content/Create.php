@@ -36,9 +36,10 @@ class Create extends Common
                 $groups = [];
                 foreach ($db->select('psrphp_cms_field', '*', [
                     'model_id' => $model['id'],
-                    'type[!]' => null,
                 ]) as $vo) {
-                    $groups[$vo['group'] ?: '未分组'][] = $vo;
+                    if ($vo['type']) {
+                        $groups[$vo['group'] ?: '未分组'][] = $vo;
+                    }
                 }
 
                 $row = new Row;

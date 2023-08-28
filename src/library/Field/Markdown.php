@@ -95,7 +95,7 @@ class Markdown implements FieldInterface
         return '';
     }
 
-    public static function parseToHtml(array $field, $value): string
+    public static function parseToHtml(array $field, $value, array $content): string
     {
         // todo..
         return '<pre>' . $value . '</pre>';

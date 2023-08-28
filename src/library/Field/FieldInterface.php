@@ -22,5 +22,5 @@ interface FieldInterface
     public static function getFilterForm(array $field): ?string;
     public static function buildFilterSql(array $field, $value): array;
 
-    public static function parseToHtml(array $field, $value): string;
+    public static function parseToHtml(array $field, $value, array $content): string;
 }

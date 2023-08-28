@@ -102,7 +102,7 @@ class Pics implements FieldInterface
         return '';
     }
 
-    public static function parseToHtml(array $field, $value): string
+    public static function parseToHtml(array $field, $value, array $content): string
     {
         return Framework::execute(function (
             Template $template

@@ -38,10 +38,11 @@ class Update extends Common
                 $groups = [];
                 foreach ($db->select('psrphp_cms_field', '*', [
                     'model_id' => $model['id'],
-                    'type[!]' => null,
                 ]) as $vo) {
-                    $vo['group'] = $vo['group'] ?: '未分组';
-                    $groups[$vo['group']][] = $vo;
+                    if ($vo['type']) {
+                        $vo['group'] = $vo['group'] ?: '未分组';
+                        $groups[$vo['group']][] = $vo;
+                    }
                 }
 
                 $row = new Row;

@@ -75,14 +75,7 @@ class Text implements FieldInterface
 
     public static function buildFilterSql(array $field, $value): array
     {
-        return [
-            'where' => [
-                'or' => '`' . $field['name'] . '` like :' . $field['name']
-            ],
-            'binds' => [
-                ':' . $field['name'] => $value
-            ],
-        ];
+        return [];
     }
 
     public static function getFilterForm(array $field, $value = null): string
@@ -90,7 +83,7 @@ class Text implements FieldInterface
         return '';
     }
 
-    public static function parseToHtml(array $field, $value): string
+    public static function parseToHtml(array $field, $value, array $content): string
     {
         return $value;
     }
