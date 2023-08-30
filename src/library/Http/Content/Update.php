@@ -8,10 +8,10 @@ use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Admin\Lib\Response;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
-use PsrPHP\Form\Component\Col;
-use PsrPHP\Form\Component\Fieldset;
-use PsrPHP\Form\Component\Row;
-use PsrPHP\Form\Field\Hidden;
+use PsrPHP\Form\Col;
+use PsrPHP\Form\Fieldset;
+use PsrPHP\Form\Row;
+use PsrPHP\Form\Input;
 use PsrPHP\Request\Request;
 
 class Update extends Common
@@ -32,8 +32,8 @@ class Update extends Common
         }
 
         return (new Builder('编辑内容'))->addItem(
-            (new Hidden('model_id', $model['id'])),
-            (new Hidden('id', $content['id'])),
+            (new Input('model_id', 'model_id', $model['id']))->setType('hidden'),
+            (new Input('id', 'id', $content['id']))->setType('hidden'),
             ...(function () use ($db, $model, $content): array {
                 $groups = [];
                 foreach ($db->select('psrphp_cms_field', '*', [

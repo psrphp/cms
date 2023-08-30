@@ -8,9 +8,9 @@ use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Admin\Lib\Response;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
-use PsrPHP\Form\Component\Col;
-use PsrPHP\Form\Component\Row;
-use PsrPHP\Form\Field\Input;
+use PsrPHP\Form\Col;
+use PsrPHP\Form\Row;
+use PsrPHP\Form\Input;
 use PsrPHP\Request\Request;
 
 class Create extends Common

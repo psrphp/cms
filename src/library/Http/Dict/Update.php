@@ -8,10 +8,9 @@ use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Admin\Lib\Response;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
-use PsrPHP\Form\Component\Col;
-use PsrPHP\Form\Component\Row;
-use PsrPHP\Form\Field\Hidden;
-use PsrPHP\Form\Field\Input;
+use PsrPHP\Form\Col;
+use PsrPHP\Form\Row;
+use PsrPHP\Form\Input;
 use PsrPHP\Request\Request;
 
 class Update extends Common
@@ -27,8 +26,8 @@ class Update extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-8'))->addItem(
-                    (new Hidden('id', $dict['id'])),
-                    (new Input('标题', 'title', $dict['title']))->set('help', '例如：'),
+                    (new Input('id', 'id', $dict['id']))->setType('hidden'),
+                    (new Input('标题', 'title', $dict['title']))->setHelp('例如：'),
                 )
             )
         );

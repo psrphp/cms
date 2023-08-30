@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Form\Field\Cover;
+use PsrPHP\Form\Cover;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 use PsrPHP\Router\Router;

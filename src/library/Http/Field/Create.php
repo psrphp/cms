@@ -8,12 +8,12 @@ use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Admin\Lib\Response;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
-use PsrPHP\Form\Component\Col;
-use PsrPHP\Form\Component\Row;
-use PsrPHP\Form\Field\Code;
-use PsrPHP\Form\Field\Hidden;
-use PsrPHP\Form\Field\Input;
-use PsrPHP\Form\Field\Radio;
+use PsrPHP\Form\Col;
+use PsrPHP\Form\Row;
+use PsrPHP\Form\Code;
+use PsrPHP\Form\Input;
+use PsrPHP\Form\Radio;
+use PsrPHP\Form\Radios;
 use PsrPHP\Request\Request;
 
 class Create extends Common
@@ -31,17 +31,17 @@ class Create extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-9'))->addItem(
-                    (new Hidden('model_id', $model['id'])),
-                    (new Hidden('type', $request->get('type'))),
-                    (new Input('分组', 'group'))->set('required', 1)->set('help', '例如：基本信息'),
+                    (new Input('model_id', 'model_id', $model['id']))->setType('hidden'),
+                    (new Input('type', 'type', $request->get('type')))->setType('hidden'),
+                    (new Input('分组', 'group'))->setRequired(true)->setHelp('例如：基本信息'),
                     (new Input('标题', 'title')),
-                    (new Input('字段名称', 'name'))->set('help', '字段名称只能由字母开头，字母、数字、下划线组成'),
-                    (new Input('类型', 'type', $type::getTitle()))->set('disabled', true),
-                    (new Radio('是否允许后台列表显示', 'show', '0', [
-                        '0' => '不允许',
-                        '1' => '允许',
-                    ])),
-                    (new Code('后台显示模板', 'tpl'))->set('help', '自定义显示模板，额外变量：$field, $value, $content'),
+                    (new Input('字段名称', 'name'))->setHelp('字段名称只能由字母开头，字母、数字、下划线组成'),
+                    (new Input('类型', 'type', $type::getTitle()))->setDisabled(true),
+                    (new Radios('是否允许后台列表显示'))->addRadio(
+                        new Radio('不允许', 'show', 0, true),
+                        new Radio('允许', 'show', 1, false),
+                    ),
+                    (new Code('后台显示模板', 'tpl'))->setHelp('自定义显示模板，额外变量：$field, $value, $content'),
                     ...($type::getCreateFieldForm() ?: [])
                 )
             )

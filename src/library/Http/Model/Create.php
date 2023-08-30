@@ -9,10 +9,10 @@ use App\Psrphp\Admin\Lib\Response;
 use App\Psrphp\Cms\Model\ModelCreaterProvider;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
-use PsrPHP\Form\Component\Col;
-use PsrPHP\Form\Component\Row;
-use PsrPHP\Form\Field\Input;
-use PsrPHP\Form\Field\Select;
+use PsrPHP\Form\Col;
+use PsrPHP\Form\Row;
+use PsrPHP\Form\Input;
+use PsrPHP\Form\SelectLevel;
 use PsrPHP\Request\Request;
 
 class Create extends Common
@@ -24,8 +24,8 @@ class Create extends Common
             (new Row())->addCol(
                 (new Col('col-md-9'))->addItem(
                     (new Input('标题', 'title')),
-                    (new Input('名称', 'name'))->set('help', '名称只能由字母开头，字母、数字、下划线组成，不超过20个字符'),
-                    (new Select('类型', 'type', '', (function (): array {
+                    (new Input('名称', 'name'))->setHelp('名称只能由字母开头，字母、数字、下划线组成，不超过20个字符'),
+                    (new SelectLevel('类型', 'type', '', (function (): array {
                         $res = [];
                         foreach (ModelCreaterProvider::getInstance()->all() as $vo) {
                             $res[] = [

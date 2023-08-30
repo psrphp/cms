@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Psrphp\Cms\Field;
 
 use PsrPHP\Database\Db;
-use PsrPHP\Form\Field\Checkbox as FieldCheckbox;
-use PsrPHP\Form\Field\Radio;
-use PsrPHP\Form\Field\Select;
+use PsrPHP\Form\Checkbox as FormCheckbox;
+use PsrPHP\Form\Checkboxs;
+use PsrPHP\Form\Radio;
+use PsrPHP\Form\Radios;
+use PsrPHP\Form\SelectLevel;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 use PsrPHP\Router\Router;
@@ -37,7 +39,7 @@ class Checkbox implements FieldInterface
             Router $router
         ): array {
             $res = [];
-            $res[] = (new Select('数据源', 'dict_id', '', (function () use ($db): array {
+            $res[] = (new SelectLevel('数据源', 'dict_id', '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     $res[] = [
@@ -46,12 +48,12 @@ class Checkbox implements FieldInterface
                     ];
                 }
                 return $res;
-            })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
-            $res[] = (new Radio('筛选类型', 'filtertype', '0', [
-                '0' => '单选',
-                '1' => '多选(或)',
-                '2' => '多选(且)',
-            ]));
+            })()))->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            $res[] = (new Radios('筛选类型'))->addRadio(
+                new Radio('单选', 'filtertype', 0, true),
+                new Radio('多选(或)', 'filtertype', 1, false),
+                new Radio('多选(且)', 'filtertype', 2, false),
+            );
             return $res;
         });
     }
@@ -68,7 +70,7 @@ class Checkbox implements FieldInterface
             Router $router
         ) use ($field) {
             $res = [];
-            $res[] = (new Select('数据源', 'dict_id', $field['dict_id'] ?? '', (function () use ($db): array {
+            $res[] = (new SelectLevel('数据源', 'dict_id', $field['dict_id'] ?? '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     $res[] = [
@@ -77,13 +79,13 @@ class Checkbox implements FieldInterface
                     ];
                 }
                 return $res;
-            })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            })()))->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
 
-            $res[] = (new Radio('筛选类型', 'filtertype', $field['filtertype'] ?? '0', [
-                '0' => '单选',
-                '1' => '多选(或)',
-                '2' => '多选(且)',
-            ]));
+            $res[] = (new Radios('筛选类型'))->addRadio(
+                new Radio('单选', 'filtertype', 0, $field['filtertype'] == 0),
+                new Radio('多选(或)', 'filtertype', 1, $field['filtertype'] == 1),
+                new Radio('多选(且)', 'filtertype', 2, $field['filtertype'] == 1),
+            );
             return $res;
         });
     }
@@ -94,15 +96,14 @@ class Checkbox implements FieldInterface
             Db $db,
         ) use ($field, $value): array {
             $res = [];
-            $vals = [];
-            for ($i = 0; $i < 32; $i++) {
-                $pow = pow(2, $i);
-                if (($value & $pow) == $pow) {
-                    $vals[] = $i;
+            $res[] = (new Checkboxs($field['title']))->addCheckbox(...(function () use ($value, $db, $field): iterable {
+                $vals = [];
+                for ($i = 0; $i < 32; $i++) {
+                    $pow = pow(2, $i);
+                    if (($value & $pow) == $pow) {
+                        $vals[] = $i;
+                    }
                 }
-            }
-            $res[] = new FieldCheckbox($field['title'], $field['name'], $vals, (function () use ($db, $field): array {
-                $res = [];
                 foreach ($db->select('psrphp_cms_data', '*', [
                     'dict_id' => $field['dict_id'],
                     'parent' => null,
@@ -110,10 +111,9 @@ class Checkbox implements FieldInterface
                         'priority' => 'DESC',
                         'id' => 'ASC',
                     ],
-                ]) as $data) {
-                    $res[$data['value']] = $data['title'];
+                ]) as $vo) {
+                    yield new FormCheckbox($vo['title'], $field['name'], $vo['value'], in_array($vo['value'], $vals));
                 }
-                return $res;
             })());
             return $res;
         });
@@ -138,15 +138,14 @@ class Checkbox implements FieldInterface
             Db $db
         ) use ($field, $value): array {
             $res = [];
-            $vals = [];
-            for ($i = 0; $i < 32; $i++) {
-                $pow = pow(2, $i);
-                if (($value & $pow) == $pow) {
-                    $vals[] = $i;
+            $res[] = (new Checkboxs($field['title']))->addCheckbox(...(function () use ($value, $field, $db): iterable {
+                $vals = [];
+                for ($i = 0; $i < 32; $i++) {
+                    $pow = pow(2, $i);
+                    if (($value & $pow) == $pow) {
+                        $vals[] = $i;
+                    }
                 }
-            }
-            $res[] = new FieldCheckbox($field['title'], $field['name'], $vals, (function () use ($db, $field): array {
-                $res = [];
                 foreach ($db->select('psrphp_cms_data', '*', [
                     'dict_id' => $field['dict_id'],
                     'parent' => null,
@@ -154,10 +153,9 @@ class Checkbox implements FieldInterface
                         'priority' => 'DESC',
                         'id' => 'ASC',
                     ],
-                ]) as $data) {
-                    $res[$data['value']] = $data['title'];
+                ]) as $vo) {
+                    yield new FormCheckbox($vo['title'], $field['name'], $vo['value'], in_array($vo['value'], $vals));
                 }
-                return $res;
             })());
             return $res;
         });

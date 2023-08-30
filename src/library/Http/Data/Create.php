@@ -8,10 +8,9 @@ use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Admin\Lib\Response;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
-use PsrPHP\Form\Component\Col;
-use PsrPHP\Form\Component\Row;
-use PsrPHP\Form\Field\Hidden;
-use PsrPHP\Form\Field\Input;
+use PsrPHP\Form\Col;
+use PsrPHP\Form\Row;
+use PsrPHP\Form\Input;
 use PsrPHP\Request\Request;
 
 class Create extends Common
@@ -23,8 +22,8 @@ class Create extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-9'))->addItem(
-                    (new Hidden('dict_id', $request->get('dict_id'))),
-                    (new Hidden('parent', $request->get('parent'))),
+                    (new Input('dict_id', 'dict_id', $request->get('dict_id')))->setType('hidden'),
+                    (new Input('parent', 'parent', $request->get('parent')))->setType('hidden'),
                     (new Input('标题', 'title')),
                     (new Input('别名', 'alias')),
                 )

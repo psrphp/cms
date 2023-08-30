@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Psrphp\Cms\Field;
 
 use PsrPHP\Database\Db;
-use PsrPHP\Form\Field\Select as FieldSelect;
+use PsrPHP\Form\SelectLevel;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 use PsrPHP\Router\Router;
@@ -35,7 +35,7 @@ class Select implements FieldInterface
             Router $router
         ): array {
             $res = [];
-            $res[] = (new FieldSelect('数据源', 'dict_id', '', (function () use ($db): array {
+            $res[] = (new SelectLevel('数据源', 'dict_id', '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     $res[] = [
@@ -44,7 +44,7 @@ class Select implements FieldInterface
                     ];
                 }
                 return $res;
-            })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            })()))->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
             return $res;
         });
     }
@@ -61,7 +61,7 @@ class Select implements FieldInterface
             Router $router
         ) use ($field) {
             $res = [];
-            $res[] = (new FieldSelect('数据源', 'dict_id', $field['dict_id'] ?? '', (function () use ($db): array {
+            $res[] = (new SelectLevel('数据源', 'dict_id', $field['dict_id'] ?? '', (function () use ($db): array {
                 $res = [];
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     $res[] = [
@@ -70,7 +70,7 @@ class Select implements FieldInterface
                     ];
                 }
                 return $res;
-            })()))->set('required', true)->set('help', '<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            })()))->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
             return $res;
         });
     }
@@ -81,7 +81,7 @@ class Select implements FieldInterface
             Db $db,
         ) use ($field, $value) {
             $res = [];
-            $res[] = new FieldSelect($field['title'], $field['name'], $value, (function () use ($db, $field): array {
+            $res[] = new SelectLevel($field['title'], $field['name'], $value, (function () use ($db, $field): array {
                 return $db->select('psrphp_cms_data', '*', [
                     'dict_id' => $field['dict_id'],
                     'ORDER' => [
@@ -111,7 +111,7 @@ class Select implements FieldInterface
             Db $db
         ) use ($field, $value): array {
             $res = [];
-            $res[] = new FieldSelect($field['title'], $field['name'], $value, (function () use ($db, $field): array {
+            $res[] = new SelectLevel($field['title'], $field['name'], $value, (function () use ($db, $field): array {
                 return $db->select('psrphp_cms_data', '*', [
                     'dict_id' => $field['dict_id'],
                     'ORDER' => [

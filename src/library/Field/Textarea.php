@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Form\Field\Textarea as FieldTextarea;
+use PsrPHP\Form\Textarea as FieldTextarea;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 

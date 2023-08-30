@@ -8,12 +8,12 @@ use App\Psrphp\Admin\Http\Common;
 use App\Psrphp\Admin\Lib\Response;
 use PsrPHP\Database\Db;
 use PsrPHP\Form\Builder;
-use PsrPHP\Form\Component\Col;
-use PsrPHP\Form\Component\Row;
-use PsrPHP\Form\Field\Code;
-use PsrPHP\Form\Field\Hidden;
-use PsrPHP\Form\Field\Input;
-use PsrPHP\Form\Field\Radio;
+use PsrPHP\Form\Col;
+use PsrPHP\Form\Row;
+use PsrPHP\Form\Code;
+use PsrPHP\Form\Input;
+use PsrPHP\Form\Radio;
+use PsrPHP\Form\Radios;
 use PsrPHP\Request\Request;
 
 class Update extends Common
@@ -30,16 +30,16 @@ class Update extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-8'))->addItem(
-                    (new Hidden('id', $field['id'])),
-                    (new Input('分组', 'group', $field['group']))->set('required', 1)->set('help', '例如：基本信息'),
-                    (new Input('标题', 'title', $field['title']))->set('help', '例如：客户电话'),
-                    (new Input('字段', 'name', $field['name']))->set('disabled', true),
-                    (new Input('类型', 'type', $field['type']::getTitle()))->set('disabled', true),
-                    (new Radio('是否允许后台列表显示', 'show', $field['show'], [
-                        '0' => '不允许',
-                        '1' => '允许',
-                    ])),
-                    (new Code('后台显示模板', 'tpl', $field['tpl']))->set('help', '自定义显示模板，额外变量：$field, $value, $content'),
+                    (new Input('id', 'id', $field['id']))->setType('hidden'),
+                    (new Input('分组', 'group', $field['group']))->setRequired(true)->setHelp('例如：基本信息'),
+                    (new Input('标题', 'title', $field['title']))->setHelp('例如：客户电话'),
+                    (new Input('字段', 'name', $field['name']))->setDisabled(true),
+                    (new Input('类型', 'type', $field['type']::getTitle()))->setDisabled(true),
+                    (new Radios('是否允许后台列表显示'))->addRadio(
+                        new Radio('不允许', 'show', 0, $field['show'] == 0),
+                        new Radio('允许', 'show', 1, $field['show'] == 1),
+                    ),
+                    (new Code('后台显示模板', 'tpl', $field['tpl']))->setHelp('自定义显示模板，额外变量：$field, $value, $content'),
                     ...($field['type']::getUpdateFieldForm($field) ?: [])
                 )
             )

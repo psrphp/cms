@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Form\Field\Input;
-use PsrPHP\Form\Field\Radio;
+use PsrPHP\Form\Input;
+use PsrPHP\Form\Radio;
+use PsrPHP\Form\Radios;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 use PsrPHP\Template\Template;
@@ -30,17 +31,17 @@ class Number implements FieldInterface
     public static function getCreateFieldForm(): array
     {
         $res = [];
-        $res[] = (new Radio('是否允许负数', 'is_negative', '0', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]))->set('help', '此项录入后不可更改');
-        $res[] = (new Radio('是否允许小数', 'is_float', '0', [
-            '0' => '不允许',
-            '1' => '允许',
-        ]))->set('help', '此项录入后不可更改');
+        $res[] = (new Radios('是否允许负数'))->addRadio(
+            new Radio('不允许', 'is_negative', 0, true),
+            new Radio('允许', 'is_negative', 1, false),
+        )->setHelp('此项录入后不可更改');
+        $res[] = (new Radios('是否允许小数'))->addRadio(
+            new Radio('不允许', 'is_float', 0, true),
+            new Radio('允许', 'is_float', 1, false),
+        )->setHelp('此项录入后不可更改');
         $res[] = (new Input('最小值', 'min', null, ['type' => 'number']));
         $res[] = (new Input('最大值', 'max', null, ['type' => 'number']));
-        $res[] = (new Input('数字间隔', 'step', null, ['type' => 'number']))->set('help', '若要输入小数，可填0.1、0.01、0.001等等');
+        $res[] = (new Input('数字间隔', 'step', null, ['type' => 'number']))->setHelp('若要输入小数，可填0.1、0.01、0.001等等');
         return $res;
     }
 
@@ -68,7 +69,7 @@ class Number implements FieldInterface
         $res = [];
         $res[] = (new Input('最小值', 'min', $field['min'] ?? null, ['type' => 'number']));
         $res[] = (new Input('最大值', 'max', $field['max'] ?? null, ['type' => 'number']));
-        $res[] = (new Input('数字间隔', 'step', $field['step'] ?? null, ['type' => 'number']))->set('help', '若要输入小数，可填0.1、0.01、0.001等等');
+        $res[] = (new Input('数字间隔', 'step', $field['step'] ?? null, ['type' => 'number']))->setHelp('若要输入小数，可填0.1、0.01、0.001等等');
         return $res;
     }
 

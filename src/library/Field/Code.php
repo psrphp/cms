@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Form\Field\Code as FieldCode;
+use PsrPHP\Form\Code as FieldCode;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 

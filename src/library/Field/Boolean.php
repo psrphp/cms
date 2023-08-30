@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Form\Field\Radio;
+use PsrPHP\Form\Radio;
+use PsrPHP\Form\Radios;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 use PsrPHP\Template\Template;
@@ -46,10 +47,10 @@ class Boolean implements FieldInterface
     public static function getCreateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Radio($field['title'], $field['name'], $value ? 1 : 0, [
-            0 => '否',
-            1 => '是',
-        ]);
+        $res[] = (new Radios($field['title']))->addRadio(
+            new Radio('否', $field['name'], 0, $value == 0),
+            new Radio('是', $field['name'], 1, $value == 1),
+        );
         return $res;
     }
 
@@ -67,10 +68,10 @@ class Boolean implements FieldInterface
     public static function getUpdateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Radio($field['title'], $field['name'], $value ? 1 : 0, [
-            0 => '否',
-            1 => '是',
-        ]);
+        $res[] = (new Radios($field['title']))->addRadio(
+            new Radio('否', $field['name'], 0, $value == 0),
+            new Radio('是', $field['name'], 1, $value == 1),
+        );
         return $res;
     }
 

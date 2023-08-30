@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Psrphp\Cms\Field;
 
-use PsrPHP\Form\Field\Pics as FieldPics;
+use PsrPHP\Form\Pics as FieldPics;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
 use PsrPHP\Router\Router;
