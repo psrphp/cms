@@ -32,10 +32,10 @@ class Update extends Common
             (new Row())->addCol(
                 (new Col('col-md-8'))->addItem(
                     (new Hidden('id', $field['id'])),
-                    (new Input('分组', 'group', $field['group']))->setRequired(true)->setHelp('例如：基本信息'),
+                    (new Input('分组', 'group', $field['group']))->setRequired()->setHelp('例如：基本信息'),
                     (new Input('标题', 'title', $field['title']))->setHelp('例如：客户电话'),
-                    (new Input('字段', 'name', $field['name']))->setDisabled(true),
-                    (new Input('类型', 'type', $field['type']::getTitle()))->setDisabled(true),
+                    (new Input('字段', 'name', $field['name']))->setDisabled(),
+                    (new Input('类型', 'type', $field['type']::getTitle()))->setDisabled(),
                     (new Radios('是否允许后台列表显示'))->addRadio(
                         new Radio('不允许', 'show', 0, $field['show'] == 0),
                         new Radio('允许', 'show', 1, $field['show'] == 1),

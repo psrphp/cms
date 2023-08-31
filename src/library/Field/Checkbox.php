@@ -44,7 +44,7 @@ class Checkbox implements FieldInterface
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     yield new Option($vo['title'], $vo['id']);
                 }
-            })())->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            })())->setRequired()->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
             $res[] = (new Radios('筛选类型'))->addRadio(
                 new Radio('单选', 'filtertype', 0, true),
                 new Radio('多选(或)', 'filtertype', 1, false),
@@ -70,7 +70,7 @@ class Checkbox implements FieldInterface
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     yield new Option($vo['title'], $vo['id'], $field['dict_id'] == $vo['id']);
                 }
-            })())->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            })())->setRequired()->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
             $res[] = (new Radios('筛选类型'))->addRadio(
                 new Radio('单选', 'filtertype', 0, $field['filtertype'] == 0),
                 new Radio('多选(或)', 'filtertype', 1, $field['filtertype'] == 1),

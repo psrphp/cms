@@ -41,7 +41,7 @@ class Select implements FieldInterface
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     yield new Option($vo['title'], $vo['id']);
                 }
-            })())->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            })())->setRequired()->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
             return $res;
         });
     }
@@ -62,7 +62,7 @@ class Select implements FieldInterface
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
                     yield new Option($vo['title'], $vo['id'], $field['dict_id'] == $vo['id']);
                 }
-            })())->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            })())->setRequired()->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
             return $res;
         });
     }
