@@ -12,6 +12,7 @@ use PsrPHP\Form\Col;
 use PsrPHP\Form\Row;
 use PsrPHP\Form\Code;
 use PsrPHP\Form\Input;
+use PsrPHP\Form\Hidden;
 use PsrPHP\Form\Radio;
 use PsrPHP\Form\Radios;
 use PsrPHP\Request\Request;
@@ -31,8 +32,8 @@ class Create extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-9'))->addItem(
-                    (new Input('model_id', 'model_id', $model['id']))->setType('hidden'),
-                    (new Input('type', 'type', $request->get('type')))->setType('hidden'),
+                    (new Hidden('model_id', $model['id'])),
+                    (new Hidden('type', $request->get('type'))),
                     (new Input('分组', 'group'))->setRequired(true)->setHelp('例如：基本信息'),
                     (new Input('标题', 'title')),
                     (new Input('字段名称', 'name'))->setHelp('字段名称只能由字母开头，字母、数字、下划线组成'),

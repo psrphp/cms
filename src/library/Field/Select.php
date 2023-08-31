@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Psrphp\Cms\Field;
 
 use PsrPHP\Database\Db;
+use PsrPHP\Form\Option;
+use PsrPHP\Form\Select as FormSelect;
 use PsrPHP\Form\SelectLevel;
 use PsrPHP\Framework\Framework;
 use PsrPHP\Request\Request;
@@ -35,16 +37,11 @@ class Select implements FieldInterface
             Router $router
         ): array {
             $res = [];
-            $res[] = (new SelectLevel('数据源', 'dict_id', '', (function () use ($db): array {
-                $res = [];
+            $res[] = (new FormSelect('数据源', 'dict_id'))->addOption(...(function () use ($db): iterable {
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
-                    $res[] = [
-                        'title' => $vo['title'],
-                        'value' => $vo['id'],
-                    ];
+                    yield new Option($vo['title'], $vo['id']);
                 }
-                return $res;
-            })()))->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            })())->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
             return $res;
         });
     }
@@ -61,16 +58,11 @@ class Select implements FieldInterface
             Router $router
         ) use ($field) {
             $res = [];
-            $res[] = (new SelectLevel('数据源', 'dict_id', $field['dict_id'] ?? '', (function () use ($db): array {
-                $res = [];
+            $res[] = (new FormSelect('数据源', 'dict_id'))->addOption(...(function () use ($db, $field): iterable {
                 foreach ($db->select('psrphp_cms_dict', '*') as $vo) {
-                    $res[] = [
-                        'title' => $vo['title'],
-                        'value' => $vo['id'],
-                    ];
+                    yield new Option($vo['title'], $vo['id'], $field['dict_id'] == $vo['id']);
                 }
-                return $res;
-            })()))->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
+            })())->setRequired(true)->setHelp('<a href="' . $router->build('/psrphp/cms/dict/index') . '">管理数据源</a>');
             return $res;
         });
     }

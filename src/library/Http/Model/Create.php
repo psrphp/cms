@@ -12,7 +12,8 @@ use PsrPHP\Form\Builder;
 use PsrPHP\Form\Col;
 use PsrPHP\Form\Row;
 use PsrPHP\Form\Input;
-use PsrPHP\Form\SelectLevel;
+use PsrPHP\Form\Option;
+use PsrPHP\Form\Select;
 use PsrPHP\Request\Request;
 
 class Create extends Common
@@ -25,16 +26,11 @@ class Create extends Common
                 (new Col('col-md-9'))->addItem(
                     (new Input('标题', 'title')),
                     (new Input('名称', 'name'))->setHelp('名称只能由字母开头，字母、数字、下划线组成，不超过20个字符'),
-                    (new SelectLevel('类型', 'type', '', (function (): array {
-                        $res = [];
+                    (new Select('类型', 'type'))->addOption(...(function (): iterable {
                         foreach (ModelCreaterProvider::getInstance()->all() as $vo) {
-                            $res[] = [
-                                'value' => $vo['type'],
-                                'title' => $vo['title'],
-                            ];
+                            yield new Option($vo['title'], $vo['type']);
                         }
-                        return $res;
-                    })()))
+                    })()),
                 )
             )
         );

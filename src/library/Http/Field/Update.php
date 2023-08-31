@@ -12,6 +12,7 @@ use PsrPHP\Form\Col;
 use PsrPHP\Form\Row;
 use PsrPHP\Form\Code;
 use PsrPHP\Form\Input;
+use PsrPHP\Form\Hidden;
 use PsrPHP\Form\Radio;
 use PsrPHP\Form\Radios;
 use PsrPHP\Request\Request;
@@ -30,7 +31,7 @@ class Update extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-8'))->addItem(
-                    (new Input('id', 'id', $field['id']))->setType('hidden'),
+                    (new Hidden('id', $field['id'])),
                     (new Input('分组', 'group', $field['group']))->setRequired(true)->setHelp('例如：基本信息'),
                     (new Input('标题', 'title', $field['title']))->setHelp('例如：客户电话'),
                     (new Input('字段', 'name', $field['name']))->setDisabled(true),

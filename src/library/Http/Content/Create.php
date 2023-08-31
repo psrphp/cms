@@ -11,7 +11,7 @@ use PsrPHP\Form\Builder;
 use PsrPHP\Form\Col;
 use PsrPHP\Form\Fieldset;
 use PsrPHP\Form\Row;
-use PsrPHP\Form\Input;
+use PsrPHP\Form\Hidden;
 use PsrPHP\Request\Request;
 
 class Create extends Common
@@ -31,7 +31,7 @@ class Create extends Common
         ]) ?: [];
 
         return (new Builder('创建内容'))->addItem(
-            (new Input('model_id', 'model_id', $model['id']))->setType('hidden'),
+            (new Hidden('model_id', $model['id'])),
             ...(function () use ($db, $model, $content): array {
                 $groups = [];
                 foreach ($db->select('psrphp_cms_field', '*', [

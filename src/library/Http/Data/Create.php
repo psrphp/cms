@@ -11,6 +11,7 @@ use PsrPHP\Form\Builder;
 use PsrPHP\Form\Col;
 use PsrPHP\Form\Row;
 use PsrPHP\Form\Input;
+use PsrPHP\Form\Hidden;
 use PsrPHP\Request\Request;
 
 class Create extends Common
@@ -22,8 +23,8 @@ class Create extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-9'))->addItem(
-                    (new Input('dict_id', 'dict_id', $request->get('dict_id')))->setType('hidden'),
-                    (new Input('parent', 'parent', $request->get('parent')))->setType('hidden'),
+                    (new Hidden('dict_id', $request->get('dict_id'))),
+                    (new Hidden('parent', $request->get('parent'))),
                     (new Input('标题', 'title')),
                     (new Input('别名', 'alias')),
                 )

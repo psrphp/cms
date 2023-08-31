@@ -11,6 +11,7 @@ use PsrPHP\Form\Builder;
 use PsrPHP\Form\Col;
 use PsrPHP\Form\Row;
 use PsrPHP\Form\Input;
+use PsrPHP\Form\Hidden;
 use PsrPHP\Request\Request;
 
 class Update extends Common
@@ -26,7 +27,7 @@ class Update extends Common
         $form->addItem(
             (new Row())->addCol(
                 (new Col('col-md-8'))->addItem(
-                    (new Input('id', 'id', $model['id']))->setType('hidden'),
+                    (new Hidden('id', $model['id'])),
                     (new Input('标题', 'title', $model['title'])),
                 )
             )
