@@ -88,7 +88,8 @@
 </div>
 
 <style>
-    #tablemain * {
+    #tablemain tr.nowrap th,
+    #tablemain tr.nowrap td {
         white-space: nowrap;
     }
 </style>
@@ -96,7 +97,7 @@
 <div style="overflow-x: auto;margin-top: 15px;">
     <table id="tablemain">
         <thead>
-            <tr>
+            <tr class="nowrap">
                 <th style="width:22px;">#</th>
                 <th>ID</th>
                 <?php $fieldtypenum = 0; ?>
@@ -111,7 +112,7 @@
         </thead>
         <tbody>
             {foreach $contents as $content}
-            <tr>
+            <tr class="nowrap">
                 <td>
                     <input type="checkbox" value="{$content.id}">
                 </td>
