@@ -39,9 +39,9 @@ class Number implements FieldInterface
             new Radio('不允许', 'is_float', 0, true),
             new Radio('允许', 'is_float', 1, false),
         )->setHelp('此项录入后不可更改');
-        $res[] = (new Input('最小值', 'min', null, ['type' => 'number']));
-        $res[] = (new Input('最大值', 'max', null, ['type' => 'number']));
-        $res[] = (new Input('数字间隔', 'step', null, ['type' => 'number']))->setHelp('若要输入小数，可填0.1、0.01、0.001等等');
+        $res[] = (new Input('最小值', 'min', null, 'number'));
+        $res[] = (new Input('最大值', 'max', null, 'number'));
+        $res[] = (new Input('数字间隔', 'step', null, 'number'))->setHelp('若要输入小数，可填0.1、0.01、0.001等等');
         return $res;
     }
 
@@ -67,21 +67,26 @@ class Number implements FieldInterface
     public static function getUpdateFieldForm(array $field): array
     {
         $res = [];
-        $res[] = (new Input('最小值', 'min', $field['min'] ?? null, ['type' => 'number']));
-        $res[] = (new Input('最大值', 'max', $field['max'] ?? null, ['type' => 'number']));
-        $res[] = (new Input('数字间隔', 'step', $field['step'] ?? null, ['type' => 'number']))->setHelp('若要输入小数，可填0.1、0.01、0.001等等');
+        $res[] = (new Input('最小值', 'min', $field['min'] ?? null, 'number'));
+        $res[] = (new Input('最大值', 'max', $field['max'] ?? null, 'number'));
+        $res[] = (new Input('数字间隔', 'step', $field['step'] ?? null, 'number'))->setHelp('若要输入小数，可填0.1、0.01、0.001等等');
         return $res;
     }
 
     public static function getCreateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, [
-            'type' => 'number',
-            'min' => $field['min'],
-            'max' => $field['max'],
-            'step' => $field['step'],
-        ]);
+        $tmp = new Input($field['title'], $field['name'], $value, 'number');
+        if (isset($field['min']) && is_numeric($field['min'])) {
+            $tmp->setMin($field['min']);
+        }
+        if (isset($field['max']) && is_numeric($field['max'])) {
+            $tmp->setMax($field['max']);
+        }
+        if (isset($field['step']) && is_numeric($field['step'])) {
+            $tmp->setStep($field['step']);
+        }
+        $res[] = $tmp;
         return $res;
     }
 
@@ -99,12 +104,17 @@ class Number implements FieldInterface
     public static function getUpdateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, [
-            'type' => 'number',
-            'min' => $field['min'],
-            'max' => $field['max'],
-            'step' => $field['step'],
-        ]);
+        $tmp = new Input($field['title'], $field['name'], $value, 'number');
+        if (isset($field['min']) && is_numeric($field['min'])) {
+            $tmp->setMin($field['min']);
+        }
+        if (isset($field['max']) && is_numeric($field['max'])) {
+            $tmp->setMax($field['max']);
+        }
+        if (isset($field['step']) && is_numeric($field['step'])) {
+            $tmp->setStep($field['step']);
+        }
+        $res[] = $tmp;
         return $res;
     }
 

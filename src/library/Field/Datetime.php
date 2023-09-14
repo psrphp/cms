@@ -46,9 +46,7 @@ class Datetime implements FieldInterface
     public static function getCreateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, [
-            'type' => 'datetime-local',
-        ]);
+        $res[] = new Input($field['title'], $field['name'], $value, 'datetime-local');
         return $res;
     }
 
@@ -64,9 +62,7 @@ class Datetime implements FieldInterface
     public static function getUpdateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, [
-            'type' => 'datetime-local',
-        ]);
+        $res[] = new Input($field['title'], $field['name'], $value, 'datetime-local');
         return $res;
     }
 

@@ -46,9 +46,7 @@ class Date implements FieldInterface
     public static function getCreateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, [
-            'type' => 'date',
-        ]);
+        $res[] = new Input($field['title'], $field['name'], $value, 'date');
         return $res;
     }
 
@@ -66,9 +64,7 @@ class Date implements FieldInterface
     public static function getUpdateContentForm(array $field, $value = null): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, [
-            'type' => 'date',
-        ]);
+        $res[] = new Input($field['title'], $field['name'], $value, 'date');
         return $res;
     }
 
