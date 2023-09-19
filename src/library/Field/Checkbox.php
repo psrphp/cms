@@ -54,9 +54,9 @@ class Checkbox implements FieldInterface
         });
     }
 
-    public static function getCreateFieldSql(string $model_name, string $field_name): string
+    public static function getCreateFieldSql(array $model, array $field): string
     {
-        return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` int(10) unsigned NOT NULL DEFAULT \'0\'';
+        return 'ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $field['name'] . '` int(10) unsigned NOT NULL DEFAULT \'0\'';
     }
 
     public static function getUpdateFieldForm(array $field): array
@@ -80,8 +80,9 @@ class Checkbox implements FieldInterface
         });
     }
 
-    public static function getCreateContentForm(array $field, $value = null): array
+    public static function getCreateContentForm(array $field, array $content): array
     {
+        $value = $content[$field['name']] ?? 0;
         return Framework::execute(function (
             Db $db,
         ) use ($field, $value): array {
@@ -109,21 +110,22 @@ class Checkbox implements FieldInterface
         });
     }
 
-    public static function getCreateContentData(array $field): int
+    public static function getCreateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field): int {
+        ) use ($field, &$content) {
             $res = 0;
             foreach ($request->post($field['name'], []) as $v) {
                 $res += pow(2, $v);
             }
-            return $res;
+            $content[$field['name']] = $res;
         });
     }
 
-    public static function getUpdateContentForm(array $field, $value = null): array
+    public static function getUpdateContentForm(array $field, array $content): array
     {
+        $value = $content[$field['name']] ?? 0;
         return Framework::execute(function (
             Db $db
         ) use ($field, $value): array {
@@ -151,33 +153,33 @@ class Checkbox implements FieldInterface
         });
     }
 
-    public static function getUpdateContentData(array $field, $oldvalue): int
+    public static function getUpdateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field): int {
+        ) use ($field, &$content) {
             $res = 0;
             foreach ($request->post($field['name'], []) as $v) {
                 $res += pow(2, $v);
             }
-            return $res;
+            $content[$field['name']] = $res;
         });
     }
 
-    public static function buildFilterSql(array $field, $alias): array
+    public static function buildFilterSql(array $field, $value): array
     {
         return Framework::execute(function (
             Db $db
-        ) use ($field, $alias): array {
+        ) use ($field, $value): array {
             switch ($field['filtertype']) {
                 case '0':
-                    if (is_string($alias) && strlen($alias)) {
-                        $value = $db->get('psrphp_cms_data', 'value', [
+                    if (is_string($value) && strlen($value)) {
+                        $vo = $db->get('psrphp_cms_data', 'value', [
                             'dict_id' => $field['dict_id'],
-                            'alias' => $alias
+                            'alias' => $value
                         ]);
-                        if (!is_null($value)) {
-                            $x = pow(2, $value);
+                        if (!is_null($vo)) {
+                            $x = pow(2, $vo);
                             return [
                                 'where' =>  '`' . $field['name'] . '` & ' . $x . ' > 0',
                                 'binds' => []
@@ -189,11 +191,11 @@ class Checkbox implements FieldInterface
                     break;
 
                 case '1':
-                    if ($alias && is_array($alias)) {
+                    if ($value && is_array($value)) {
                         $x = 0;
                         foreach ($db->select('psrphp_cms_data', 'value', [
                             'dict_id' => $field['dict_id'],
-                            'alias' => $alias
+                            'alias' => $value
                         ]) as $vl) {
                             $x += pow(2, $vl);
                         }
@@ -209,11 +211,11 @@ class Checkbox implements FieldInterface
                     break;
 
                 case '2':
-                    if ($alias && is_array($alias)) {
+                    if ($value && is_array($value)) {
                         $x = 0;
                         foreach ($db->select('psrphp_cms_data', 'value', [
                             'dict_id' => $field['dict_id'],
-                            'alias' => $alias
+                            'alias' => $value
                         ]) as $vl) {
                             $x += pow(2, $vl);
                         }
@@ -317,12 +319,12 @@ str;
         });
     }
 
-    public static function parseToHtml(array $field, $value, array $content): string
+    public static function parseToHtml(array $field, array $content): string
     {
         return Framework::execute(function (
             Db $db,
             Template $template
-        ) use ($field, $value) {
+        ) use ($field, $content) {
             $datas = $db->select('psrphp_cms_data', '*', [
                 'dict_id' => $field['dict_id'],
                 'ORDER' => [
@@ -331,7 +333,7 @@ str;
                 ],
             ]);
             $sels = [];
-            $strs = array_reverse(str_split(decbin($value) . ''));
+            $strs = array_reverse(str_split(decbin($content[$field['name']]) . ''));
             foreach ($strs as $key => $vo) {
                 if (!$vo) {
                     continue;

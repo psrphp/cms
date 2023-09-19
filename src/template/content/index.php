@@ -121,9 +121,9 @@
                 {if $field['type'] && $field['show']}
                 <td>
                     {if $field['tpl']}
-                    {echo $template->renderFromString($field['tpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
+                    {echo $template->renderFromString($field['tpl'], ['field'=>$field, 'content'=>$content])}
                     {else}
-                    {echo $field['type']::parseToHtml($field, $content[$field['name']], $content)}
+                    {echo $field['type']::parseToHtml($field, $content)}
                     {/if}
                 </td>
                 {/if}
@@ -144,9 +144,9 @@
                         <dt>{$field.title}</dt>
                         <dd>
                             {if $field['tpl']}
-                            {echo $template->renderFromString($field['tpl'], ['field'=>$field, 'value'=>$content[$field['name']], 'content'=>$content])}
+                            {echo $template->renderFromString($field['tpl'], ['field'=>$field, 'content'=>$content])}
                             {else}
-                            {echo $field['type']::parseToHtml($field, $content[$field['name']], $content)}
+                            {echo $field['type']::parseToHtml($field, $content)}
                             {/if}
                         </dd>
                         {/if}
@@ -202,10 +202,10 @@
     })()
 </script>
 
-<div style="display: flex;flex-direction: row;flex-wrap: wrap;margin-top: 20px;">
+<div style="display: flex;flex-direction: row;flex-wrap: wrap;margin-top: 20px;gap: 5px;">
     <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>1]))}">首页</a>
-    <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>max($request->get('page')-1, 1)]))}">上一页</a>
-    <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>min($request->get('page')+1, $maxpage)]))}">下一页</a>
+    <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>max($request->get('page', 1)-1, 1)]))}">上一页</a>
+    <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>min($request->get('page', 1)+1, $maxpage)]))}">下一页</a>
     <a href="{echo $router->build('/psrphp/cms/content/index', array_merge($_GET, ['page'=>$maxpage]))}">末页</a>
 </div>
 {/if}

@@ -26,16 +26,16 @@ class Pics implements FieldInterface
     {
         return false;
     }
-    
+
     public static function getCreateFieldForm(): array
     {
         $res = [];
         return $res;
     }
 
-    public static function getCreateFieldSql(string $model_name, string $field_name): string
+    public static function getCreateFieldSql(array $model, array $field): string
     {
-        return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` text';
+        return 'ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $field['name'] . '` text';
     }
 
     public static function getUpdateFieldForm(array $field): array
@@ -44,48 +44,48 @@ class Pics implements FieldInterface
         return $res;
     }
 
-    public static function getCreateContentForm(array $field, $value = null): array
+    public static function getCreateContentForm(array $field, array $content): array
     {
+        $value = json_decode($content[$field['name']] ?? '[]', true);
         return Framework::execute(function (
             Router $router
         ) use ($field, $value): array {
             $res = [];
-            $val = is_null($value) ? [] : json_decode($value, true);
-            $res[] = new FieldPics($field['title'], $field['name'], $val, $router->build('/psrphp/admin/tool/upload'));
+            $res[] = new FieldPics($field['title'], $field['name'], $value, $router->build('/psrphp/admin/tool/upload'));
             return $res;
         });
     }
 
-    public static function getCreateContentData(array $field): ?string
+    public static function getCreateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field): ?string {
-            return json_encode(
+        ) use ($field, &$content) {
+            $content[$field['name']] = json_encode(
                 $request->post($field['name'], []),
                 JSON_UNESCAPED_UNICODE
             );
         });
     }
 
-    public static function getUpdateContentForm(array $field, $value = null): array
+    public static function getUpdateContentForm(array $field, array $content): array
     {
+        $value = json_decode($content[$field['name']] ?? '[]', true);
         return Framework::execute(function (
             Router $router
         ) use ($field, $value): array {
             $res = [];
-            $val = is_null($value) ? [] : json_decode($value, true);
-            $res[] = new FieldPics($field['title'], $field['name'], $val, $router->build('/psrphp/admin/tool/upload'));
+            $res[] = new FieldPics($field['title'], $field['name'], $value, $router->build('/psrphp/admin/tool/upload'));
             return $res;
         });
     }
 
-    public static function getUpdateContentData(array $field, $oldvalue): ?string
+    public static function getUpdateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field): ?string {
-            return json_encode(
+        ) use ($field, &$content) {
+            $content[$field['name']] = json_encode(
                 $request->post($field['name'], []),
                 JSON_UNESCAPED_UNICODE
             );
@@ -102,11 +102,11 @@ class Pics implements FieldInterface
         return '';
     }
 
-    public static function parseToHtml(array $field, $value, array $content): string
+    public static function parseToHtml(array $field, array $content): string
     {
         return Framework::execute(function (
             Template $template
-        ) use ($field, $value) {
+        ) use ($field, $content): string {
             $tpl = <<<'str'
 <div style="display: flex;flex-direction: wrap;flex-wrap: wrap;gap: 5px;">
     {foreach $items as $vo}
@@ -118,7 +118,7 @@ class Pics implements FieldInterface
 str;
             return $template->renderFromString($tpl, [
                 'field' => $field,
-                'items' => is_null($value) ? [] : json_decode($value, true),
+                'items' => json_decode($content[$field['name']], true),
             ]);
         });
     }

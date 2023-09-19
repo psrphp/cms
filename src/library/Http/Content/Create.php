@@ -47,7 +47,7 @@ class Create extends Common
                     $items = [];
                     foreach ($fields as $field) {
                         $field = array_merge(json_decode($field['extra'], true), $field);
-                        if ($tmps = $field['type']::getCreateContentForm($field, $content[$field['name']] ?? null)) {
+                        if ($tmps = $field['type']::getCreateContentForm($field, $content)) {
                             array_push($items, ...$tmps);
                         }
                     }
@@ -79,7 +79,8 @@ class Create extends Common
             'model_id' => $model['id'],
         ]) as $field) {
             if ($field['type']) {
-                $data[$field['name']] = $field['type']::getCreateContentData($field);
+                $field = array_merge(json_decode($field['extra'], true), $field);
+                $field['type']::getCreateContentData($field, $data);
             }
         }
         $db->insert('psrphp_cms_content_' . $model['name'], $data);

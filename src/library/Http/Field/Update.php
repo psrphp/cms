@@ -40,7 +40,7 @@ class Update extends Common
                         new Radio('不允许', 'show', 0, $field['show'] == 0),
                         new Radio('允许', 'show', 1, $field['show'] == 1),
                     ),
-                    (new Code('后台显示模板', 'tpl', $field['tpl']))->setHelp('自定义显示模板，额外变量：$field, $value, $content'),
+                    (new Code('后台显示模板', 'tpl', $field['tpl']))->setHelp('自定义显示模板，额外变量：$field, $content'),
                     ...($field['type']::getUpdateFieldForm($field) ?: [])
                 )
             )

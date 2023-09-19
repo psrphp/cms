@@ -46,9 +46,9 @@ class Select implements FieldInterface
         });
     }
 
-    public static function getCreateFieldSql(string $model_name, string $field_name): string
+    public static function getCreateFieldSql(array $model, array $field): string
     {
-        return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` int(10) unsigned NOT NULL DEFAULT \'0\'';
+        return 'ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $field['name'] . '` int(10) unsigned NOT NULL DEFAULT \'0\'';
     }
 
     public static function getUpdateFieldForm(array $field): array
@@ -67,13 +67,13 @@ class Select implements FieldInterface
         });
     }
 
-    public static function getCreateContentForm(array $field, $value = null): array
+    public static function getCreateContentForm(array $field, array $content): array
     {
         return Framework::execute(function (
             Db $db,
-        ) use ($field, $value) {
+        ) use ($field, $content) {
             $res = [];
-            $res[] = new SelectLevel($field['title'], $field['name'], $value, (function () use ($db, $field): array {
+            $res[] = new SelectLevel($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', (function () use ($db, $field): array {
                 return $db->select('psrphp_cms_data', '*', [
                     'dict_id' => $field['dict_id'],
                     'ORDER' => [
@@ -86,24 +86,22 @@ class Select implements FieldInterface
         });
     }
 
-    public static function getCreateContentData(array $field): ?string
+    public static function getCreateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field): ?string {
-            if ($request->has('post.' . $field['name'])) {
-                return $request->post($field['name']);
-            }
+        ) use ($field, &$content) {
+            $content[$field['name']] = $request->post($field['name'], 0);
         });
     }
 
-    public static function getUpdateContentForm(array $field, $value = null): array
+    public static function getUpdateContentForm(array $field, array $content): array
     {
         return Framework::execute(function (
             Db $db
-        ) use ($field, $value): array {
+        ) use ($field, $content): array {
             $res = [];
-            $res[] = new SelectLevel($field['title'], $field['name'], $value, (function () use ($db, $field): array {
+            $res[] = new SelectLevel($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', (function () use ($db, $field): array {
                 return $db->select('psrphp_cms_data', '*', [
                     'dict_id' => $field['dict_id'],
                     'ORDER' => [
@@ -116,12 +114,12 @@ class Select implements FieldInterface
         });
     }
 
-    public static function getUpdateContentData(array $field, $oldvalue): ?string
+    public static function getUpdateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field) {
-            return $request->post($field['name']);
+        ) use ($field, &$content) {
+            $content[$field['name']] = $request->post($field['name'], 0);
         });
     }
 
@@ -258,12 +256,12 @@ str;
         });
     }
 
-    public static function parseToHtml(array $field, $value, array $content): string
+    public static function parseToHtml(array $field, array $content): string
     {
         return Framework::execute(function (
             Db $db,
             Template $template
-        ) use ($field, $value) {
+        ) use ($field, $content) {
             $tpl = <<<'str'
 <div style="display: flex;flex-direction: wrap;flex-wrap: nowrap;gap: 5px;">
     {foreach $sels as $v}
@@ -273,7 +271,7 @@ str;
 str;
             $sel = $db->get('psrphp_cms_data', '*', [
                 'dict_id' => $field['dict_id'],
-                'value' => $value
+                'value' => $content[$field['name']] ?? null
             ]);
             $datas = $db->select('psrphp_cms_data', '*', [
                 'dict_id' => $field['dict_id'],

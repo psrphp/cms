@@ -32,9 +32,9 @@ class Date implements FieldInterface
         return $res;
     }
 
-    public static function getCreateFieldSql(string $model_name, string $field_name): string
+    public static function getCreateFieldSql(array $model, array $field): string
     {
-        return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` date';
+        return 'ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $field['name'] . '` date';
     }
 
     public static function getUpdateFieldForm(array $field): array
@@ -43,37 +43,35 @@ class Date implements FieldInterface
         return $res;
     }
 
-    public static function getCreateContentForm(array $field, $value = null): array
+    public static function getCreateContentForm(array $field, array $content): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, 'date');
+        $res[] = new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'date');
         return $res;
     }
 
-    public static function getCreateContentData(array $field): ?string
+    public static function getCreateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field): ?string {
-            if ($request->has('post.' . $field['name'])) {
-                return $request->post($field['name']);
-            }
+        ) use ($field, &$content) {
+            $content[$field['name']] = $request->post($field['name']);
         });
     }
 
-    public static function getUpdateContentForm(array $field, $value = null): array
+    public static function getUpdateContentForm(array $field, array $content): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $value, 'date');
+        $res[] = new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'date');
         return $res;
     }
 
-    public static function getUpdateContentData(array $field, $oldvalue): ?string
+    public static function getUpdateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field) {
-            return $request->post($field['name']);
+        ) use ($field, &$content) {
+            $content[$field['name']] = $request->post($field['name']);
         });
     }
 
@@ -137,8 +135,8 @@ str;
         });
     }
 
-    public static function parseToHtml(array $field, $value, array $content): string
+    public static function parseToHtml(array $field, array $content): ?string
     {
-        return $value;
+        return $content[$field['name']];
     }
 }

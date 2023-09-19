@@ -42,7 +42,7 @@ class Create extends Common
                         new Radio('不允许', 'show', 0, true),
                         new Radio('允许', 'show', 1, false),
                     ),
-                    (new Code('后台显示模板', 'tpl'))->setHelp('自定义显示模板，额外变量：$field, $value, $content'),
+                    (new Code('后台显示模板', 'tpl'))->setHelp('自定义显示模板，额外变量：$field, $content'),
                     ...($type::getCreateFieldForm() ?: [])
                 )
             )
@@ -83,9 +83,13 @@ class Create extends Common
         $data['extra'] = json_encode(array_diff_key($request->post(), $data), JSON_UNESCAPED_UNICODE);
 
         $db->insert('psrphp_cms_field', $data);
+        $field = $db->get('psrphp_cms_field', '*', [
+            'id' => $db->id(),
+        ]);
+        $field = array_merge(json_decode($field['extra'], true), $field);
 
-        $sql = $sql = $type::getCreateFieldSql($model['name'], $name);
-        if (strlen($sql)) {
+        $sql = $type::getCreateFieldSql($model, $field);
+        if (is_string($sql) && strlen($sql)) {
             $db->query($sql);
         }
 

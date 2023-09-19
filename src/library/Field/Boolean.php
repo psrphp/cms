@@ -29,58 +29,54 @@ class Boolean implements FieldInterface
 
     public static function getCreateFieldForm(): array
     {
-        $res = [];
-        return $res;
+        return [];
     }
 
-    public static function getCreateFieldSql(string $model_name, string $field_name): string
+    public static function getCreateFieldSql(array $model, array $field): string
     {
-        return 'ALTER TABLE <psrphp_cms_content_' . $model_name . '> ADD `' . $field_name . '` tinyint(3) unsigned';
+        return 'ALTER TABLE <psrphp_cms_content_' . $model['name'] . '> ADD `' . $field['name'] . '` tinyint(3) unsigned';
     }
 
     public static function getUpdateFieldForm(array $field): array
     {
-        $res = [];
-        return $res;
+        return [];
     }
 
-    public static function getCreateContentForm(array $field, $value = null): array
+    public static function getCreateContentForm(array $field, array $content): array
     {
         $res = [];
         $res[] = (new Radios($field['title']))->addRadio(
-            new Radio('否', $field['name'], 0, $value == 0),
-            new Radio('是', $field['name'], 1, $value == 1),
+            new Radio('否', $field['name'], 0, ($content[$field['name']] ?? $field['default'] ?? 0) == 0),
+            new Radio('是', $field['name'], 1, ($content[$field['name']] ?? $field['default'] ?? 0) == 1),
         );
         return $res;
     }
 
-    public static function getCreateContentData(array $field): bool
+    public static function getCreateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field): bool {
-            if ($request->has('post.' . $field['name'])) {
-                return $request->post($field['name']) ? true : false;
-            }
+        ) use ($field, &$content) {
+            $content[$field['name']] = $request->post($field['name']) ? true : false;
         });
     }
 
-    public static function getUpdateContentForm(array $field, $value = null): array
+    public static function getUpdateContentForm(array $field, array $content): array
     {
         $res = [];
         $res[] = (new Radios($field['title']))->addRadio(
-            new Radio('否', $field['name'], 0, $value == 0),
-            new Radio('是', $field['name'], 1, $value == 1),
+            new Radio('否', $field['name'], 0, ($content[$field['name']] ?? $field['default'] ?? 0) == 0),
+            new Radio('是', $field['name'], 1, ($content[$field['name']] ?? $field['default'] ?? 0) == 1),
         );
         return $res;
     }
 
-    public static function getUpdateContentData(array $field, $oldvalue): bool
+    public static function getUpdateContentData(array $field, array &$content)
     {
-        return Framework::execute(function (
+        Framework::execute(function (
             Request $request,
-        ) use ($field): bool {
-            return $request->post($field['name']) ? true : false;
+        ) use ($field, &$content) {
+            $content[$field['name']] = $request->post($field['name']) ? true : false;
         });
     }
 
@@ -148,9 +144,9 @@ str;
         }
     }
 
-    public static function parseToHtml(array $field, $value, array $content): string
+    public static function parseToHtml(array $field, array $content): string
     {
-        if ($value) {
+        if ($content[$field['name']]) {
             return '<span>是</span>';
         } else {
             return '<span>否</span>';

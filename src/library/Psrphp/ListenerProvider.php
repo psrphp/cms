@@ -21,6 +21,7 @@ use App\Psrphp\Cms\Field\Text;
 use App\Psrphp\Cms\Field\Textarea;
 use App\Psrphp\Cms\Field\Time;
 use App\Psrphp\Cms\Field\Updatetime;
+use App\Psrphp\Cms\Field\Virtual;
 use App\Psrphp\Cms\Field\WYSIWYG;
 use App\Psrphp\Cms\Http\Content\Index;
 use App\Psrphp\Cms\Http\Dict\Index as DictIndex;
@@ -81,6 +82,7 @@ class ListenerProvider implements ListenerProviderInterface
                     $provider->add(Files::class);
                     $provider->add(Select::class);
                     $provider->add(Checkbox::class);
+                    $provider->add(Virtual::class);
                 }, [
                     FieldProvider::class => $event,
                 ]);
