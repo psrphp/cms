@@ -122,7 +122,7 @@ str;
         });
     }
 
-    public static function parseToHtml(array $field, array $content): null|string
+    public static function parseToHtml(array $field, array $content): ?string
     {
         return $content[$field['name']];
     }
