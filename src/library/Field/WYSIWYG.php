@@ -49,7 +49,7 @@ class WYSIWYG implements FieldInterface
             Router $router
         ) use ($field, $content): array {
             $res = [];
-            $res[] = new Summernote($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload'));
+            $res[] = (new Summernote($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload')))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }
@@ -68,7 +68,7 @@ class WYSIWYG implements FieldInterface
             Router $router
         ) use ($field, $content): array {
             $res = [];
-            $res[] = new Summernote($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload'));
+            $res[] = (new Summernote($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload')))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }

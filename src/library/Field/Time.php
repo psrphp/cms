@@ -46,7 +46,7 @@ class Time implements FieldInterface
     public static function getCreateContentForm(array $field, array $content): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'time');
+        $res[] = (new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'time'))->setHelp($field['tips'] ?? '');
         return $res;
     }
 
@@ -62,7 +62,7 @@ class Time implements FieldInterface
     public static function getUpdateContentForm(array $field, array $content): array
     {
         $res = [];
-        $res[] = new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'time');
+        $res[] = (new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'time'))->setHelp($field['tips'] ?? '');
         return $res;
     }
 

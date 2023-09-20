@@ -51,7 +51,7 @@ class Pics implements FieldInterface
             Router $router
         ) use ($field, $value): array {
             $res = [];
-            $res[] = new FieldPics($field['title'], $field['name'], $value, $router->build('/psrphp/admin/tool/upload'));
+            $res[] = (new FieldPics($field['title'], $field['name'], $value, $router->build('/psrphp/admin/tool/upload')))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }
@@ -75,7 +75,7 @@ class Pics implements FieldInterface
             Router $router
         ) use ($field, $value): array {
             $res = [];
-            $res[] = new FieldPics($field['title'], $field['name'], $value, $router->build('/psrphp/admin/tool/upload'));
+            $res[] = (new FieldPics($field['title'], $field['name'], $value, $router->build('/psrphp/admin/tool/upload')))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }

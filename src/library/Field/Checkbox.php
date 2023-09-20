@@ -105,7 +105,7 @@ class Checkbox implements FieldInterface
                 ]) as $vo) {
                     yield new FormCheckbox($vo['title'], $field['name'], $vo['value'], in_array($vo['value'], $vals));
                 }
-            })());
+            })())->setHelp($field['tips'] ?? '');
             return $res;
         });
     }
@@ -148,7 +148,7 @@ class Checkbox implements FieldInterface
                 ]) as $vo) {
                     yield new FormCheckbox($vo['title'], $field['name'], $vo['value'], in_array($vo['value'], $vals));
                 }
-            })());
+            })())->setHelp($field['tips'] ?? '');
             return $res;
         });
     }

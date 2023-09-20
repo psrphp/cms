@@ -37,6 +37,7 @@ class Create extends Common
                     (new Input('分组', 'group'))->setRequired()->setHelp('例如：基本信息'),
                     (new Input('标题', 'title')),
                     (new Input('字段名称', 'name'))->setHelp('字段名称只能由字母开头，字母、数字、下划线组成'),
+                    (new Input('提示信息', 'tips'))->setHelp('后台表单处的提示信息'),
                     (new Input('类型', 'type', $type::getTitle()))->setDisabled(),
                     (new Radios('是否允许后台列表显示'))->addRadio(
                         new Radio('不允许', 'show', 0, true),
@@ -77,6 +78,7 @@ class Create extends Common
             'name' => $name,
             'group' => $request->post('group'),
             'title' => $request->post('title'),
+            'tips' => $request->post('tips'),
             'show' => $request->post('show', 0),
             'tpl' => strlen($request->post('tpl', '')) ? $request->post('tpl', '') : null,
         ];

@@ -47,6 +47,7 @@ CREATE TABLE `prefix_psrphp_cms_field` (
     `type` varchar(255) NOT NULL COMMENT '类型',
     `show` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '是否允许后台列表显示',
     `tpl` text COMMENT '后台列表显示模板',
+    `tips` text COMMENT '后台提示信息',
     `priority` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '排序',
     `extra` text COMMENT '其他数据',
     PRIMARY KEY (`id`) USING BTREE

@@ -45,7 +45,7 @@ class Textarea implements FieldInterface
     public static function getCreateContentForm(array $field, array $content): array
     {
         $res = [];
-        $res[] = new FieldTextarea($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '');
+        $res[] = (new FieldTextarea($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? ''))->setHelp($field['tips'] ?? '');
         return $res;
     }
     public static function getCreateContentData(array $field, array &$content)
@@ -60,7 +60,7 @@ class Textarea implements FieldInterface
     public static function getUpdateContentForm(array $field, array $content): array
     {
         $res = [];
-        $res[] = new FieldTextarea($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '');
+        $res[] = (new FieldTextarea($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? ''))->setHelp($field['tips'] ?? '');
         return $res;
     }
 

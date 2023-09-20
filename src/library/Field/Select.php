@@ -73,7 +73,7 @@ class Select implements FieldInterface
             Db $db,
         ) use ($field, $content) {
             $res = [];
-            $res[] = new SelectLevel($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', (function () use ($db, $field): array {
+            $res[] = (new SelectLevel($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', (function () use ($db, $field): array {
                 return $db->select('psrphp_cms_data', '*', [
                     'dict_id' => $field['dict_id'],
                     'ORDER' => [
@@ -81,7 +81,7 @@ class Select implements FieldInterface
                         'id' => 'ASC',
                     ],
                 ]);
-            })());
+            })()))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }
@@ -101,7 +101,7 @@ class Select implements FieldInterface
             Db $db
         ) use ($field, $content): array {
             $res = [];
-            $res[] = new SelectLevel($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', (function () use ($db, $field): array {
+            $res[] = (new SelectLevel($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', (function () use ($db, $field): array {
                 return $db->select('psrphp_cms_data', '*', [
                     'dict_id' => $field['dict_id'],
                     'ORDER' => [
@@ -109,7 +109,7 @@ class Select implements FieldInterface
                         'id' => 'ASC',
                     ],
                 ]);
-            })());
+            })()))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }

@@ -45,7 +45,7 @@ class Code implements FieldInterface
     public static function getCreateContentForm(array $field, array $content): array
     {
         $res = [];
-        $res[] = new FieldCode($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '');
+        $res[] = (new FieldCode($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? ''))->setHelp($field['tips'] ?? '');
         return $res;
     }
 
@@ -61,7 +61,7 @@ class Code implements FieldInterface
     public static function getUpdateContentForm(array $field, array $content): array
     {
         $res = [];
-        $res[] = new FieldCode($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '');
+        $res[] = (new FieldCode($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? ''))->setHelp($field['tips'] ?? '');
         return $res;
     }
 

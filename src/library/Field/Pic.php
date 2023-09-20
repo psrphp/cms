@@ -49,7 +49,7 @@ class Pic implements FieldInterface
             Router $router
         ) use ($field, $content): array {
             $res = [];
-            $res[] = new Cover($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload'));
+            $res[] = (new Cover($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload')))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }
@@ -69,7 +69,7 @@ class Pic implements FieldInterface
             Router $router
         ) use ($field, $content): array {
             $res = [];
-            $res[] = new Cover($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload'));
+            $res[] = (new Cover($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload')))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }

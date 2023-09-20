@@ -49,7 +49,7 @@ class Markdown implements FieldInterface
             Router $router
         ) use ($field, $content): array {
             $res = [];
-            $res[] = new SimpleMDE($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload'));
+            $res[] = (new SimpleMDE($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload')))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }
@@ -69,7 +69,7 @@ class Markdown implements FieldInterface
             Router $router
         ) use ($field, $content): array {
             $res = [];
-            $res[] = new SimpleMDE($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload'));
+            $res[] = (new SimpleMDE($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', $router->build('/psrphp/admin/tool/upload')))->setHelp($field['tips'] ?? '');
             return $res;
         });
     }

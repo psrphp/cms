@@ -76,7 +76,7 @@ class Number implements FieldInterface
     public static function getCreateContentForm(array $field, array $content): array
     {
         $res = [];
-        $tmp = new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'number');
+        $tmp = (new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'number'))->setHelp($field['tips'] ?? '');
         if (isset($field['min']) && is_numeric($field['min'])) {
             $tmp->setMin($field['min']);
         }
@@ -102,7 +102,7 @@ class Number implements FieldInterface
     public static function getUpdateContentForm(array $field, array $content): array
     {
         $res = [];
-        $tmp = new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'number');
+        $tmp = (new Input($field['title'], $field['name'], $content[$field['name']] ?? $field['default'] ?? '', 'number'))->setHelp($field['tips'] ?? '');
         if (isset($field['min']) && is_numeric($field['min'])) {
             $tmp->setMin($field['min']);
         }

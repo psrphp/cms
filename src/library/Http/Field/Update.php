@@ -35,6 +35,7 @@ class Update extends Common
                     (new Input('分组', 'group', $field['group']))->setRequired()->setHelp('例如：基本信息'),
                     (new Input('标题', 'title', $field['title']))->setHelp('例如：客户电话'),
                     (new Input('字段', 'name', $field['name']))->setDisabled(),
+                    (new Input('提示信息', 'tips', $field['tips']))->setHelp('后台表单处的提示信息'),
                     (new Input('类型', 'type', $field['type']::getTitle()))->setDisabled(),
                     (new Radios('是否允许后台列表显示'))->addRadio(
                         new Radio('不允许', 'show', 0, $field['show'] == 0),
@@ -59,6 +60,7 @@ class Update extends Common
         $update = [
             'group' => $request->post('group'),
             'title' => $request->post('title'),
+            'tips' => $request->post('tips'),
             'show' => $request->post('show', 0),
             'tpl' => strlen($request->post('tpl', '')) ? $request->post('tpl', '') : null,
         ];

@@ -48,7 +48,7 @@ class Boolean implements FieldInterface
         $res[] = (new Radios($field['title']))->addRadio(
             new Radio('否', $field['name'], 0, ($content[$field['name']] ?? $field['default'] ?? 0) == 0),
             new Radio('是', $field['name'], 1, ($content[$field['name']] ?? $field['default'] ?? 0) == 1),
-        );
+        )->setHelp($field['tips'] ?? '');
         return $res;
     }
 
@@ -67,7 +67,7 @@ class Boolean implements FieldInterface
         $res[] = (new Radios($field['title']))->addRadio(
             new Radio('否', $field['name'], 0, ($content[$field['name']] ?? $field['default'] ?? 0) == 0),
             new Radio('是', $field['name'], 1, ($content[$field['name']] ?? $field['default'] ?? 0) == 1),
-        );
+        )->setHelp($field['tips'] ?? '');
         return $res;
     }
 
