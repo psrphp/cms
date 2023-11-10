@@ -24,7 +24,6 @@ use App\Psrphp\Cms\Field\Updatetime;
 use App\Psrphp\Cms\Field\Virtual;
 use App\Psrphp\Cms\Field\WYSIWYG;
 use App\Psrphp\Cms\Http\Content\Index;
-use App\Psrphp\Cms\Http\Dict\Index as DictIndex;
 use App\Psrphp\Cms\Http\Model\Index as ModelIndex;
 use App\Psrphp\Cms\Model\FieldProvider;
 use App\Psrphp\Cms\Model\ModelCreaterProvider;
@@ -42,7 +41,6 @@ class ListenerProvider implements ListenerProviderInterface
                 ) {
                     $provider->add('内容管理', Index::class);
                     $provider->add('模型管理', ModelIndex::class);
-                    $provider->add('数据字典', DictIndex::class);
                 }, [
                     MenuProvider::class => $event,
                 ]);

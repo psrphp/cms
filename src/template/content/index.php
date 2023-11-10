@@ -20,7 +20,7 @@
 </div>
 
 {if isset($model)}
-<form action="{echo $router->build('/psrphp/cms/content/index')}" id="form_3">
+<form action="{echo $router->build('/psrphp/cms/content/index')}" onchange="this.submit()">
     <input type="hidden" name="model_id" value="{$model.id}">
     <div style="display: flex;flex-direction: row;flex-wrap: wrap;gap: 10px;">
         {foreach $fields as $field}
@@ -69,19 +69,6 @@
         </fieldset>
     </div>
 </form>
-<script>
-    (function() {
-        var inputs = document.querySelectorAll("#form_3 input");
-        for (const key in inputs) {
-            if (Object.hasOwnProperty.call(inputs, key)) {
-                const ele = inputs[key];
-                ele.addEventListener('change', () => {
-                    event.target.form.submit();
-                })
-            }
-        }
-    })()
-</script>
 
 <div style="margin-top: 15px;">
     <a href="{echo $router->build('/psrphp/cms/content/create', ['model_id'=>$model['id']])}">添加内容</a>

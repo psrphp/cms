@@ -82,14 +82,14 @@ class WYSIWYG implements FieldInterface
         });
     }
 
-    public static function buildFilterSql(array $field, $value): array
-    {
-        return [];
-    }
-
     public static function getFilterForm(array $field, $value = null): string
     {
         return '';
+    }
+
+    public static function buildFilterSql(array $field, $value): array
+    {
+        return [];
     }
 
     public static function parseToHtml(array $field, array $content): ?string

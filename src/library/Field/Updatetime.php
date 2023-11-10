@@ -60,6 +60,27 @@ class Updatetime implements FieldInterface
         $content[$field['name']] =  date('Y-m-d H:i:s');
     }
 
+    public static function getFilterForm(array $field, $value = null): string
+    {
+        return Framework::execute(function (
+            Template $template
+        ) use ($field) {
+            $tpl = <<<'str'
+<div style="display: flex;flex-direction: column;gap: 5px;">
+    <div>
+        <input type="datetime-local" name="filter[{$field['name']}][min]" value="{$request->get('filter.'.$field['name'].'.min')}">
+    </div>
+    <div>
+        <input type="datetime-local" name="filter[{$field['name']}][max]" value="{$request->get('filter.'.$field['name'].'.max')}">
+    </div>
+</div>
+str;
+            return $template->renderFromString($tpl, [
+                'field' => $field
+            ]);
+        });
+    }
+    
     public static function buildFilterSql(array $field, $value): array
     {
         if (!is_array($value)) {
@@ -97,27 +118,6 @@ class Updatetime implements FieldInterface
             ];
         }
         return [];
-    }
-
-    public static function getFilterForm(array $field, $value = null): string
-    {
-        return Framework::execute(function (
-            Template $template
-        ) use ($field) {
-            $tpl = <<<'str'
-<div style="display: flex;flex-direction: column;gap: 5px;">
-    <div>
-        <input type="datetime-local" name="filter[{$field['name']}][min]" value="{$request->get('filter.'.$field['name'].'.min')}">
-    </div>
-    <div>
-        <input type="datetime-local" name="filter[{$field['name']}][max]" value="{$request->get('filter.'.$field['name'].'.max')}">
-    </div>
-</div>
-str;
-            return $template->renderFromString($tpl, [
-                'field' => $field
-            ]);
-        });
     }
 
     public static function parseToHtml(array $field, array $content): ?string
